@@ -1,0 +1,63 @@
+@import "tailwindcss";
+
+:root {
+  --background: rgb(255, 255, 255);
+  --foreground: rgb(15, 20, 25);
+  --foreground-alt: rgb(255, 255, 255);
+  --button: rgb(15, 20, 25);
+  --button-hover: rgb(39, 44, 48);
+  --hover-duration: 0.2s;
+  --nav-hover: rgb(39, 44, 48);
+  /* subject to change */
+  --default-shadow: rgba(217, 217, 217, 0.2) 0px 0px 5px, rgba(217, 217, 217, 0.25) 0px 1px 4px 1px;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-foreground-alt: var(--foreground-alt);
+  --color-blue: rgb(29, 155, 240);
+  --color-blue-overlay: rgba(91, 112, 131, 0.4);
+  --color-green: rgb(0, 186, 124);
+  /* --color-muted: rgb(83, 100, 113);  no clue what's this for*/
+  --color-muted: rgb(113, 118, 123);
+  --color-button: var(--button);
+  --shadow-default: var(--default-shadow);
+
+  --color-border: var(--border-color);
+
+  /* since my naming is dogshit we stick to the 
+  * nav-hover and no questions asked ok? */
+  --color-nav-hover: var(--nav-hover);
+  /* oh and this is not good too */
+  --color-button-hover: var(--button-hover);
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+  --breakpoint-xs: 31rem;
+}
+
+html.dark {
+  --background: rgb(0, 0, 0);
+  --foreground: rgb(231, 233, 234);
+  --foreground-alt: rgb(15, 20, 25);
+  --border-color: rgb(47, 51, 54);
+  --button: rgb(239, 243, 244);
+  --button-hover: rgb(215, 219, 220);
+  --nav-hover: rgba(231, 233, 234, 0.1);
+  --default-shadow: rgba(217, 217, 217, 0.2) 0px 0px 5px, rgba(217, 217, 217, 0.25) 0px 1px 4px 1px;
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: Arial, Helvetica, sans-serif;
+  box-sizing: border-box;
+  line-height: 1.25rem;
+}
+
+button {
+
+  &:hover {
+    cursor: pointer;
+  }
+}

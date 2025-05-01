@@ -7,13 +7,14 @@ import { createPortal } from "react-dom";
 import { AnimatePresence, useReducedMotion } from "motion/react";
 import { motion } from "motion/react";
 import { useClickOutside } from "@/app/utils/clickOutside";
-import { useCloseOnBreakpoint } from "@/app/utils/modalClose";
 import { FiUser } from "react-icons/fi";
 import { IconContext } from "react-icons";
 import Link from "next/link";
 import { CiBookmark } from "react-icons/ci";
 import { IoMdSettings } from "react-icons/io";
 import { MdLogout } from "react-icons/md";
+import BlueOverlay from "@/app/components/BlueOverlay";
+import { useCloseOnInteraction } from "@/app/utils/modalClose";
 
 export default function MobileAvatar() {
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
@@ -33,19 +34,10 @@ export default function MobileAvatar() {
     if (isModalOpen) clickOutside();
   });
 
-  useCloseOnBreakpoint(isModalOpen, () => setIsModalOpen(false), 499);
-
-  const modalVariants = shouldReduceMotion
-    ? {
-      initial: { opacity: 1 },
-      animate: { opacity: 1 },
-      exit: { opacity: 1 },
-    }
-    : {
-      initial: { opacity: 0 },
-      animate: { opacity: 1 },
-      exit: { opacity: 0 },
-    };
+  useCloseOnInteraction(isModalOpen, () => setIsModalOpen(false), {
+    breakpoint: 499,
+    moreThan: true,
+  });
 
   const slideVariants = shouldReduceMotion
     ? {
@@ -62,9 +54,6 @@ export default function MobileAvatar() {
   const slideTransition = shouldReduceMotion
     ? { duration: 0.3 }
     : { duration: 0.3, type: "tween", ease: "easeOut" };
-  const modalTransition = shouldReduceMotion
-    ? { duration: 0 }
-    : { duration: 0.3 };
 
   return (
     <>
@@ -75,14 +64,7 @@ export default function MobileAvatar() {
         createPortal(
           <AnimatePresence>
             {isModalOpen && (
-              <motion.section
-                className="flex fixed bg-blue-overlay inset-0 z-10"
-                variants={modalVariants}
-                initial="initial"
-                animate="animate"
-                exit="exit"
-                transition={modalTransition}
-              >
+              <BlueOverlay>
                 <motion.nav
                   className="flex flex-col w-72 p-3 bg-background shadow-default"
                   variants={slideVariants}
@@ -146,7 +128,7 @@ export default function MobileAvatar() {
                     </div>
                   </IconContext.Provider>
                 </motion.nav>
-              </motion.section>
+              </BlueOverlay>
             )}
           </AnimatePresence>,
           document.body,

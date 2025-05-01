@@ -1,26 +1,62 @@
 import { useEffect } from "react";
 
-export function useCloseOnBreakpoint(
+export function useCloseOnInteraction(
   isOpen: boolean,
   closeFn: () => void,
-  breakpoint: number
+  options: {
+    breakpoint?: number;
+    moreThan?: boolean;
+    closeOnScroll?: boolean;
+    scrollThreshold?: number;
+  },
 ) {
+  const {
+    breakpoint,
+    moreThan = false,
+    closeOnScroll = false,
+    scrollThreshold = 1,
+  } = options;
+
   useEffect(() => {
-    let timeoutId: ReturnType<typeof setTimeout>;
+    let resizeTimeout: ReturnType<typeof setTimeout>;
 
     const handleResize = () => {
-      clearTimeout(timeoutId);
-      timeoutId = setTimeout(() => {
-        if (window.innerWidth > breakpoint && isOpen) {
+      clearTimeout(resizeTimeout);
+      resizeTimeout = setTimeout(() => {
+        if (
+          isOpen &&
+          typeof breakpoint === "number" &&
+          ((moreThan && window.innerWidth > breakpoint) ||
+            (!moreThan && window.innerWidth < breakpoint))
+        ) {
           closeFn();
         }
       }, 100);
     };
 
-    if (isOpen) window.addEventListener("resize", handleResize);
-    return () => {
-      clearTimeout(timeoutId);
-      window.removeEventListener("resize", handleResize);
+    const handleScroll = () => {
+      if (isOpen && closeOnScroll && window.scrollY >= scrollThreshold) {
+        closeFn();
+      }
     };
-  }, [isOpen, closeFn, breakpoint]);
+
+    if (isOpen) {
+      if (typeof breakpoint === "number") {
+        window.addEventListener("resize", handleResize);
+      }
+      if (closeOnScroll) {
+        window.addEventListener("scroll", handleScroll, { passive: true });
+      }
+    }
+
+    return () => {
+      clearTimeout(resizeTimeout);
+      if (typeof breakpoint === "number") {
+        window.removeEventListener("resize", handleResize);
+      }
+      if (closeOnScroll) {
+        window.removeEventListener("scroll", handleScroll);
+      }
+    };
+  }, [isOpen, closeFn, breakpoint, moreThan, closeOnScroll, scrollThreshold]);
 }

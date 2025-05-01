@@ -9,7 +9,9 @@
   --hover-duration: 0.2s;
   --nav-hover: rgb(39, 44, 48);
   /* subject to change */
-  --default-shadow: rgba(217, 217, 217, 0.2) 0px 0px 5px, rgba(217, 217, 217, 0.25) 0px 1px 4px 1px;
+  --default-shadow:
+    rgba(217, 217, 217, 0.2) 0px 0px 5px,
+    rgba(217, 217, 217, 0.25) 0px 1px 4px 1px;
 }
 
 @theme inline {
@@ -17,8 +19,10 @@
   --color-foreground: var(--foreground);
   --color-foreground-alt: var(--foreground-alt);
   --color-blue: rgb(29, 155, 240);
+  --color-blue-hover: rgba(29, 155, 240, 0.1);
   --color-blue-overlay: rgba(91, 112, 131, 0.4);
   --color-green: rgb(0, 186, 124);
+  --color-green-hover: rgba(0, 186, 124, 0.1);
   /* --color-muted: rgb(83, 100, 113);  no clue what's this for*/
   --color-muted: rgb(113, 118, 123);
   --color-button: var(--button);
@@ -44,7 +48,9 @@ html.dark {
   --button: rgb(239, 243, 244);
   --button-hover: rgb(215, 219, 220);
   --nav-hover: rgba(231, 233, 234, 0.1);
-  --default-shadow: rgba(217, 217, 217, 0.2) 0px 0px 5px, rgba(217, 217, 217, 0.25) 0px 1px 4px 1px;
+  --default-shadow:
+    rgba(217, 217, 217, 0.2) 0px 0px 5px,
+    rgba(217, 217, 217, 0.25) 0px 1px 4px 1px;
 }
 
 body {
@@ -56,7 +62,6 @@ body {
 }
 
 button {
-
   &:hover {
     cursor: pointer;
   }

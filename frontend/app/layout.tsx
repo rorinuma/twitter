@@ -1,4 +1,4 @@
-"use client"
+"use client";
 
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
@@ -20,23 +20,21 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-
   useEffect(() => {
     document.documentElement.classList.toggle(
       "dark",
       localStorage.theme === "dark" ||
-      (!("theme" in localStorage) && window.matchMedia("(prefers-color-scheme: dark)").matches),
+      (!("theme" in localStorage) &&
+        window.matchMedia("(prefers-color-scheme: dark)").matches),
     );
-  }, [])
+  }, []);
 
   return (
     <html lang="en">
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased min-h-dvh relative flex justify-center`}
       >
-        <AuthProvider>
-          {children}
-        </AuthProvider>
+        <AuthProvider>{children}</AuthProvider>
       </body>
     </html>
   );

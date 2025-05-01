@@ -11,7 +11,7 @@ export default function MainHeaderItem({ item, path }: Props) {
   const pathname = usePathname();
 
   return (
-    <Link href={path} className="flex min-w-1/5 grow-1 shrink-1 items-center justify-center relative">
+    <Link href={path} className="flex min-w-1/5 grow-1 shrink-1 items-center justify-center relative hover:bg-nav-hover duration-(--hover-duration)">
       <span className={`${pathname === `/${path}` ? "text-inherit" : "text-muted"}`}>
         {item}
       </span>

@@ -22,7 +22,7 @@ export default function MainHeader({ items }: Props) {
         <MobileAvatar />
         <FaXTwitter className="size-7 absolute left-5/12 transform translate-x-1/2" />
       </div>
-      <div className="flex flex-1/2 xs:grow-1 xs:shrink-1 overflow-x-auto border-border border-b">
+      <div className="flex flex-1/2 xs:grow xs:shrink overflow-x-auto border-border border-b">
         {displayedItems}
       </div>
       {/* <div></div>  idk whether ill implement live or not*/}

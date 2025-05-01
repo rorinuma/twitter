@@ -1,6 +1,5 @@
 import Header from "./components/Header";
 import MobileHeader from "./components/MobileHeader";
-import Post from "./components/Post";
 import Sidebar from "./components/Sidebar";
 
 export default function AppLayout({
@@ -11,9 +10,9 @@ export default function AppLayout({
   modals: React.ReactNode;
 }) {
   return (
-    <div className="flex justify-items-center lg:flex-4/5 grow-1 shrink-1 lg:grow-0 lg:shrink-0 ">
+    <div className="flex justify-items-center lg:flex-4/5 grow shrink lg:grow-0 lg:shrink-0 ">
       <Header />
-      <div className="relative flex flex-col shrink-1 grow-1 lg:shrink-0 lg:grow-0 lg:flex-1/2 border-border border-x border-t min-h-20000">
+      <div className="relative flex flex-col shrink grow lg:shrink-0 lg:grow-0 lg:flex-1/2 border-border border-x border-t min-h-20000">
         {children}
         {modals}
         <MobileHeader />

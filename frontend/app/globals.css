@@ -65,4 +65,8 @@ button {
   &:hover {
     cursor: pointer;
   }
+
+  &:disabled {
+    cursor: default;
+  }
 }

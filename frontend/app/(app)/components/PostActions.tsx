@@ -10,6 +10,10 @@ import { IconContext } from "react-icons";
 import { CiImageOn } from "react-icons/ci";
 import { createPortal } from "react-dom";
 import ErrorOverlay from "@/app/components/ErrorOverlay";
+import { BsPersonCheckFill } from "react-icons/bs";
+import { MdOutlineVerified } from "react-icons/md";
+import { GoMention } from "react-icons/go";
+import { IoMdCheckmark } from "react-icons/io";
 
 interface Props {
   replyTo?: number;
@@ -62,11 +66,30 @@ export default function PostActions({
   ) => {
     const uploadedFiles = event.target.files;
     if (
-      (files && files.length >= 4) ||
-      (files && uploadedFiles && files.length + uploadedFiles.length >= 4)
+      (uploadedFiles && uploadedFiles?.length > 4) ||
+      (files && files.length > 4) ||
+      (files && uploadedFiles && files.length + uploadedFiles.length > 4)
     ) {
+      setError("Please choose up to 4 photos, videos, or GIFs");
+      return;
     }
+    setFiles(uploadedFiles);
   };
+
+  let permissionText: string = "Everyone can reply";
+  let permissionIcon: React.ReactNode = <FaGlobeAmericas />;
+  if (replyPermission.type === ReplyPermissionType.Followed) {
+    permissionText = "Accounts you follow can reply";
+    permissionIcon = <BsPersonCheckFill />;
+  }
+  if (replyPermission.type === ReplyPermissionType.Verified) {
+    permissionText = "Only Verified accounts can reply";
+    permissionIcon = <MdOutlineVerified />;
+  }
+  if (replyPermission.type === ReplyPermissionType.Mentioned) {
+    permissionText = "Only Accounts you mention can reply";
+    permissionIcon = <GoMention />;
+  }
 
   return (
     <>
@@ -79,23 +102,120 @@ export default function PostActions({
           <div className="relative mb-2 ml-2 ">
             <button
               type="button"
-              className="flex items-center gap-2 hover:bg-blue-hover py-0.5 px-2 rounded-full duration-(--hover-duration) w-fit font-bold text-sm"
+              className="relative flex items-center gap-2 hover:bg-blue-hover py-0.5 px-2 rounded-full duration-(--hover-duration) w-fit font-bold text-sm"
               onClick={() => setPermissionsModalVisible((prev) => !prev)}
             >
-              <div>
-                <FaGlobeAmericas />
-              </div>
-              <div>Everyone can reply</div>
+              <div>{permissionIcon}</div>
+              <div>{permissionText}</div>
             </button>
             {permissionsModalVisible && (
-              <div
-                ref={permissionsModalRef}
-                className="flex flex-col grow shrink absolute top-7 -left-16 shadow-default rounded-xl p-4 text-foreground z-40 bg-background max-w-80 "
-              >
-                <div>Who can reply?</div>
-                <div className="text-muted break-words">
-                  Choose who can reply to this post. Anyone mentioned can always
-                  reply
+              <div className="max-xs:fixed max-xs:inset-0 max-xs:bg-blue-overlay ">
+                <div
+                  ref={permissionsModalRef}
+                  className="flex flex-col grow shrink absolute top-7 left-0 shadow-default rounded-xl 
+                  text-foreground z-40 bg-background max-w-80 
+                  max-xs:fixed max-xs:bottom-0 max-xs:top-1/4 max-xs:max-w-full  "
+                >
+                  <div className="flex flex-col p-4">
+                    <div>Who can reply?</div>
+                    <div className="text-muted break-words">
+                      Choose who can reply to this post. Anyone mentioned can
+                      always reply
+                    </div>
+                  </div>
+                  <IconContext.Provider value={{ className: "size-4" }}>
+                    <div className="flex flex-col">
+                      <button
+                        type="button"
+                        className="flex justify-between items-center py-3 px-4 grow shrink hover:bg-nav-hover duration-(--hover-duration)"
+                        onClick={() => {
+                          setReplyPermission({
+                            type: ReplyPermissionType.Everyone,
+                          });
+                          setPermissionsModalVisible(false);
+                        }}
+                      >
+                        <div className="flex gap-3 items-center">
+                          <div className="text-foreground bg-blue p-3 rounded-full">
+                            <FaGlobeAmericas />
+                          </div>
+                          <div>Everyone</div>
+                        </div>
+                        {/* if it's checked there's a checkmark to the right */}
+                        {replyPermission.type ===
+                          ReplyPermissionType.Everyone && (
+                          <div className="text-blue">{<IoMdCheckmark />}</div>
+                        )}
+                      </button>
+                      <button
+                        type="button"
+                        className="flex justify-between items-center py-3 px-4 grow shrink hover:bg-nav-hover duration-(--hover-duration)"
+                        onClick={() => {
+                          setReplyPermission({
+                            type: ReplyPermissionType.Followed,
+                          });
+                          setPermissionsModalVisible(false);
+                        }}
+                      >
+                        <div className="flex gap-3 items-center">
+                          <div className="text-foreground bg-blue p-3 rounded-full">
+                            <BsPersonCheckFill />
+                          </div>
+                          <div>Accounts you follow</div>
+                        </div>
+                        {/* if it's checked there's a checkmark to the right */}
+                        {replyPermission.type ===
+                          ReplyPermissionType.Followed && (
+                          <div className="text-blue">{<IoMdCheckmark />}</div>
+                        )}
+                      </button>
+                      <button
+                        type="button"
+                        className="flex justify-between items-center py-3 px-4 grow shrink hover:bg-nav-hover duration-(--hover-duration)"
+                        onClick={() => {
+                          setReplyPermission({
+                            type: ReplyPermissionType.Verified,
+                          });
+                          setPermissionsModalVisible(false);
+                        }}
+                      >
+                        <div className="flex gap-3 items-center">
+                          <div className="text-foreground bg-blue p-3 rounded-full">
+                            <MdOutlineVerified />
+                          </div>
+                          <div>Verified accounts</div>
+                        </div>
+                        {/* if it's checked there's a checkmark to the right */}
+                        {replyPermission.type ===
+                          ReplyPermissionType.Verified && (
+                          <div className="text-blue">{<IoMdCheckmark />}</div>
+                        )}
+                      </button>
+                      <button
+                        type="button"
+                        className="flex justify-between items-center py-3 px-4 grow shrink hover:bg-nav-hover duration-(--hover-duration) mb-1 rounded-bl-xl rounded-br-xl"
+                        onClick={() => {
+                          setPermissionsModalVisible(false);
+                          setReplyPermission({
+                            type: ReplyPermissionType.Mentioned,
+                            mentions: [],
+                          });
+                        }}
+                      >
+                        <div className="flex gap-3 items-center">
+                          <div className="text-foreground bg-blue p-3 rounded-full">
+                            <GoMention />
+                          </div>
+                          <div>Only accounts you mention</div>
+                        </div>
+                        {/* if it's checked there's a checkmark to the right */}
+                        {replyPermission.type ===
+                          ReplyPermissionType.Mentioned && (
+                          <div className="text-blue">{<IoMdCheckmark />}</div>
+                        )}
+                      </button>
+                    </div>
+                  </IconContext.Provider>
                 </div>
               </div>
             )}
@@ -127,7 +247,7 @@ export default function PostActions({
               </IconContext.Provider>
             </div>
             <button
-              className="bg-foreground text-foreground-alt rounded-full py-2 px-4 disabled:opacity-50"
+              className="hidden xs:flex bg-foreground text-foreground-alt rounded-full py-2 px-4 disabled:opacity-50"
               disabled={isPostDisabled}
             >
               Post

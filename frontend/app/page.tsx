@@ -1,7 +1,3 @@
-
-export default function Home() {
-  return (
-    <div className="flex flex-">fdsofksdfpsdkfpdosakfdspofk</div>
-
-  );
+export default function LandingPage() {
+  return <div className="flex">fdsofksdfpsdkfpdosakfdspofk</div>;
 }

@@ -2,10 +2,9 @@
 
 import clsx from "clsx";
 import { FaGlobeAmericas } from "react-icons/fa";
-import { ReplyPermission, ReplyPermissionType } from "./Post";
 import { useRef, useState } from "react";
-import { useClickOutside } from "@/app/utils/clickOutside";
-import { useCloseOnInteraction } from "@/app/utils/modalClose";
+import { useClickOutside } from "@/app/hooks/clickOutside";
+import { useCloseOnInteraction } from "@/app/hooks/modalClose";
 import { IconContext } from "react-icons";
 import { CiImageOn } from "react-icons/ci";
 import { createPortal } from "react-dom";
@@ -14,6 +13,7 @@ import { BsPersonCheckFill } from "react-icons/bs";
 import { MdOutlineVerified } from "react-icons/md";
 import { GoMention } from "react-icons/go";
 import { IoMdCheckmark } from "react-icons/io";
+import { ReplyPermission, ReplyPermissionType } from "@/app/types/postTypes";
 
 interface Props {
   replyTo?: number;
@@ -71,6 +71,9 @@ export default function PostActions({
       (files && uploadedFiles && files.length + uploadedFiles.length > 4)
     ) {
       setError("Please choose up to 4 photos, videos, or GIFs");
+      setTimeout(() => {
+        setError("");
+      }, 3000);
       return;
     }
     setFiles(uploadedFiles);
@@ -102,7 +105,7 @@ export default function PostActions({
           <div className="relative mb-2 ml-2 ">
             <button
               type="button"
-              className="relative flex items-center gap-2 hover:bg-blue-hover py-0.5 px-2 rounded-full duration-(--hover-duration) w-fit font-bold text-sm"
+              className="relative flex items-center gap-2 hover:bg-blue-hover py-0.5 px-3 rounded-full duration-(--hover-duration) w-fit font-bold text-sm"
               onClick={() => setPermissionsModalVisible((prev) => !prev)}
             >
               <div>{permissionIcon}</div>

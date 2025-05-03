@@ -6,7 +6,7 @@ import avatarImage from "@/public/Type.jpg";
 import { createPortal } from "react-dom";
 import { AnimatePresence, useReducedMotion } from "motion/react";
 import { motion } from "motion/react";
-import { useClickOutside } from "@/app/utils/clickOutside";
+import { useClickOutside } from "@/app/hooks/clickOutside";
 import { FiUser } from "react-icons/fi";
 import { IconContext } from "react-icons";
 import Link from "next/link";
@@ -14,7 +14,7 @@ import { CiBookmark } from "react-icons/ci";
 import { IoMdSettings } from "react-icons/io";
 import { MdLogout } from "react-icons/md";
 import BlueOverlay from "@/app/components/BlueOverlay";
-import { useCloseOnInteraction } from "@/app/utils/modalClose";
+import { useCloseOnInteraction } from "@/app/hooks/modalClose";
 
 export default function MobileAvatar() {
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);

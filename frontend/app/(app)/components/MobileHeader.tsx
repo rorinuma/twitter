@@ -3,7 +3,7 @@ import HeaderLink from "./HeaderLink";
 import { IoSearch, IoSearchOutline } from "react-icons/io5";
 import { MdMail, MdMailOutline } from "react-icons/md";
 import { IoIosNotifications, IoIosNotificationsOutline } from "react-icons/io";
-import { BsFeather } from "react-icons/bs";
+import MobileHeaderPost from "./MobileHeaderPost";
 
 export default function MobileHeader() {
   return (
@@ -33,9 +33,7 @@ export default function MobileHeader() {
         text="Messages"
         href="messages"
       />
-      <button className="absolute right-7 bottom-20 bg-blue hover:bg-button-hover duration-(--hover-duration) rounded-full text-foreground p-4 w-fit xl:w-full">
-        <BsFeather className="size-7" />
-      </button>
+      <MobileHeaderPost />
     </div>
   );
 }

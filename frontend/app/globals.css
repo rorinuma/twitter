@@ -24,6 +24,9 @@
   --color-green: rgb(0, 186, 124);
   --color-green-hover: rgba(0, 186, 124, 0.1);
   /* --color-muted: rgb(83, 100, 113);  no clue what's this for*/
+
+  --color-transparent-blurred: var(--transparent-blurred);
+  --color-transparent-blurred-hover: var(--transparent-blurred-hover);
   --color-muted: rgb(113, 118, 123);
   --color-button: var(--button);
   --shadow-default: var(--default-shadow);
@@ -40,10 +43,23 @@
   --breakpoint-xs: 31rem;
 }
 
+@layer utilities {
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+
+  .no-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+}
+
 html.dark {
   --background: rgb(0, 0, 0);
   --foreground: rgb(231, 233, 234);
   --foreground-alt: rgb(15, 20, 25);
+  --transparent-blurred: rgba(15, 20, 25, 0.75);
+  --transparent-blurred-hover: rgba(39, 44, 48, 0.75);
   --border-color: rgb(47, 51, 54);
   --button: rgb(239, 243, 244);
   --button-hover: rgb(215, 219, 220);

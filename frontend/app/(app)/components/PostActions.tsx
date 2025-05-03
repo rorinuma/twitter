@@ -21,8 +21,8 @@ interface Props {
   isPostDisabled: boolean;
   replyPermission: ReplyPermission;
   setReplyPermission: React.Dispatch<React.SetStateAction<ReplyPermission>>;
-  files: FileList | null;
-  setFiles: React.Dispatch<React.SetStateAction<FileList | null>>;
+  files: File[] | null;
+  setFiles: React.Dispatch<React.SetStateAction<File[] | null>>;
 }
 
 export default function PostActions({
@@ -76,7 +76,11 @@ export default function PostActions({
       }, 3000);
       return;
     }
-    setFiles(uploadedFiles);
+    setFiles((prev) => {
+      const newFiles = Array.from(uploadedFiles || []);
+      if (!prev) return newFiles;
+      return [...prev, ...newFiles];
+    });
   };
 
   let permissionText: string = "Everyone can reply";

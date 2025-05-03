@@ -11,6 +11,7 @@ import IconButton from "@/app/components/IconButton";
 import { useSafeBack } from "@/app/hooks/goSafeBack";
 import { ReplyPermission, ReplyPermissionType } from "@/app/types/postTypes";
 import SmallButton from "@/app/components/SmallButton";
+import PostImage from "./PostImage";
 
 interface Props {
   replyTo?: number;
@@ -47,6 +48,12 @@ export default function Post({ replyTo, modal, ref }: Props) {
     event.preventDefault();
   };
 
+  const fileArray = files ? Array.from(files) : [];
+
+  const filePreviews = fileArray.map((file, index) => (
+    <PostImage image={file} key={index} />
+  ));
+
   return (
     <form
       className={clsx(`flex-col bg-black`, {
@@ -73,15 +80,20 @@ export default function Post({ replyTo, modal, ref }: Props) {
       <div className="flex flex-col shrink grow justify-between">
         <div className="flex gap-2 m-3">
           <Avatar image={avatarImage} />
-          <div className="flex flex-col mt-3 grow shrink">
-            <TextareaAutosize
-              placeholder={placeholder}
-              className="flex outline-none min-h-8 resize-none"
-              value={text}
-              onChange={(e) => setText(e.target.value)}
-              maxLength={500}
-              maxRows={15}
-            />
+          <div className="flex flex-col mt-3 max-h-[40rem] grow shrink overflow-y-auto gap-2">
+            <div className="flex overflow-y-auto">
+              <TextareaAutosize
+                placeholder={placeholder}
+                className="w-full outline-none min-h-8 resize-none"
+                value={text}
+                onChange={(e) => setText(e.target.value)}
+                maxRows={15}
+              />
+            </div>
+
+            {filePreviews.length > 0 && (
+              <div className="overflow-y-auto flex gap-3">{filePreviews}</div>
+            )}
           </div>
         </div>
 

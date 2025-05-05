@@ -23,3 +23,12 @@ func CreateTweet(w http.ResponseWriter, r *http.Request) {
 	}
 	json.NewEncoder(w).Encode(tweet)
 }
+
+func GetTweets(w http.ResponseWriter, r *http.Request) {
+  tweets, err := repositories.GetTweets(r.Context())		
+	if err != nil {
+		http.Error(w, "Failed to get tweets", http.StatusInternalServerError)
+		return
+	}
+	json.NewEncoder(w).Encode(tweets)
+}

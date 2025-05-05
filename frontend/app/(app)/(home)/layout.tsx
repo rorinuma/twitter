@@ -1,5 +1,11 @@
+import { Metadata } from "next";
 import MainHeader from "../components/MainHeader";
 import Post from "../components/Post";
+
+export const metadata: Metadata = {
+  title: "X",
+  description: "X timeline",
+};
 
 export default function HomeLayout({
   children,

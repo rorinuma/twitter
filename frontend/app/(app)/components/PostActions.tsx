@@ -151,8 +151,8 @@ export default function PostActions({
                         {/* if it's checked there's a checkmark to the right */}
                         {replyPermission.type ===
                           ReplyPermissionType.Everyone && (
-                          <div className="text-blue">{<IoMdCheckmark />}</div>
-                        )}
+                            <div className="text-blue">{<IoMdCheckmark />}</div>
+                          )}
                       </button>
                       <button
                         type="button"
@@ -173,8 +173,8 @@ export default function PostActions({
                         {/* if it's checked there's a checkmark to the right */}
                         {replyPermission.type ===
                           ReplyPermissionType.Followed && (
-                          <div className="text-blue">{<IoMdCheckmark />}</div>
-                        )}
+                            <div className="text-blue">{<IoMdCheckmark />}</div>
+                          )}
                       </button>
                       <button
                         type="button"
@@ -189,14 +189,13 @@ export default function PostActions({
                         <div className="flex gap-3 items-center">
                           <div className="text-foreground bg-blue p-3 rounded-full">
                             <MdOutlineVerified />
-                          </div>
+                          </div>{" "}
                           <div>Verified accounts</div>
                         </div>
-                        {/* if it's checked there's a checkmark to the right */}
                         {replyPermission.type ===
                           ReplyPermissionType.Verified && (
-                          <div className="text-blue">{<IoMdCheckmark />}</div>
-                        )}
+                            <div className="text-blue">{<IoMdCheckmark />}</div>
+                          )}
                       </button>
                       <button
                         type="button"
@@ -218,8 +217,8 @@ export default function PostActions({
                         {/* if it's checked there's a checkmark to the right */}
                         {replyPermission.type ===
                           ReplyPermissionType.Mentioned && (
-                          <div className="text-blue">{<IoMdCheckmark />}</div>
-                        )}
+                            <div className="text-blue">{<IoMdCheckmark />}</div>
+                          )}
                       </button>
                     </div>
                   </IconContext.Provider>
@@ -248,6 +247,7 @@ export default function PostActions({
                   alt="file-upload"
                   multiple
                   className="hidden"
+                  accept="image/*,video/*"
                   ref={imageUploadRef}
                   onChange={handleFileUploadChange}
                 />

@@ -1,13 +1,17 @@
 package models
 
-import "time"
+
+import ( 
+	"time"
+	"github.com/google/uuid"
+)
 
 type Tweet struct {
-	ID string `json:"id"`
+	ID uuid.UUID `json:"id"`
 	UserId string `json:"userId"`
 	Content *string `json:"content,omitempty"`
-	InReplyToTweetID *string `json:"inReplyToTweetId,omitempty"`
-	OriginalTweetID *string `json:"originalTweetId,omitempty"`
+	InReplyToTweetID *uuid.UUID `json:"inReplyToTweetId,omitempty"`
+	OriginalTweetID *uuid.UUID `json:"originalTweetId,omitempty"`
 	MediaURLs *[]string `json:"mediaURLs,omitempty"`
 	RepliesCount int `json:"repliesCount"`
 	LikesCount int `json:"likesCount"`
@@ -21,7 +25,7 @@ type Tweet struct {
 type CreateTweetInput struct {
 	UserID string `json:"userId"`
 	Content *string `json:"content"`
-	InReplyToTweetID *string `json:"inReplyToTweetId,omitempty"`
-	OriginalTweetID *string `json:"originalTweetId,omitempty"`
+	InReplyToTweetID *uuid.UUID `json:"inReplyToTweetId,omitempty"`
+	OriginalTweetID *uuid.UUID `json:"originalTweetId,omitempty"`
 	MediaURLs *[]string `json:"mediaURLs"`
 }

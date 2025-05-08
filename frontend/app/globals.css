@@ -23,7 +23,6 @@
   --color-blue-overlay: rgba(91, 112, 131, 0.4);
   --color-green: rgb(0, 186, 124);
   --color-green-hover: rgba(0, 186, 124, 0.1);
-  /* --color-muted: rgb(83, 100, 113);  no clue what's this for*/
 
   --color-transparent-blurred: var(--transparent-blurred);
   --color-transparent-blurred-hover: var(--transparent-blurred-hover);
@@ -32,9 +31,9 @@
   --shadow-default: var(--default-shadow);
 
   --color-border: var(--border-color);
-
+  --color-border-muted: var(--border-muted);
   /* since my naming is dogshit we stick to the 
-  * nav-hover and no questions asked ok? */
+  *  nav-hover and no questions asked ok? */
   --color-nav-hover: var(--nav-hover);
   /* oh and this is not good too */
   --color-button-hover: var(--button-hover);
@@ -60,8 +59,9 @@ html.dark {
   --foreground-alt: rgb(15, 20, 25);
   --transparent-blurred: rgba(15, 20, 25, 0.75);
   --transparent-blurred-hover: rgba(39, 44, 48, 0.75);
-  --border-color: rgb(47, 51, 54);
   --button: rgb(239, 243, 244);
+  --border-color: rgb(47, 51, 54);
+  --border-muted: rgb(83, 100, 113);
   --button-hover: rgb(215, 219, 220);
   --nav-hover: rgba(231, 233, 234, 0.1);
   --default-shadow:

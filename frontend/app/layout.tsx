@@ -24,8 +24,8 @@ export default function RootLayout({
     document.documentElement.classList.toggle(
       "dark",
       localStorage.theme === "dark" ||
-      (!("theme" in localStorage) &&
-        window.matchMedia("(prefers-color-scheme: dark)").matches),
+        (!("theme" in localStorage) &&
+          window.matchMedia("(prefers-color-scheme: dark)").matches),
     );
   }, []);
 
@@ -36,6 +36,7 @@ export default function RootLayout({
       >
         <AuthProvider>{children}</AuthProvider>
       </body>
+      <script src="https://accounts.google.com/gsi/client" async defer></script>
     </html>
   );
 }

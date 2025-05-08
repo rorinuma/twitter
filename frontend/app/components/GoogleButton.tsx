@@ -2,20 +2,6 @@
 
 import { useEffect } from "react";
 
-declare global {
-  interface Window {
-    google: {
-      accounts: {
-        id: {
-          initialize: (config: any) => void;
-          renderButton: (parent: HTMLElement, options: any) => void;
-          prompt: () => void;
-        };
-      };
-    };
-  }
-}
-
 export default function GoogleButton() {
   useEffect(() => {
     if (window.google) {

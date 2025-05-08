@@ -66,7 +66,7 @@ export default function Header() {
             <div className="text-muted">@atUsername</div>
           </div>
         </div>
-        <IoIosMore className="xl:block hidden size-7" />
+        <IoIosMore className="xl:block hidden size-4" />
       </button>
     </header>
   );

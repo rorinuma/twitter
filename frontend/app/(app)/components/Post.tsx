@@ -13,6 +13,7 @@ import { ReplyPermission, ReplyPermissionType } from "@/app/types/postTypes";
 import SmallButton from "@/app/components/SmallButton";
 import PostImage from "./PostImage";
 import { FaArrowRight, FaArrowLeft } from "react-icons/fa6";
+import { motion, useReducedMotion } from "motion/react";
 
 interface Props {
   replyTo?: number;
@@ -30,6 +31,8 @@ export default function Post({ replyTo, modal, ref }: Props) {
   const containerRef = useRef<HTMLDivElement>(null);
   const [canScrollLeft, setCanScrollLeft] = useState(false);
   const [canScrollRight, setCanScrollRight] = useState(false);
+
+  const shouldReduceMotion = useReducedMotion();
 
   const isDisabled = useMemo(() => {
     return text.trim().length === 0 && !files?.length;
@@ -120,8 +123,21 @@ export default function Post({ replyTo, modal, ref }: Props) {
     formData.append("replyPermission", replyPermission.type);
   };
 
+  const variants =
+    shouldReduceMotion || !modal
+      ? {
+          initial: { opacity: 1 },
+          animate: { opacity: 1 },
+        }
+      : {
+          initial: { opacity: 0 },
+          animate: { opacity: 1 },
+        };
+  const transition =
+    shouldReduceMotion || !modal ? { duration: 0 } : { duration: 0.3 };
+
   return (
-    <form
+    <motion.form
       className={clsx(`flex-col bg-black`, {
         "hidden xs:flex border-b border-b-border z-0": !modal,
         "flex rounded-2xl z-30 w-full max-w-[600px] min-h-[269px] grow shrink fixed top-0 xs:top-1/12":
@@ -129,6 +145,10 @@ export default function Post({ replyTo, modal, ref }: Props) {
       })}
       ref={ref}
       onSubmit={handleSubmit}
+      variants={variants}
+      initial="initial"
+      animate="animate"
+      transition={transition}
     >
       {modal && (
         <div className="flex justify-between h-[53px] bg-background rounded-2xl p-2">
@@ -199,6 +219,6 @@ export default function Post({ replyTo, modal, ref }: Props) {
           setFiles={setFiles}
         />
       </div>
-    </form>
+    </motion.form>
   );
 }

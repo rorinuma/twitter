@@ -41,15 +41,15 @@ export default function MobileAvatar() {
 
   const slideVariants = shouldReduceMotion
     ? {
-      initial: { x: 0 },
-      animate: { x: 0 },
-      exit: { x: 0 },
-    }
+        initial: { x: 0 },
+        animate: { x: 0 },
+        exit: { x: 0 },
+      }
     : {
-      initial: { x: "-100%" },
-      animate: { x: 0 },
-      exit: { x: "-100%" },
-    };
+        initial: { x: "-100%" },
+        animate: { x: 0 },
+        exit: { x: "-100%" },
+      };
 
   const slideTransition = shouldReduceMotion
     ? { duration: 0.3 }
@@ -64,7 +64,7 @@ export default function MobileAvatar() {
         createPortal(
           <AnimatePresence>
             {isModalOpen && (
-              <BlueOverlay>
+              <BlueOverlay mobileNav={true} centered={false}>
                 <motion.nav
                   className="flex flex-col w-72 p-3 bg-background shadow-default"
                   variants={slideVariants}

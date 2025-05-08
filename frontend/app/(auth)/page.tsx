@@ -1,7 +1,7 @@
 import { FaXTwitter } from "react-icons/fa6";
-import GoogleButton from "./components/GoogleButton";
-import LineBreak from "./components/OrLineBreak";
-import HugeButton from "./components/HugeButton";
+import GoogleButton from "../components/GoogleButton";
+import LineBreak from "../components/LineBreak";
+import HugeButton from "../components/HugeButton";
 
 export default function LandingPage() {
   return (

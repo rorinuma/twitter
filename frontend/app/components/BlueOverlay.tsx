@@ -35,9 +35,9 @@ export default function BlueOverlay({
   return (
     <motion.section
       className={clsx(
-        "flex grow shrink fixed inset-0 z-20 bg-background xs:bg-blue-overlay",
+        "flex grow shrink fixed inset-0 z-20 bg-background xs:bg-blue-overlay justify-center",
         {
-          "justify-center": centered,
+          "items-center": centered,
           "bg-blue-overlay": mobileNav,
         },
       )}

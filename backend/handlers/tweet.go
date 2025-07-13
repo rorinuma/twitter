@@ -122,7 +122,15 @@ func CreateTweet(w http.ResponseWriter, r *http.Request) {
 }
 
 func GetTweets(w http.ResponseWriter, r *http.Request) {
-	tweets, err := repositories.GetTweets(r.Context())
+	id, ok := utils.GetUserIDFromContext(r.Context())
+
+	if !ok {
+		log.Println("User is unauthorized")
+		http.Error(w, "Unauthorized", http.StatusUnauthorized)
+		return
+	}
+
+	tweets, err := repositories.GetTweets(r.Context(), id)
 	if err != nil {
 		log.Printf("Failed to get tweets: %v", err)
 		http.Error(w, "Failed to get tweets", http.StatusInternalServerError)
@@ -138,7 +146,17 @@ func GetTweetByID(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	id := vars["id"]
 
-	tweet, err := repositories.GetTweetByID(r.Context(), id)
+	userID, ok := utils.GetUserIDFromContext(r.Context())
+
+
+	if !ok {
+		log.Println("User is unauthorized")
+		http.Error(w, "Unauthorized", http.StatusUnauthorized)
+		return
+	}
+
+
+	tweet, err := repositories.GetTweetByID(r.Context(), id, userID)
 	if err != nil {
 		log.Printf("Failed to get a tweet: %v", err)
 		http.Error(w, "Failed to get a tweet", http.StatusInternalServerError)
@@ -148,6 +166,37 @@ func GetTweetByID(w http.ResponseWriter, r *http.Request) {
 	response := models.StatusResponse{
 		Tweet:   tweet,
 		Message: "Status received successfully",
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+	if err := json.NewEncoder(w).Encode(response); err != nil {
+		log.Printf("Failed to encode response: %v", err)
+		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+	}
+}
+
+func LikeTweet(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	tweetID := vars["id"]
+	userID, ok := utils.GetUserIDFromContext(r.Context())
+
+	if !ok {
+		log.Println("User is unauthorized")
+		http.Error(w, "Unauthorized", http.StatusUnauthorized)
+		return
+	}
+
+	id, err := repositories.LikeTweet(r.Context(), tweetID, userID)
+	if err != nil {
+		log.Printf("Failed to like a tweet: %v", err)
+		http.Error(w, "Failed to like a tweet", http.StatusInternalServerError)
+		return
+	}
+
+	var response = map[string]string{
+		"message": "Tweet liked",
+		"tweetLiked": id.String(),
 	}
 
 	w.Header().Set("Content-Type", "application/json")

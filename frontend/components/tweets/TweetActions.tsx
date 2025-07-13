@@ -77,6 +77,7 @@ export default function TweetActions({
         const message =
           err.response?.data?.message ||
           err.response?.data?.error ||
+          err.response?.data ||
           "Failed to repost the tweet due to server error.";
         setError(message);
       } else {
@@ -85,6 +86,27 @@ export default function TweetActions({
       }
     } finally {
       setIsRetweetModalVisible(false);
+    }
+  };
+
+  const handleLikeClick = async (e: React.MouseEvent<HTMLButtonElement>) => {
+    e.stopPropagation();
+
+    try {
+      const { data } = await api.post(`/protected/tweets/like/${id}`, {});
+      setError(data.message);
+    } catch (err) {
+      if (axios.isAxiosError(err)) {
+        const message =
+          err.response?.data?.message ||
+          err.response?.data?.error ||
+          err.response?.data ||
+          "Failed to like the tweet due to server error.";
+        setError(message);
+      } else {
+        console.error("Non-Axios error when liking the tweet:", err);
+        setError("An unexpected error occurred while liking the tweet.");
+      }
     }
   };
 
@@ -207,7 +229,7 @@ export default function TweetActions({
                 "text-white": variant === "gallery",
               },
             )}
-            onClick={(e) => e.stopPropagation()}
+            onClick={handleLikeClick}
           >
             <div
               className={clsx(

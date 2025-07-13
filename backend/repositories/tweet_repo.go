@@ -7,6 +7,7 @@ import (
 
 	"github.com/goccy/go-json"
 	"github.com/google/uuid"
+	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgtype"
 	"github.com/rorinuma/twitter/db"
 	"github.com/rorinuma/twitter/models"
@@ -63,6 +64,7 @@ func CreateTweet(ctx context.Context, input models.CreateTweetInput) (*models.Tw
 	return &tweet, nil
 }
 
+
 func DeleteTweet(ctx context.Context, tweetID string, userID string) (*uuid.UUID, error) {
 	query := `
 		DELETE FROM tweets WHERE id = $1 AND user_id = $2 RETURNING id, in_reply_to_tweet_id, original_tweet_id
@@ -99,46 +101,78 @@ func DeleteTweet(ctx context.Context, tweetID string, userID string) (*uuid.UUID
 	return &deletedID, nil
 }
 
+func LikeTweet(ctx context.Context, tweetID string, userID string) (*uuid.UUID, error) {
+	_, err := db.Pool.Exec(ctx, `
+		UPDATE tweets 
+		SET likes_count = likes_count + 1
+		WHERE id = $1
+	`, tweetID)
+	if err != nil {
+		return nil, err
+	}
+
+	query := `
+  	INSERT INTO likes (tweet_id, user_id)
+  	VALUES ($1, $2)
+  	ON CONFLICT (tweet_id, user_id) DO NOTHING
+  	RETURNING id
+	`
+	var likedTweetID *uuid.UUID
+	err = db.Pool.QueryRow(ctx, query, tweetID, userID).Scan(&likedTweetID)
+
+	if err != nil && err != pgx.ErrNoRows {
+		return nil, err
+	}
+
+	return likedTweetID, nil
+}
+
 // i feel like... don't you?
 // UOGGHHHH THE QUOTES DON'T WORK EITHER, ALSO THERE ARE SINGLE TWEETS TOO FFS
-func GetTweets(ctx context.Context) ([]models.Tweet, error) {
+func GetTweets(ctx context.Context, userID string) ([]models.Tweet, error) {
 	query := `
 	SELECT 
-	-- Main tweet
-	t.id, t.user_id, t.content, t.in_reply_to_tweet_id, t.original_tweet_id, t.media_urls,
-	t.replies_count, t.likes_count, t.retweets_count, t.views_count, t.bookmarks_count,
-	t.created_at, t.updated_at,
-	u.id, u.username, u.email, u.display_name, u.avatar_url, u.banner_url, u.is_verified, 
-	u.created_at, u.updated_at,
-	ARRAY(SELECT u2.username FROM follows f JOIN users u2 ON u2.id = f.following_id WHERE f.follower_id = u.id) as following,
-	ARRAY(SELECT u2.username FROM follows f JOIN users u2 ON u2.id = f.follower_id WHERE f.following_id = u.id) as followers,
+		-- Main tweet
+		t.id, t.user_id, t.content, t.in_reply_to_tweet_id, t.original_tweet_id, t.media_urls,
+		t.replies_count, t.likes_count, t.retweets_count, t.views_count, t.bookmarks_count,
+		t.created_at, t.updated_at,
+		u.id, u.username, u.email, u.display_name, u.avatar_url, u.banner_url, u.is_verified, 
+		u.created_at, u.updated_at,
+		ARRAY(SELECT u2.username FROM follows f JOIN users u2 ON u2.id = f.following_id WHERE f.follower_id = u.id) as following,
+		ARRAY(SELECT u2.username FROM follows f JOIN users u2 ON u2.id = f.follower_id WHERE f.following_id = u.id) as followers,
 
-	-- Reply tweet
-	rt.id, rt.user_id, rt.content, rt.in_reply_to_tweet_id, rt.original_tweet_id, rt.media_urls,
-	rt.replies_count, rt.likes_count, rt.retweets_count, rt.views_count, rt.bookmarks_count,
-	rt.created_at, rt.updated_at,
-	ru.id, ru.username, ru.email, ru.display_name, ru.avatar_url, ru.banner_url, ru.is_verified, 
-	ru.created_at, ru.updated_at,
-	ARRAY(SELECT u3.username FROM follows f JOIN users u3 ON u3.id = f.following_id WHERE f.follower_id = ru.id) as reply_following,
-	ARRAY(SELECT u3.username FROM follows f JOIN users u3 ON u3.id = f.follower_id WHERE f.following_id = ru.id) as reply_followers,
+		-- Reply tweet
+		rt.id, rt.user_id, rt.content, rt.in_reply_to_tweet_id, rt.original_tweet_id, rt.media_urls,
+		rt.replies_count, rt.likes_count, rt.retweets_count, rt.views_count, rt.bookmarks_count,
+		rt.created_at, rt.updated_at,
+		ru.id, ru.username, ru.email, ru.display_name, ru.avatar_url, ru.banner_url, ru.is_verified, 
+		ru.created_at, ru.updated_at,
+		ARRAY(SELECT u3.username FROM follows f JOIN users u3 ON u3.id = f.following_id WHERE f.follower_id = ru.id) as reply_following,
+		ARRAY(SELECT u3.username FROM follows f JOIN users u3 ON u3.id = f.follower_id WHERE f.following_id = ru.id) as reply_followers,
 
-	-- Original tweet
-	ot.id, ot.user_id, ot.content, ot.in_reply_to_tweet_id, ot.original_tweet_id, ot.media_urls,
-	ot.replies_count, ot.likes_count, ot.retweets_count, ot.views_count, ot.bookmarks_count,
-	ot.created_at, ot.updated_at,
-	ou.id, ou.username, ou.email, ou.display_name, ou.avatar_url, ou.banner_url, ou.is_verified, 
-	ou.created_at, ou.updated_at,
-	ARRAY(SELECT u4.username FROM follows f JOIN users u4 ON u4.id = f.following_id WHERE f.follower_id = ou.id) as original_following,
-	ARRAY(SELECT u4.username FROM follows f JOIN users u4 ON u4.id = f.follower_id WHERE f.following_id = ou.id) as original_followers,
+		-- Original tweet
+		ot.id, ot.user_id, ot.content, ot.in_reply_to_tweet_id, ot.original_tweet_id, ot.media_urls,
+		ot.replies_count, ot.likes_count, ot.retweets_count, ot.views_count, ot.bookmarks_count,
+		ot.created_at, ot.updated_at,
+		ou.id, ou.username, ou.email, ou.display_name, ou.avatar_url, ou.banner_url, ou.is_verified, 
+		ou.created_at, ou.updated_at,
+		ARRAY(SELECT u4.username FROM follows f JOIN users u4 ON u4.id = f.following_id WHERE f.follower_id = ou.id) as original_following,
+		ARRAY(SELECT u4.username FROM follows f JOIN users u4 ON u4.id = f.follower_id WHERE f.following_id = ou.id) as original_followers,
 
-	-- Reply-to of original tweet
-	ort.id, ort.user_id, ort.content, ort.in_reply_to_tweet_id, ort.original_tweet_id, ort.media_urls,
-	ort.replies_count, ort.likes_count, ort.retweets_count, ort.views_count, ort.bookmarks_count,
-	ort.created_at, ort.updated_at,
-	oru.id, oru.username, oru.email, oru.display_name, oru.avatar_url, oru.banner_url, oru.is_verified,
-	oru.created_at, oru.updated_at,
-	ARRAY(SELECT u5.username FROM follows f JOIN users u5 ON u5.id = f.following_id WHERE f.follower_id = oru.id) as original_reply_following,
-	ARRAY(SELECT u5.username FROM follows f JOIN users u5 ON u5.id = f.follower_id WHERE f.following_id = oru.id) as original_reply_followers
+		-- Reply-to of original tweet
+		ort.id, ort.user_id, ort.content, ort.in_reply_to_tweet_id, ort.original_tweet_id, ort.media_urls,
+		ort.replies_count, ort.likes_count, ort.retweets_count, ort.views_count, ort.bookmarks_count,
+		ort.created_at, ort.updated_at,
+		oru.id, oru.username, oru.email, oru.display_name, oru.avatar_url, oru.banner_url, oru.is_verified,
+		oru.created_at, oru.updated_at,
+		ARRAY(SELECT u5.username FROM follows f JOIN users u5 ON u5.id = f.following_id WHERE f.follower_id = oru.id) as original_reply_following,
+		ARRAY(SELECT u5.username FROM follows f JOIN users u5 ON u5.id = f.follower_id WHERE f.following_id = oru.id) as original_reply_followers,
+
+		EXISTS (
+			SELECT 1
+			FROM likes l
+			WHERE l.tweet_id = t.id AND l.user_id = $1
+		) as is_liked
 
 	FROM tweets t
 	JOIN users u ON u.id = t.user_id
@@ -151,7 +185,7 @@ func GetTweets(ctx context.Context) ([]models.Tweet, error) {
 	ORDER BY t.created_at DESC
 	`
 
-	rows, err := db.Pool.Query(ctx, query)
+	rows, err := db.Pool.Query(ctx, query, userID)
 	if err != nil {
 		return nil, fmt.Errorf("failed to query tweets: %w", err)
 	}
@@ -341,6 +375,7 @@ func GetTweets(ctx context.Context) ([]models.Tweet, error) {
 			&originalReplyAuthorUpdatedAt,
 			&originalReplyAuthorFollowing,
 			&originalReplyAuthorFollowers,
+			&tweet.IsLiked,
 		)
 		if err != nil {
 			return nil, fmt.Errorf("failed to scan tweet: %w", err)
@@ -467,7 +502,7 @@ func GetTweets(ctx context.Context) ([]models.Tweet, error) {
 	return tweets, nil
 }
 
-func GetTweetByID(ctx context.Context, tweetID string) (*models.Tweet, error) {
+func GetTweetByID(ctx context.Context, tweetID string, userID string) (*models.Tweet, error) {
 	query := `
 	SELECT 
 		-- Main tweet
@@ -589,7 +624,13 @@ func GetTweetByID(ctx context.Context, tweetID string) (*models.Tweet, error) {
 			FROM follows f
 			JOIN users u5 ON u5.id = f.follower_id
 			WHERE f.following_id = oru.id
-		) as original_reply_followers
+		) as original_reply_followers,
+
+		EXISTS (
+			SELECT 1
+			FROM likes l
+			WHERE l.tweet_id = t.id AND l.user_id = $2
+		) as is_liked
 
 	FROM tweets t
 	JOIN users u ON u.id = t.user_id
@@ -688,7 +729,7 @@ func GetTweetByID(ctx context.Context, tweetID string) (*models.Tweet, error) {
 		originalReplyAuthorFollowers *[]string
 	)
 
-	err := db.Pool.QueryRow(ctx, query, tweetID).Scan(
+	err := db.Pool.QueryRow(ctx, query, tweetID, userID).Scan(
 		&tweet.ID,
 		&tweet.UserID,
 		&tweet.Content,
@@ -786,12 +827,13 @@ func GetTweetByID(ctx context.Context, tweetID string) (*models.Tweet, error) {
 		&originalReplyAuthorUpdatedAt,
 		&originalReplyAuthorFollowing,
 		&originalReplyAuthorFollowers,
+		&tweet.IsLiked,
 	)
 	if err != nil {
 		return nil, fmt.Errorf("failed to query tweet: %w", err)
 	}
 
-	thread, err := GetTweetThreadByID(ctx, tweetID)
+	thread, err := GetTweetThreadByID(ctx, tweetID, userID)
 	if err != nil {
 		log.Printf("Failed to fetch thread for tweet %s: %v", tweetID, err)
 	} else {
@@ -918,7 +960,7 @@ func GetTweetByID(ctx context.Context, tweetID string) (*models.Tweet, error) {
 	return &tweet, nil
 }
 
-func GetTweetThreadByID(ctx context.Context, tweetID string) ([]models.Tweet, error) {
+func GetTweetThreadByID(ctx context.Context, tweetID string, userID string) ([]models.Tweet, error) {
 	query := `
 	WITH RECURSIVE reply_chain AS (
 	SELECT * FROM tweets WHERE id = $1
@@ -927,26 +969,33 @@ func GetTweetThreadByID(ctx context.Context, tweetID string) ([]models.Tweet, er
 	JOIN reply_chain rc ON rc.in_reply_to_tweet_id = t.id
 	)
 	SELECT 
-	t.id, t.user_id, t.content, t.in_reply_to_tweet_id, t.original_tweet_id, t.media_urls,
-	t.replies_count, t.likes_count, t.retweets_count, t.views_count, t.bookmarks_count,
-	t.created_at, t.updated_at,
+		t.id, t.user_id, t.content, t.in_reply_to_tweet_id, t.original_tweet_id, t.media_urls,
+		t.replies_count, t.likes_count, t.retweets_count, t.views_count, t.bookmarks_count,
+		t.created_at, t.updated_at,
 
-	u.id, u.username, u.email, u.display_name, u.avatar_url, u.banner_url, u.is_verified,
-	u.created_at, u.updated_at,
+		u.id, u.username, u.email, u.display_name, u.avatar_url, u.banner_url, u.is_verified,
+		u.created_at, u.updated_at,
 
-	ARRAY(
-	SELECT u2.username
-	FROM follows f
-	JOIN users u2 ON u2.id = f.following_id
-	WHERE f.follower_id = u.id
-	) as following,
+		ARRAY(
+		SELECT u2.username
+		FROM follows f
+		JOIN users u2 ON u2.id = f.following_id
+		WHERE f.follower_id = u.id
+		) as following,
 
-	ARRAY(
-	SELECT u2.username
-	FROM follows f
-	JOIN users u2 ON u2.id = f.follower_id
-	WHERE f.following_id = u.id
-	) as followers
+		ARRAY(
+		SELECT u2.username
+		FROM follows f
+		JOIN users u2 ON u2.id = f.follower_id
+		WHERE f.following_id = u.id
+		) as followers,
+
+		EXISTS (
+			SELECT 1
+			FROM likes l
+			WHERE l.tweet_id = t.id AND l.user_id = $2
+		) as is_liked
+
 
 	FROM reply_chain t
 	JOIN users u ON u.id = t.user_id
@@ -991,6 +1040,8 @@ func GetTweetThreadByID(ctx context.Context, tweetID string) ([]models.Tweet, er
 
 			&user.Following,
 			&user.Followers,
+
+			&tweet.IsLiked,
 		)
 		if err != nil {
 			return nil, err
@@ -1004,4 +1055,3 @@ func GetTweetThreadByID(ctx context.Context, tweetID string) ([]models.Tweet, er
 
 	return tweets, nil
 }
-

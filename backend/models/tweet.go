@@ -20,6 +20,7 @@ type Tweet struct {
 	BookmarksCount   int        `json:"bookmarks_count"`
 	CreatedAt        time.Time  `json:"created_at"`
 	UpdatedAt        time.Time  `json:"updated_at"`
+	IsLiked          bool       `json:"is_liked"`
 	User             User       `json:"user"`
 	ReplyTo          *Tweet     `json:"reply_to,omitempty"`
 	Replies          *[]Tweet  	`json:"replies,omitempty"`					 

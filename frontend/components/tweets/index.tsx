@@ -325,6 +325,7 @@ function TweetCard({
                       <MediaGrid media={tweet.mediaURLs} statusId={tweet.id} />
                     </div>
                   )}
+
                 {tweet.mediaURLs && variant == "compose-reply" && (
                   <div>
                     {tweet.mediaURLs.map((url, i) => (
@@ -383,8 +384,8 @@ function TweetCard({
                 )}
 
                 {variant !== "compose-reply" &&
-                  variant !== "reply" &&
-                  variant !== "compose-quote" && (
+                  variant !== "compose-quote" &&
+                  variant !== "reply" && (
                     <div className="mb-2">
                       <TweetActions
                         id={tweet.id}

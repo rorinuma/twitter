@@ -1,0 +1,99 @@
+@import "tailwindcss";
+
+:root {
+  --background: rgb(255, 255, 255);
+  --foreground: rgb(15, 20, 25);
+  --foreground-alt: rgb(255, 255, 255);
+  --button: rgb(15, 20, 25);
+  --button-hover: rgb(39, 44, 48);
+  --hover-duration: 0.2s;
+  --nav-hover: rgb(39, 44, 48);
+  /* subject to change */
+  --default-shadow:
+    rgba(217, 217, 217, 0.2) 0px 0px 5px,
+    rgba(217, 217, 217, 0.25) 0px 1px 4px 1px;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-foreground-alt: var(--foreground-alt);
+  --color-blue: rgb(29, 155, 240);
+  --color-blue-hover: rgba(29, 155, 240, 0.1);
+  --color-blue-overlay: rgba(91, 112, 131, 0.4);
+  --color-green: rgb(0, 186, 124);
+  --color-green-hover: rgba(0, 186, 124, 0.1);
+  --color-red: rgb(249, 24, 128);
+  --color-red-hover: rgba(249, 24, 128, 0.1);
+  --color-white-hover: rgba(255, 255, 255, 0.1);
+  --color-tweet-hover: var(--tweet-hover);
+  --color-reply-tweet-hover: var(--reply-tweet-hover);
+  --color-error: rgb(244, 33, 46);
+  --color-tooltip-bg: var(--tooltip-bg);
+  --color-overlay-bg: var(--overlay-bg);
+  --color-transparent-blurred: var(--transparent-blurred);
+  --color-transparent-blurred-hover: var(--transparent-blurred-hover);
+  --color-muted: rgb(113, 118, 123);
+  --color-button: var(--button);
+  --shadow-default: var(--default-shadow);
+
+  --color-border: var(--border-color);
+  --color-border-muted: var(--border-muted);
+  /* since my naming is dogshit we stick to the 
+  *  nav-hover and no questions asked ok? */
+  --color-nav-hover: var(--nav-hover);
+  /* oh and this is not good too */
+  --color-button-hover: var(--button-hover);
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+  --breakpoint-xs: 31rem;
+}
+
+@layer utilities {
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+
+  .no-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+}
+
+html.dark {
+  --background: rgb(0, 0, 0);
+  --foreground: rgb(231, 233, 234);
+  --foreground-alt: rgb(15, 20, 25);
+  --transparent-blurred: rgba(15, 20, 25, 0.75);
+  --transparent-blurred-hover: rgba(39, 44, 48, 0.75);
+  --button: rgb(239, 243, 244);
+  --border-color: rgb(47, 51, 54);
+  --border-muted: rgb(83, 100, 113);
+  --button-hover: rgb(215, 219, 220);
+  --tweet-hover: rgba(255, 255, 255, 0.03);
+  --reply-tweet-hover: rgba(255, 255, 255, 0.031);
+  --nav-hover: rgba(231, 233, 234, 0.1);
+  --tooltip-bg: #4b5c6b;
+  --overlay-bg: rgba(0, 0, 0, 0.9);
+  --default-shadow:
+    rgba(217, 217, 217, 0.2) 0px 0px 5px,
+    rgba(217, 217, 217, 0.25) 0px 1px 4px 1px;
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: Arial, Helvetica, sans-serif;
+  box-sizing: border-box;
+  line-height: 1.25rem;
+}
+
+button {
+  &:hover {
+    cursor: pointer;
+  }
+
+  &:disabled {
+    cursor: default;
+  }
+}

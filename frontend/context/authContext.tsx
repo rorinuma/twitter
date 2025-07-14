@@ -34,11 +34,12 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
           router.replace("/home");
         }
       } catch (error) {
-        console.log("no user", error);
+        console.log("no user: ", error);
         setUser(null);
         if (
-          pathname !== "/signin" &&
-          pathname !== "/signup" &&
+          !pathname.startsWith("/status") &&
+          pathname !== "/sigin" &&
+          pathname !== "signup" &&
           pathname !== "/"
         ) {
           router.replace("/");

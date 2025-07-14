@@ -501,7 +501,6 @@ func GetTweets(ctx context.Context, userID string) ([]models.Tweet, error) {
 }
 
 func GetTweetByID(ctx context.Context, tweetID string, userID *string) (*models.Tweet, error) {
-	fmt.Println("userID pre", userID)
 	query := `
 	SELECT 
 		-- Main tweet
@@ -832,7 +831,6 @@ func GetTweetByID(ctx context.Context, tweetID string, userID *string) (*models.
 		return nil, fmt.Errorf("failed to query tweet: %w", err)
 	}
 
-	fmt.Println("userID post", userID)
 	thread, err := GetTweetThreadByID(ctx, tweetID, userID)
 	if err != nil {
 		log.Printf("Failed to fetch thread for tweet %s: %v", tweetID, err)

@@ -123,6 +123,8 @@ func CreateTweet(w http.ResponseWriter, r *http.Request) {
 
 func GetTweets(w http.ResponseWriter, r *http.Request) {
 	id, ok := utils.GetUserIDFromContext(r.Context())
+	
+	// TODO: pagination
 
 	if !ok {
 		log.Println("User is unauthorized")
@@ -136,7 +138,12 @@ func GetTweets(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Failed to get tweets", http.StatusInternalServerError)
 		return
 	}
-	if err := json.NewEncoder(w).Encode(tweets); err != nil {
+	response := map[string]interface{}{
+		"tweets": tweets,
+		"hasMore": true,
+	}
+
+	if err := json.NewEncoder(w).Encode(response); err != nil {
 		log.Printf("Failed to encode response: %v", err)
 		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
 	}

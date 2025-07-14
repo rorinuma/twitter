@@ -14,6 +14,7 @@ export interface Tweet {
   bookmarksCount: number;
   createdAt: string;
   updatedAt: string;
+  isLiked: boolean;
 
   user: User;
 
@@ -41,6 +42,8 @@ export interface RawTweet {
   bookmarks_count: number;
   created_at: string;
   updated_at: string;
+  is_liked: boolean;
+
   user: RawUser;
   reply_to?: RawTweet | null;
   replies?: RawTweet[] | null;

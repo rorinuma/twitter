@@ -33,6 +33,7 @@ export function normalizeTweet(tweet: RawTweet): Tweet {
     bookmarksCount: tweet.bookmarks_count,
     createdAt: tweet.created_at,
     updatedAt: tweet.updated_at,
+    isLiked: tweet.is_liked,
     user: normalizeUser(tweet.user),
     replyTo: tweet.reply_to ? normalizeTweet(tweet.reply_to) : null,
     replies: tweet.replies ? tweet.replies.map(normalizeTweet) : null,

@@ -7,7 +7,10 @@ import TweetCard from "@/components/tweets/index";
 
 export default function Home() {
   const { user } = useAuth();
-  const { data: tweets, isLoading } = useTweets(0, "foryou", !!user);
+  const { data, isLoading } = useTweets("foryou", !!user);
+
+  const tweets = data?.pages.flatMap((page) => page.tweets) ?? [];
+  console.log(data);
 
   if (isLoading)
     return (

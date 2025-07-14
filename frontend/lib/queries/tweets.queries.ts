@@ -1,21 +1,21 @@
-import axios from "axios";
 import api from "../axios";
 import { RawTweet, Tweet, TweetsType } from "@/types/tweets.types";
-import { normalizeTweet, normalizeTweets } from "../tweetUtils";
+import { normalizeTweet } from "../tweetUtils";
 
-export const fetchTweets = async (
-  page: number,
-  tweetsType: TweetsType,
-): Promise<Tweet[]> => {
-  try {
-    const { data } = await api.get<RawTweet[]>(
-      `/protected/tweets/${tweetsType}?page=${page}`,
-    );
-    return normalizeTweets(data);
-  } catch (err) {
-    console.error("Failed to fetch tweets: ", err);
-    throw err;
-  }
+export const fetchTweets = async ({
+  pageParam = 1,
+  tweetsType,
+}: {
+  pageParam?: number;
+  tweetsType: TweetsType;
+}) => {
+  const { data } = await api.get<{ tweets: RawTweet[]; hasMore: boolean }>(
+    `/protected/tweets/${tweetsType}?page=${pageParam}`,
+  );
+  return {
+    tweets: data.tweets.map(normalizeTweet),
+    nextPage: data.hasMore ? pageParam + 1 : undefined,
+  };
 };
 
 export const fetchTweet = async (

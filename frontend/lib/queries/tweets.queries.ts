@@ -2,6 +2,8 @@ import api from "../axios";
 import { RawTweet, Tweet, TweetsType } from "@/types/tweets.types";
 import { normalizeTweet } from "../tweetUtils";
 
+const LIMIT = 10;
+
 export const fetchTweets = async ({
   pageParam = 1,
   tweetsType,
@@ -10,7 +12,7 @@ export const fetchTweets = async ({
   tweetsType: TweetsType;
 }) => {
   const { data } = await api.get<{ tweets: RawTweet[]; hasMore: boolean }>(
-    `/protected/tweets/${tweetsType}?page=${pageParam}`,
+    `/protected/tweets/${tweetsType}?page=${pageParam}&limit=${LIMIT}`,
   );
   return {
     tweets: data.tweets.map(normalizeTweet),

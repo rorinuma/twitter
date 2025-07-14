@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"strconv"
 	"time"
 
 	"github.com/google/uuid"
@@ -122,25 +123,47 @@ func CreateTweet(w http.ResponseWriter, r *http.Request) {
 }
 
 func GetTweets(w http.ResponseWriter, r *http.Request) {
+	query := r.URL.Query()
+
+	pageStr := query.Get("page")
+	limitStr := query.Get("limit")
+
+	page := 1
+	limit := 10
+
+	if p, err := strconv.Atoi(pageStr); err == nil && p > 0{
+		page = p
+	}
+	if l, err := strconv.Atoi(limitStr); err == nil && l > 0 {
+		limit = l
+	}
+
+	offset := (page - 1) * limit
+	
 	id, ok := utils.GetUserIDFromContext(r.Context())
 	
-	// TODO: pagination
-
 	if !ok {
 		log.Println("User is unauthorized")
 		http.Error(w, "Unauthorized", http.StatusUnauthorized)
 		return
 	}
 
-	tweets, err := repositories.GetTweets(r.Context(), id)
+	tweets, err := repositories.GetTweets(r.Context(), id, limit + 1, offset)
 	if err != nil {
 		log.Printf("Failed to get tweets: %v", err)
 		http.Error(w, "Failed to get tweets", http.StatusInternalServerError)
 		return
 	}
+
+	hasMore := false
+	if len(tweets) > limit {
+		hasMore = true
+		tweets = tweets[:limit]
+	}
+
 	response := map[string]interface{}{
 		"tweets": tweets,
-		"hasMore": true,
+		"hasMore": hasMore,
 	}
 
 	if err := json.NewEncoder(w).Encode(response); err != nil {

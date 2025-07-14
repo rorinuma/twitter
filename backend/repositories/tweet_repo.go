@@ -127,7 +127,7 @@ func LikeTweet(ctx context.Context, tweetID string, userID string) (*uuid.UUID, 
 	return likedTweetID, nil
 }
 
-func GetTweets(ctx context.Context, userID string) ([]models.Tweet, error) {
+func GetTweets(ctx context.Context, userID string, limit int, offset int) ([]models.Tweet, error) {
 	query := `
 	SELECT 
 		-- Main tweet
@@ -181,9 +181,10 @@ func GetTweets(ctx context.Context, userID string) ([]models.Tweet, error) {
 	LEFT JOIN tweets ort ON ort.id = ot.in_reply_to_tweet_id
 	LEFT JOIN users oru ON oru.id = ort.user_id
 	ORDER BY t.created_at DESC
+	LIMIT $3 OFFSET $4
 	`
 
-	rows, err := db.Pool.Query(ctx, query, userID)
+	rows, err := db.Pool.Query(ctx, query, userID, limit, offset)
 	if err != nil {
 		return nil, fmt.Errorf("failed to query tweets: %w", err)
 	}

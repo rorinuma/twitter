@@ -146,15 +146,14 @@ func GetTweetByID(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	id := vars["id"]
 
-	userID, ok := utils.GetUserIDFromContext(r.Context())
-
+	var userID *string	
+	userIDStr, ok := utils.GetUserIDFromContext(r.Context())
 
 	if !ok {
-		log.Println("User is unauthorized")
-		http.Error(w, "Unauthorized", http.StatusUnauthorized)
-		return
+		userID = nil
+	} else  {
+		userID = &userIDStr
 	}
-
 
 	tweet, err := repositories.GetTweetByID(r.Context(), id, userID)
 	if err != nil {

@@ -127,8 +127,6 @@ func LikeTweet(ctx context.Context, tweetID string, userID string) (*uuid.UUID, 
 	return likedTweetID, nil
 }
 
-// i feel like... don't you?
-// UOGGHHHH THE QUOTES DON'T WORK EITHER, ALSO THERE ARE SINGLE TWEETS TOO FFS
 func GetTweets(ctx context.Context, userID string) ([]models.Tweet, error) {
 	query := `
 	SELECT 
@@ -502,7 +500,8 @@ func GetTweets(ctx context.Context, userID string) ([]models.Tweet, error) {
 	return tweets, nil
 }
 
-func GetTweetByID(ctx context.Context, tweetID string, userID string) (*models.Tweet, error) {
+func GetTweetByID(ctx context.Context, tweetID string, userID *string) (*models.Tweet, error) {
+	fmt.Println("userID pre", userID)
 	query := `
 	SELECT 
 		-- Main tweet
@@ -833,6 +832,7 @@ func GetTweetByID(ctx context.Context, tweetID string, userID string) (*models.T
 		return nil, fmt.Errorf("failed to query tweet: %w", err)
 	}
 
+	fmt.Println("userID post", userID)
 	thread, err := GetTweetThreadByID(ctx, tweetID, userID)
 	if err != nil {
 		log.Printf("Failed to fetch thread for tweet %s: %v", tweetID, err)
@@ -960,7 +960,7 @@ func GetTweetByID(ctx context.Context, tweetID string, userID string) (*models.T
 	return &tweet, nil
 }
 
-func GetTweetThreadByID(ctx context.Context, tweetID string, userID string) ([]models.Tweet, error) {
+func GetTweetThreadByID(ctx context.Context, tweetID string, userID *string) ([]models.Tweet, error) {
 	query := `
 	WITH RECURSIVE reply_chain AS (
 	SELECT * FROM tweets WHERE id = $1
@@ -1002,7 +1002,7 @@ func GetTweetThreadByID(ctx context.Context, tweetID string, userID string) ([]m
 	ORDER BY t.created_at ASC
 	`
 
-	rows, err := db.Pool.Query(ctx, query, tweetID)
+	rows, err := db.Pool.Query(ctx, query, tweetID, userID)
 	if err != nil {
 		return nil, err
 	}

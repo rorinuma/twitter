@@ -44,7 +44,7 @@ interface Props {
   loading?: boolean | null;
 }
 
-function TweetCard({
+export default function TweetCard({
   tweet: tweetToRender,
   variant,
   replyBar,
@@ -139,6 +139,7 @@ function TweetCard({
   const handleDeletePostClick = () => {
     setIsPostDeletionVisible(true);
   };
+  console.log("uuh: ", tweet?.thread);
 
   return (
     <>
@@ -344,12 +345,15 @@ function TweetCard({
                     href={`/${tweet.user.username}`}
                     className="my-2 font-light text-sm"
                   >
-                    <span className="text-muted">Replying to</span>{" "}
+                    <span className="text-muted">
+                      Replying to{" "}
+                      <span className="text-blue">@{tweet.user.username}</span>
+                    </span>
                     <span className="text-blue">
                       {tweet.thread?.map((tweet, i, arr) =>
                         i < 3 ? (
                           <span key={i}>
-                            @{tweet.user.username}
+                            {i === 0 && ", "}@{tweet.user.username}
                             {arr.length - 1 != i && <span>,</span>}{" "}
                           </span>
                         ) : (
@@ -417,5 +421,3 @@ function TweetCard({
     </>
   );
 }
-
-export default memo(TweetCard);

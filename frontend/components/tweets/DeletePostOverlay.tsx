@@ -1,7 +1,7 @@
 import { Tweet } from "@/types/tweets.types";
 import BlueOverlay from "../shared/overlays/BlueOverlay";
 import axios from "axios";
-import api from "@/lib/axios";
+import { useDeleteTweet } from "@/hooks/useDeleteTweet";
 
 interface Props {
   setIsVisible: React.Dispatch<React.SetStateAction<boolean>>;
@@ -14,24 +14,32 @@ export default function DeletePostOverlay({
   setError,
   tweet,
 }: Props) {
+  const { mutate: deleteTweet } = useDeleteTweet();
   const handlePostDelete = async () => {
-    try {
-      await api.delete(`/protected/tweets/delete/${tweet.id}`);
-      setError("Tweet deleted succesfully");
-      setIsVisible(false);
-    } catch (err) {
-      if (axios.isAxiosError(err)) {
-        console.error("Error occured while deleting a tweet: ", err);
-        if (err.response?.data) {
-          setError(err.response.data);
-        } else {
-          setError("Network error while trying to delete the tweet");
-        }
+    deleteTweet(tweet.id, {
+      onSuccess: () => {
+        setError("Tweet deleted successfully");
         setIsVisible(false);
-      } else {
-        setError("Unknown error while trying to delete the tweet");
-      }
-    }
+      },
+      onError: (err) => {
+        if (axios.isAxiosError(err)) {
+          console.error("Error occured while deleting a tweet: ", err);
+          if (err.response?.data) {
+            setError(err.response.data);
+          } else {
+            setError("Network error while trying to delete the tweet");
+            console.error(
+              "Network error while trying to delete the tweet",
+              err,
+            );
+          }
+          setIsVisible(false);
+        } else {
+          setError("Unknown error while trying to delete the tweet");
+          console.error("Unknown error while trying to delete the tweet", err);
+        }
+      },
+    });
   };
 
   return (

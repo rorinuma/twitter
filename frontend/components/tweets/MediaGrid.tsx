@@ -64,8 +64,8 @@ export function MediaGrid({ media, statusId }: MediaGridProps) {
           return (
             <Image
               key={idx}
-              width={400}
-              height={200}
+              width={300}
+              height={400}
               src={src}
               alt="post-image"
               onClick={(e) => handleMediaClick(e, idx)}

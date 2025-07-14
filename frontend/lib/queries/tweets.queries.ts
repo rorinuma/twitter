@@ -26,14 +26,54 @@ export const fetchTweet = async (
     return;
   }
   try {
-    const baseURL = process.env.NEXT_PUBLIC_API_BASE_URL;
-    const { data } = await axios.get<{ tweet: RawTweet; message: string }>(
-      `${baseURL}/status/${id}`,
+    const { data } = await api.get<{ tweet: RawTweet; message: string }>(
+      `/soft/status/${id}`,
     );
-    console.log(data);
     return normalizeTweet(data.tweet);
   } catch (err) {
     console.error("Failed to fetch tweets: ", err);
     throw err;
   }
+};
+
+export const createTweet = async ({
+  text,
+  files,
+  quoteTo,
+  replyTo,
+  mentionedUsers,
+  replyPermission,
+}: {
+  text?: string;
+  files?: File[] | null;
+  quoteTo?: string | null;
+  replyTo?: string;
+  mentionedUsers?: string[];
+  replyPermission: string;
+}) => {
+  const formData = new FormData();
+  const params = new URLSearchParams();
+
+  if (text) formData.append("text", text);
+  if (files) files.forEach((file) => formData.append("files", file));
+  if (quoteTo) params.append("quoteTo", quoteTo);
+  if (replyTo) {
+    formData.append("replyTo", replyTo);
+    params.append("replyTo", replyTo);
+  }
+  if (mentionedUsers && mentionedUsers.length > 0) {
+    mentionedUsers.forEach((user) => formData.append("mentionedUsers", user));
+  }
+  formData.append("replyPermission", replyPermission);
+
+  const { data } = await api.post<RawTweet>(
+    `/protected/tweets/create?${params.toString()}`,
+    formData,
+  );
+
+  return normalizeTweet(data);
+};
+
+export const deleteTweet = async (id: string) => {
+  await api.delete(`/protected/tweets/delete/${id}`);
 };

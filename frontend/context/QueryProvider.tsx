@@ -1,6 +1,6 @@
 "use client";
 
-import { QueryClientProvider, HydrationBoundary } from "@tanstack/react-query";
+import { QueryClientProvider } from "@tanstack/react-query";
 import { queryClient } from "@/lib/queryClient";
 
 export default function QueryProvider({

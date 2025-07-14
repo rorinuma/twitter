@@ -22,6 +22,7 @@ import Spinner from "../ui/decorations/Spinner";
 import TweetCard from "@/components/tweets/index";
 import { useTweet } from "@/hooks/useTweet";
 import PostMedia from "./PostMedia";
+import { useCreateTweet } from "@/hooks/useCreateTweet";
 
 interface Props {
   modal: boolean;
@@ -51,6 +52,8 @@ export default function Post({ modal, ref, replyTo }: Props) {
   );
 
   const { data: quotedTweet } = useTweet(quoteToParams, !!quoteToParams);
+
+  const { mutate: postTweet } = useCreateTweet();
 
   const shouldReduceMotion = useReducedMotion();
 
@@ -127,59 +130,21 @@ export default function Post({ modal, ref, replyTo }: Props) {
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
 
-    const formData = new FormData();
+    postTweet({
+      text,
+      files,
+      quoteTo: quoteToParams,
+      replyTo: replyToParams ?? replyTo ?? undefined,
+      mentionedUsers:
+        replyPermission.type === ReplyPermissionType.Mentioned
+          ? replyPermission.mentions
+          : [],
+      replyPermission: replyPermission.type,
+    });
 
-    if (text) formData.append("text", text);
-    if (files) {
-      for (const file of files) {
-        formData.append("files", file);
-      }
-    }
-    const params = new URLSearchParams();
-
-    if (quoteToParams) params.append("quoteTo", quoteToParams);
-
-    if (replyToParams && replyToParams == replyTweet?.id) {
-      formData.append("replyTo", replyToParams);
-      params.append("replyTo", replyToParams);
-    }
-    if (replyTo) {
-      formData.append("replyTo", replyTo);
-    }
-
-    if (replyPermission.type === ReplyPermissionType.Mentioned) {
-      const mentions = replyPermission.mentions;
-
-      for (const mentionedUser of mentions) {
-        formData.append("mentionedUsers", mentionedUser);
-      }
-    }
-    formData.append("replyPermission", replyPermission.type);
-    try {
-      await api.post(`/protected/tweets/create?${params.toString()}`, formData);
-      setText("");
-      setFiles(null);
-      setReplyPermission({ type: ReplyPermissionType.Everyone });
-    } catch (err) {
-      if (axios.isAxiosError(err)) {
-        const general = err.response?.data;
-        setError(general);
-        setTimeout(() => {
-          setError("");
-        }, 3000);
-
-        console.error(
-          "error while attempting to post a tweet",
-          err.response?.data || err.message,
-        );
-        return;
-      }
-      setError("An unexpected error occurred");
-      setTimeout(() => {
-        setError("");
-      }, 3000);
-      console.error("unknown error in post handleSubmit", err);
-    }
+    setText("");
+    setFiles(null);
+    setReplyPermission({ type: ReplyPermissionType.Everyone });
   };
 
   const variants =

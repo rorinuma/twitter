@@ -36,7 +36,13 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       } catch (error) {
         console.log("no user", error);
         setUser(null);
-        router.replace("/");
+        if (
+          pathname !== "/signin" &&
+          pathname !== "/signup" &&
+          pathname !== "/"
+        ) {
+          router.replace("/");
+        }
       } finally {
         setLoading(false);
       }

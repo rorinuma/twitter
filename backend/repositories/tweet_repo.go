@@ -181,7 +181,7 @@ func GetTweets(ctx context.Context, userID string, limit int, offset int) ([]mod
 	LEFT JOIN tweets ort ON ort.id = ot.in_reply_to_tweet_id
 	LEFT JOIN users oru ON oru.id = ort.user_id
 	ORDER BY t.created_at DESC
-	LIMIT $3 OFFSET $4
+	LIMIT $2 OFFSET $3
 	`
 
 	rows, err := db.Pool.Query(ctx, query, userID, limit, offset)

@@ -80,6 +80,18 @@ export const deleteTweet = async (id: string) => {
   await api.delete(`/protected/tweets/delete/${id}`);
 };
 
+export const deleteRetweet = async (originalTweetId: string) => {
+  const { data } = await api.delete<{
+    message: string;
+    originalTweetId: string;
+    retweetsCount: number;
+  }>(`/protected/tweets/delete-retweet/${originalTweetId}`);
+  return {
+    originalTweetId: data.originalTweetId,
+    retweetsCount: data.retweetsCount,
+  };
+};
+
 export const createRetweet = async (id: string): Promise<Tweet> => {
   const { data } = await api.post<RawTweet>(
     `/protected/tweets/create?retweetedTweetID=${id}`,

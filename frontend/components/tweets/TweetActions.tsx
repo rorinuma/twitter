@@ -20,6 +20,7 @@ import api from "@/lib/axios";
 import { Tweet } from "@/types/tweets.types";
 import { useCreateRetweet } from "@/hooks/useCreateRetweet";
 import { useAuth } from "@/context/authContext";
+import { useDeleteRetweet } from "@/hooks/useDeleteRetweet";
 
 interface Props {
   tweet: Tweet;
@@ -54,6 +55,11 @@ export default function TweetActions({
     "foryou",
     "following",
   ]);
+  const { mutate: deleteRetweet } = useDeleteRetweet([
+    "posts",
+    "foryou",
+    "following",
+  ]);
 
   useClickOutside([retweetModalRef], () => {
     setIsRetweetModalVisible(false);
@@ -75,7 +81,7 @@ export default function TweetActions({
 
     const targetId = tweet.retweetedId ?? tweet.id;
 
-    if (!tweet.isRetweeted) {
+    if (!isRetweeted) {
       createRetweet(targetId, {
         onSuccess: () => {
           setError("Tweet successfully retweeted");
@@ -91,6 +97,27 @@ export default function TweetActions({
           } else {
             console.error("Non-Axios error when reposting tweet:", err);
             setError("An unexpected error occurred while reposting the tweet.");
+          }
+        },
+      });
+    } else {
+      deleteRetweet(targetId, {
+        onError: (err) => {
+          if (axios.isAxiosError(err)) {
+            const message =
+              err.response?.data?.message ||
+              err.response?.data?.error ||
+              err.response?.data ||
+              "Failed to delete the repost of the tweet due to server error.";
+            setError(message);
+          } else {
+            console.error(
+              "Non-Axios error when deleting a repost of the tweet:",
+              err,
+            );
+            setError(
+              "An unexpected error occurred while deleting a repost of the tweet.",
+            );
           }
         },
       });
@@ -118,6 +145,9 @@ export default function TweetActions({
       }
     }
   };
+
+  const isRetweeted =
+    tweet.retweetedUsername === user?.username || tweet.isRetweeted;
 
   return (
     <IconContext.Provider
@@ -171,9 +201,11 @@ export default function TweetActions({
             <button
               type="button"
               className={clsx(
-                "group flex text-muted items-center duration-(--hover-duration) hover:text-green",
+                "group flex items-center duration-(--hover-duration) hover:text-green",
                 {
+                  "text-muted": variant !== "gallery" && !isRetweeted,
                   "text-white": variant === "gallery",
+                  "text-green": isRetweeted,
                 },
               )}
               onClick={(e) => {
@@ -181,7 +213,11 @@ export default function TweetActions({
                 setIsRetweetModalVisible((prev) => !prev);
               }}
             >
-              <div className="flex items-center justify-center  p-2 rounded-full group-hover:bg-green-hover duration-(--hover-duration)">
+              <div
+                className={clsx(
+                  "flex items-center justify-center p-2 rounded-full group-hover:bg-green-hover duration-(--hover-duration)",
+                )}
+              >
                 <AiOutlineRetweet />
               </div>
               <div
@@ -210,11 +246,7 @@ export default function TweetActions({
                 <div>
                   <AiOutlineRetweet />
                 </div>
-                <div>
-                  {tweet.retweetedUsername === user?.username
-                    ? "Undo Repost"
-                    : "Repost"}
-                </div>
+                <div>{isRetweeted ? "Undo Repost" : "Repost"}</div>
               </button>
               <button
                 className="flex gap-2 items-center justify-center rounded-b-xl p-2 hover:bg-nav-hover duration-(--hover-duration)"

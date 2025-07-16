@@ -64,7 +64,7 @@ export default function TweetCard({
   if (tweetToRender?.retweetedTweet) {
     tweet = tweetToRender.retweetedTweet;
     tweet.retweetedUsername = tweetToRender.user.username;
-    tweet.retweetedId = tweetToRender.retweetedTweet.id;
+    tweet.retweetedId = tweetToRender.retweetedTweet.originalTweetId;
   }
 
   useCloseOnInteraction(isMoreOpen, () => setIsMoreOpen(false), {
@@ -140,6 +140,8 @@ export default function TweetCard({
   const handleDeletePostClick = () => {
     setIsPostDeletionVisible(true);
   };
+
+  console.log("tweet: ", tweet);
 
   return (
     <>

@@ -26,7 +26,7 @@ export interface Tweet {
 
   retweetedTweet: Tweet | null;
   retweetedUsername?: string;
-  retweetedId?: string;
+  retweetedId?: string | null;
   quotedTweet: Tweet | null;
 }
 
@@ -45,6 +45,7 @@ export interface RawTweet {
   created_at: string;
   updated_at: string;
   is_liked: boolean;
+  is_retweeted: boolean;
 
   user: RawUser;
   reply_to?: RawTweet | null;

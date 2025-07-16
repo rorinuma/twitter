@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"log"
+	"net/http"
 
 	"github.com/goccy/go-json"
 	"github.com/google/uuid"
@@ -107,6 +108,32 @@ func DeleteTweet(ctx context.Context, tweetID string, userID string) (*uuid.UUID
 	return &deletedID, nil
 }
 
+func DeleteRetweet(ctx context.Context, originalTweetID, userID string) (*uuid.UUID, *int, error) {
+	query := `
+		DELETE FROM tweets WHERE original_tweet_id = $1 AND user_id = $2 
+		AND content = ''
+		RETURNING original_tweet_id
+	`
+	var origTweetID *uuid.UUID
+	err := db.Pool.QueryRow(ctx, query, originalTweetID, userID).Scan(&origTweetID)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	var newCount *int
+	err = db.Pool.QueryRow(ctx, `
+		UPDATE tweets
+		SET retweets_count = retweets_count - 1
+		WHERE id = $1
+		RETURNING retweets_count
+	`, originalTweetID).Scan(&newCount)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	return origTweetID, newCount, nil
+}
+
 func LikeTweet(ctx context.Context, tweetID string, userID string) (*uuid.UUID, error) {
 	_, err := db.Pool.Exec(ctx, `
 		UPDATE tweets 
@@ -176,13 +203,12 @@ func GetTweets(ctx context.Context, userID string, limit int, offset int) ([]mod
 			SELECT 1
 			FROM likes l
 			WHERE l.tweet_id = t.id AND l.user_id = $1
-		) as is_liked
+		) as is_liked,
 
-	-- TODO -- 
 		EXISTS (
 			SELECT 1
 			FROM tweets t2
-			WHERE t2.user_id = $1
+			WHERE t2.user_id = $1 AND t2.original_tweet_id = t.id
 		) as is_retweeted
 
 	FROM tweets t
@@ -388,6 +414,7 @@ func GetTweets(ctx context.Context, userID string, limit int, offset int) ([]mod
 			&originalReplyAuthorFollowing,
 			&originalReplyAuthorFollowers,
 			&tweet.IsLiked,
+			&tweet.IsRetweeted,
 		)
 		if err != nil {
 			return nil, fmt.Errorf("failed to scan tweet: %w", err)
@@ -642,7 +669,13 @@ func GetTweetByID(ctx context.Context, tweetID string, userID *string) (*models.
 			SELECT 1
 			FROM likes l
 			WHERE l.tweet_id = t.id AND l.user_id = $2
-		) as is_liked
+		) as is_liked,
+		
+		EXISTS (
+			SELECT 1
+			FROM tweets t3
+			WHERE user_id = $2 AND t.id = t3.original_tweet_id
+		) as is_retweeted
 
 	FROM tweets t
 	JOIN users u ON u.id = t.user_id
@@ -840,6 +873,7 @@ func GetTweetByID(ctx context.Context, tweetID string, userID *string) (*models.
 		&originalReplyAuthorFollowing,
 		&originalReplyAuthorFollowers,
 		&tweet.IsLiked,
+		&tweet.IsRetweeted,
 	)
 	if err != nil {
 		return nil, fmt.Errorf("failed to query tweet: %w", err)

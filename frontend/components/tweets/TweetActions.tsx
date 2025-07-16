@@ -14,7 +14,7 @@ import { useRef, useState } from "react";
 import { useReducedMotion } from "motion/react";
 import { motion } from "motion/react";
 import { useClickOutside } from "@/hooks/clickOutside";
-import { FaPen } from "react-icons/fa6";
+import { FaHeart, FaPen } from "react-icons/fa6";
 import axios from "axios";
 import api from "@/lib/axios";
 import { Tweet } from "@/types/tweets.types";
@@ -22,6 +22,7 @@ import { useCreateRetweet } from "@/hooks/useCreateRetweet";
 import { useAuth } from "@/context/authContext";
 import { useDeleteRetweet } from "@/hooks/useDeleteRetweet";
 import { useLikeTweet } from "@/hooks/useLikeTweet";
+import { useUnlikeTweet } from "@/hooks/useUnlikeTweet";
 
 interface Props {
   tweet: Tweet;
@@ -63,6 +64,14 @@ export default function TweetActions({
   ]);
 
   const { mutate: likeTweet } = useLikeTweet([
+    "replies",
+    "liked",
+    "following",
+    "foryou",
+    "posts",
+  ]);
+
+  const { mutate: unlikeTweet } = useUnlikeTweet([
     "replies",
     "liked",
     "following",
@@ -153,6 +162,22 @@ export default function TweetActions({
           } else {
             console.error("Non-Axios error when liking the tweet:", err);
             setError("An unexpected error occurred while liking the tweet.");
+          }
+        },
+      });
+    } else {
+      unlikeTweet(tweet.id, {
+        onError: (err) => {
+          if (axios.isAxiosError(err)) {
+            const message =
+              err.response?.data?.message ||
+              err.response?.data?.error ||
+              err.response?.data ||
+              "Failed to unlike the tweet due to server error.";
+            setError(message);
+          } else {
+            console.error("Non-Axios error when unliking the tweet:", err);
+            setError("An unexpected error occurred while unliking the tweet.");
           }
         },
       });
@@ -285,6 +310,7 @@ export default function TweetActions({
               {
                 "hover:text-red": variant !== "gallery",
                 "text-white": variant === "gallery",
+                "text-red": variant !== "gallery" && tweet.isLiked,
               },
             )}
             onClick={handleLikeClick}
@@ -297,7 +323,7 @@ export default function TweetActions({
                 },
               )}
             >
-              {<FaRegHeart />}
+              {tweet.isLiked ? <FaHeart /> : <FaRegHeart />}
             </div>
             <div
               className={clsx("-ml-1 mt-[3px]", {

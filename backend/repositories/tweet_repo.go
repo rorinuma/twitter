@@ -231,7 +231,13 @@ func GetTweets(ctx context.Context, userID string, limit int, offset int) ([]mod
 			SELECT 1
 			FROM tweets t2
 			WHERE t2.user_id = $1 AND t2.original_tweet_id = t.id
-		) as is_retweeted
+		) as is_retweeted,
+		
+		EXISTS (
+		  SELECT 1
+		  FROM likes l
+      WHERE l.tweet_id = ot.id AND l.user_id = $1
+		) as original_is_liked
 
 	FROM tweets t
 	JOIN users u ON u.id = t.user_id
@@ -298,6 +304,7 @@ func GetTweets(ctx context.Context, userID string, limit int, offset int) ([]mod
 			originalBookmarksCount  pgtype.Int4
 			originalCreatedAt       pgtype.Timestamptz
 			originalUpdatedAt       pgtype.Timestamptz
+			originalIsLiked         pgtype.Bool
 			originalAuthorID        pgtype.UUID
 			originalAuthorUsername  pgtype.Text
 			originalAuthorEmail     pgtype.Text
@@ -437,6 +444,7 @@ func GetTweets(ctx context.Context, userID string, limit int, offset int) ([]mod
 			&originalReplyAuthorFollowers,
 			&tweet.IsLiked,
 			&tweet.IsRetweeted,
+			&originalIsLiked,
 		)
 		if err != nil {
 			return nil, fmt.Errorf("failed to scan tweet: %w", err)
@@ -508,6 +516,7 @@ func GetTweets(ctx context.Context, userID string, limit int, offset int) ([]mod
 				BookmarksCount:   int(originalBookmarksCount.Int32),
 				CreatedAt:        originalCreatedAt.Time,
 				UpdatedAt:        originalUpdatedAt.Time,
+				IsLiked:      originalIsLiked.Bool,
 				User:             originalAuthor,
 			}
 

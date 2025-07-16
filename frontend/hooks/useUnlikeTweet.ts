@@ -1,11 +1,12 @@
-import { likeTweet } from "@/lib/queries/tweets.queries";
-import { queryClient } from "@/lib/queryClient";
+import { unlikeTweet } from "@/lib/queries/tweets.queries";
 import { Tweet, TweetsType } from "@/types/tweets.types";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 
-export const useLikeTweet = (types: TweetsType | TweetsType[]) => {
+export const useUnlikeTweet = (types: TweetsType | TweetsType[]) => {
+  const queryClient = useQueryClient();
+
   return useMutation({
-    mutationFn: likeTweet,
+    mutationFn: unlikeTweet,
     onSuccess: (_data, tweetId) => {
       const typesArray = Array.isArray(types) ? types : [types];
 
@@ -21,8 +22,8 @@ export const useLikeTweet = (types: TweetsType | TweetsType[]) => {
                 if (tweet.id === tweetId) {
                   return {
                     ...tweet,
-                    isLiked: true,
-                    likesCount: tweet.likesCount + 1,
+                    isLiked: false,
+                    likesCount: tweet.likesCount - 1,
                   };
                 }
                 return tweet;

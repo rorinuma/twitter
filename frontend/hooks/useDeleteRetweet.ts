@@ -9,6 +9,12 @@ export const useDeleteRetweet = (types: TweetsType | TweetsType[]) => {
     mutationFn: deleteRetweet,
     onSuccess: ({ originalTweetId, retweetsCount }) => {
       const typesArray = Array.isArray(types) ? types : [types];
+      console.log(
+        "originalTweetId: ",
+        originalTweetId,
+        "retweetsCount",
+        retweetsCount,
+      );
 
       typesArray.forEach((type) => {
         queryClient.setQueryData(["tweets", type], (oldData: any) => {

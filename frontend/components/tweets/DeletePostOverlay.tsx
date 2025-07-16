@@ -21,6 +21,7 @@ export default function DeletePostOverlay({
     "liked",
     "replies",
   ]);
+
   const handlePostDelete = async () => {
     deleteTweet(tweet.id, {
       onSuccess: () => {

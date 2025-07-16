@@ -102,6 +102,9 @@ export default function TweetActions({
       });
     } else {
       deleteRetweet(targetId, {
+        onSuccess: () => {
+          setError("Retweet successfully deleted");
+        },
         onError: (err) => {
           if (axios.isAxiosError(err)) {
             const message =

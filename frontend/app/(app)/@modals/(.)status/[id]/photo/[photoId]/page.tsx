@@ -4,6 +4,8 @@ import Status from "@/app/(app)/status/[id]/page";
 import ErrorOverlay from "@/components/shared/overlays/ErrorOverlay";
 import Overlay from "@/components/shared/overlays/Overlay";
 import TweetActions from "@/components/tweets/TweetActions";
+import { IoMdClose } from "react-icons/io";
+import GeneralTooltip from "@/components/ui/decorations/GeneralTooltip";
 import ClientPortal from "@/components/utility/ClientPortal";
 import { useClickOutside } from "@/hooks/clickOutside";
 import { useDisableBodyScroll } from "@/hooks/disableBodyScroll";
@@ -38,8 +40,8 @@ export default function PhotoGallery() {
         <ClientPortal>
           <Overlay position="fixed">
             <main className="flex h-dvh w-dvw ">
-              <section className="flex flex-col w-4/5 ">
-                <div className="flex items-center justify-center h-[93%]">
+              <section className="flex flex-col w-full lg:w-4/5 ">
+                <div className="flex items-center justify-center h-[93%] relative">
                   <Image
                     src={mediaURL}
                     alt="gallery-image"
@@ -49,12 +51,19 @@ export default function PhotoGallery() {
                     className="object-contain max-w-full max-h-full"
                   />
                 </div>
+                <GeneralTooltip
+                  content="Close"
+                  centered={true}
+                  absoluteTopLeft={true}
+                >
+                  <IoMdClose className="absolute top-4 left-4 z-50 hover:bg-nav-hover text-foreground p-2 size-10 rounded-full duration-(--hover-duration)" />
+                </GeneralTooltip>
                 <div
                   className="flex justify-center h-[7%]"
                   ref={tweetActionsRef}
                 >
                   <TweetActions
-                    id={tweet.id}
+                    tweet={tweet}
                     repliesCount={tweet.repliesCount}
                     retweetsCount={tweet.retweetsCount}
                     likesCount={tweet.likesCount}
@@ -65,7 +74,7 @@ export default function PhotoGallery() {
                   />
                 </div>
               </section>
-              <section className="flex w-1/5" ref={statusRef}>
+              <section className="hidden lg:flex lg:w-1/5" ref={statusRef}>
                 <Status />
               </section>
             </main>

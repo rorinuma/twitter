@@ -6,7 +6,7 @@ import image from "@/public/Type.jpg";
 import { IoIosMore } from "react-icons/io";
 import { MediaGrid } from "./MediaGrid";
 import TweetActions from "./TweetActions";
-import { memo, useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { motion, useReducedMotion } from "motion/react";
 
 import {
@@ -64,6 +64,7 @@ export default function TweetCard({
   if (tweetToRender?.retweetedTweet) {
     tweet = tweetToRender.retweetedTweet;
     tweet.retweetedUsername = tweetToRender.user.username;
+    tweet.retweetedId = tweetToRender.retweetedTweet.id;
   }
 
   useCloseOnInteraction(isMoreOpen, () => setIsMoreOpen(false), {
@@ -139,7 +140,6 @@ export default function TweetCard({
   const handleDeletePostClick = () => {
     setIsPostDeletionVisible(true);
   };
-  console.log("uuh: ", tweet?.thread);
 
   return (
     <>
@@ -392,7 +392,7 @@ export default function TweetCard({
                   variant !== "reply" && (
                     <div className="mb-2">
                       <TweetActions
-                        id={tweet.id}
+                        tweet={tweet}
                         repliesCount={tweet.repliesCount}
                         retweetsCount={tweet.retweetsCount}
                         likesCount={tweet.likesCount}

@@ -4,7 +4,7 @@ interface Tweet {
   content: string | null;
   inReplyToTweetId: string | null; // UUID
   originalTweetId: string | null; // UUID
-  mediaUrls: string[] | null;
+  mediaURLs: string[] | null;
   repliesCount: number;
   likesCount: number;
   retweetsCount: number;

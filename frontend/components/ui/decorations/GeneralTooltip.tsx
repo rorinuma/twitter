@@ -16,8 +16,14 @@ interface Props {
   children: React.ReactElement;
   content: string;
   centered?: boolean;
+  absoluteTopLeft?: boolean;
 }
-export default function GeneralTooltip({ children, content, centered }: Props) {
+export default function GeneralTooltip({
+  children,
+  content,
+  centered,
+  absoluteTopLeft,
+}: Props) {
   const [open, setOpen] = useState(false);
 
   const { refs, floatingStyles, context } = useFloating({
@@ -40,12 +46,19 @@ export default function GeneralTooltip({ children, content, centered }: Props) {
     role,
   ]);
 
+  const commonClassName = [
+    centered && "flex items-center justify-center",
+    absoluteTopLeft && "absolute top-4 left-4",
+  ]
+    .filter(Boolean)
+    .join(" ");
+
   return (
     <>
       <span
         ref={refs.setReference}
         {...getReferenceProps()}
-        className={centered ? "flex items-center justify-center" : ""}
+        className={`${commonClassName}`}
       >
         {children}
       </span>

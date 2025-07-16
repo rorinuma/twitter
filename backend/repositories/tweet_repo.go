@@ -22,7 +22,9 @@ func CreateTweet(ctx context.Context, input models.CreateTweetInput) (*models.Tw
 		retweets_count, views_count, bookmarks_count, created_at, updated_at
 	)
 	VALUES ($1, $2, $3, $4, $5, 0, 0, 0, 0, 0, NOW(), NOW())
-	RETURNING id, created_at, updated_at
+	RETURNING id, user_id, content, in_reply_to_tweet_id, original_tweet_id,
+	media_urls, replies_count, likes_count, retweets_count, views_count, bookmarks_count,
+	created_at, updated_at
 	`
 
 	var tweet models.Tweet
@@ -34,7 +36,11 @@ func CreateTweet(ctx context.Context, input models.CreateTweetInput) (*models.Tw
 		input.InReplyToTweetID,
 		input.OriginalTweetID,
 		input.MediaURLs,
-	).Scan(&tweet.ID, &tweet.CreatedAt, &tweet.UpdatedAt)
+	).Scan(&tweet.ID, &tweet.UserID, &tweet.Content, &tweet.InReplyToTweetID, 
+		&tweet.OriginalTweetID, &tweet.MediaURLs, &tweet.RepliesCount, &tweet.LikesCount,
+		&tweet.RetweetsCount, &tweet.ViewsCount, &tweet.BookmarksCount,
+		&tweet.CreatedAt, &tweet.UpdatedAt)
+
 	if err != nil {
 		return nil, err
 	}
@@ -171,6 +177,13 @@ func GetTweets(ctx context.Context, userID string, limit int, offset int) ([]mod
 			FROM likes l
 			WHERE l.tweet_id = t.id AND l.user_id = $1
 		) as is_liked
+
+	-- TODO -- 
+		EXISTS (
+			SELECT 1
+			FROM tweets t2
+			WHERE t2.user_id = $1
+		) as is_retweeted
 
 	FROM tweets t
 	JOIN users u ON u.id = t.user_id

@@ -79,3 +79,14 @@ export const createTweet = async ({
 export const deleteTweet = async (id: string) => {
   await api.delete(`/protected/tweets/delete/${id}`);
 };
+
+export const createRetweet = async (id: string): Promise<Tweet> => {
+  const { data } = await api.post<RawTweet>(
+    `/protected/tweets/create?retweetedTweetID=${id}`,
+    {},
+    {
+      headers: { "Content-Type": "multipart/form-data" },
+    },
+  );
+  return normalizeTweet(data);
+};

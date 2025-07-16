@@ -1,6 +1,5 @@
 import Image from "next/image";
 import { IoMdClose } from "react-icons/io";
-import SmallButton from "../ui/buttons/SmallButton";
 import IconButton from "../ui/buttons/IconButton";
 
 interface Props {
@@ -36,7 +35,7 @@ export default function PostMedia({ media, index, handleImageDelete }: Props) {
           width={250}
           height={250}
           alt="post-image"
-          className="flex flex-1 rounded-2xl object-cover"
+          className="flex min-w-1/2 grow shrink rounded-2xl object-cover"
         />
       )}
       {/*<div className="absolute top-1 left-1">

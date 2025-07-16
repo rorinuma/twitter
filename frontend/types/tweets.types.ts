@@ -15,6 +15,7 @@ export interface Tweet {
   createdAt: string;
   updatedAt: string;
   isLiked: boolean;
+  isRetweeted: boolean;
 
   user: User;
 
@@ -25,6 +26,7 @@ export interface Tweet {
 
   retweetedTweet: Tweet | null;
   retweetedUsername?: string;
+  retweetedId?: string;
   quotedTweet: Tweet | null;
 }
 

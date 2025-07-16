@@ -8,8 +8,6 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { IoMdClose } from "react-icons/io";
 import { FaArrowRight, FaArrowLeft } from "react-icons/fa6";
 import { motion, useReducedMotion } from "motion/react";
-import api from "@/lib/axios";
-import axios from "axios";
 import Avatar from "../ui/user/Avatar";
 import SmallButton from "../ui/buttons/SmallButton";
 import IconButton from "../ui/buttons/IconButton";
@@ -53,7 +51,11 @@ export default function Post({ modal, ref, replyTo }: Props) {
 
   const { data: quotedTweet } = useTweet(quoteToParams, !!quoteToParams);
 
-  const { mutate: postTweet } = useCreateTweet();
+  const { mutate: postTweet } = useCreateTweet([
+    "foryou",
+    "following",
+    "posts",
+  ]);
 
   const shouldReduceMotion = useReducedMotion();
 

@@ -1,22 +1,31 @@
-import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { createTweet } from "@/lib/queries/tweets.queries";
 import { useAuth } from "@/context/authContext";
+import { createRetweet } from "@/lib/queries/tweets.queries";
 import { TweetsType } from "@/types/tweets.types";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 
-export const useCreateTweet = (types: TweetsType | TweetsType[]) => {
+export const useCreateRetweet = (types: TweetsType | TweetsType[]) => {
   const queryClient = useQueryClient();
   const { user } = useAuth();
 
   return useMutation({
-    mutationFn: createTweet,
-    onSuccess: (tweet: Tweet) => {
+    mutationFn: createRetweet,
+    onSuccess: (retweet: Tweet) => {
       const typesArray = Array.isArray(types) ? types : [types];
+      const originalTweetId = retweet.originalTweetId;
 
       typesArray.forEach((type) => {
         queryClient.setQueryData(["tweets", type], (oldData: any) => {
           if (!oldData) return oldData;
 
-          const newTweet = { ...tweet, user };
+          let retweetedTweet: Tweet | undefined;
+
+          for (const page of oldData.pages) {
+            retweetedTweet = page.tweets.find(
+              (t: Tweet) => t.id == originalTweetId,
+            );
+            if (retweetedTweet) break;
+          }
+          const newRetweet = { ...retweet, user, retweetedTweet };
 
           return {
             ...oldData,
@@ -24,7 +33,7 @@ export const useCreateTweet = (types: TweetsType | TweetsType[]) => {
               if (index === 0) {
                 return {
                   ...page,
-                  tweets: [newTweet, ...page.tweets],
+                  tweets: [newRetweet, ...page.tweets],
                 };
               }
               return page;

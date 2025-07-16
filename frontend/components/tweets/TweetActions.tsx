@@ -17,9 +17,12 @@ import { useClickOutside } from "@/hooks/clickOutside";
 import { FaPen } from "react-icons/fa6";
 import axios from "axios";
 import api from "@/lib/axios";
+import { Tweet } from "@/types/tweets.types";
+import { useCreateRetweet } from "@/hooks/useCreateRetweet";
+import { useAuth } from "@/context/authContext";
 
 interface Props {
-  id: string;
+  tweet: Tweet;
   repliesCount: number;
   retweetsCount: number;
   likesCount: number;
@@ -30,7 +33,7 @@ interface Props {
 }
 
 export default function TweetActions({
-  id,
+  tweet,
   repliesCount,
   retweetsCount,
   likesCount,
@@ -44,6 +47,13 @@ export default function TweetActions({
     useState<boolean>(false);
   const shouldReduceMotion = useReducedMotion();
   const retweetModalRef = useRef<HTMLDivElement>(null);
+  const { user } = useAuth();
+
+  const { mutate: createRetweet } = useCreateRetweet([
+    "posts",
+    "foryou",
+    "following",
+  ]);
 
   useClickOutside([retweetModalRef], () => {
     setIsRetweetModalVisible(false);
@@ -63,37 +73,36 @@ export default function TweetActions({
   const handleRetweetClick = async (e: React.MouseEvent<HTMLButtonElement>) => {
     e.stopPropagation();
 
-    try {
-      await api.post(
-        `/protected/tweets/create?retweetedTweetID=${id}`,
-        {},
-        {
-          headers: { "Content-Type": "multipart/form-data" },
+    const targetId = tweet.retweetedId ?? tweet.id;
+
+    if (!tweet.isRetweeted) {
+      createRetweet(targetId, {
+        onSuccess: () => {
+          setError("Tweet successfully retweeted");
         },
-      );
-      setError("Tweet successfully retweeted");
-    } catch (err) {
-      if (axios.isAxiosError(err)) {
-        const message =
-          err.response?.data?.message ||
-          err.response?.data?.error ||
-          err.response?.data ||
-          "Failed to repost the tweet due to server error.";
-        setError(message);
-      } else {
-        console.error("Non-Axios error when reposting tweet:", err);
-        setError("An unexpected error occurred while reposting the tweet.");
-      }
-    } finally {
-      setIsRetweetModalVisible(false);
+        onError: (err) => {
+          if (axios.isAxiosError(err)) {
+            const message =
+              err.response?.data?.message ||
+              err.response?.data?.error ||
+              err.response?.data ||
+              "Failed to repost the tweet due to server error.";
+            setError(message);
+          } else {
+            console.error("Non-Axios error when reposting tweet:", err);
+            setError("An unexpected error occurred while reposting the tweet.");
+          }
+        },
+      });
     }
+    setIsRetweetModalVisible(false);
   };
 
   const handleLikeClick = async (e: React.MouseEvent<HTMLButtonElement>) => {
     e.stopPropagation();
 
     try {
-      const { data } = await api.post(`/protected/tweets/like/${id}`, {});
+      const { data } = await api.post(`/protected/tweets/like/${tweet.id}`, {});
       setError(data.message);
     } catch (err) {
       if (axios.isAxiosError(err)) {
@@ -119,7 +128,7 @@ export default function TweetActions({
       <div
         className={clsx("flex justify-between mt-2", {
           "border-y border-y-border py-1": variant === "status",
-          "w-[35%]": variant === "gallery",
+          "lg:w-[50vw] w-[75vw]": variant === "gallery",
         })}
       >
         <GeneralTooltip content="Reply" centered={true}>
@@ -134,7 +143,7 @@ export default function TweetActions({
             )}
             onClick={(e) => {
               e.stopPropagation();
-              router.push(`/compose/post?replyTo=${id}`);
+              router.push(`/compose/post?replyTo=${tweet.id}`);
             }}
           >
             <div
@@ -187,7 +196,7 @@ export default function TweetActions({
           </GeneralTooltip>
           {isRetweetModalVisible && (
             <motion.div
-              className="flex flex-col absolute bottom-0 left-0 rounded-xl shadow-default bg-background z-30"
+              className="flex flex-col absolute bottom-0 left-0 rounded-xl w-fit shadow-default bg-background z-30"
               variants={variants}
               initial="initial"
               animate="animate"
@@ -201,14 +210,18 @@ export default function TweetActions({
                 <div>
                   <AiOutlineRetweet />
                 </div>
-                <div>Repost</div>
+                <div>
+                  {tweet.retweetedUsername === user?.username
+                    ? "Undo Repost"
+                    : "Repost"}
+                </div>
               </button>
               <button
                 className="flex gap-2 items-center justify-center rounded-b-xl p-2 hover:bg-nav-hover duration-(--hover-duration)"
                 onClick={(e) => {
                   e.stopPropagation();
                   setIsRetweetModalVisible(false);
-                  router.push(`/compose/post?quoteTo=${id}`);
+                  router.push(`/compose/post?quoteTo=${tweet.id}`);
                 }}
               >
                 <div>
@@ -239,7 +252,7 @@ export default function TweetActions({
                 },
               )}
             >
-              <FaRegHeart />
+              {<FaRegHeart />}
             </div>
             <div
               className={clsx("-ml-1 mt-[3px]", {

@@ -14,7 +14,13 @@ export default function DeletePostOverlay({
   setError,
   tweet,
 }: Props) {
-  const { mutate: deleteTweet } = useDeleteTweet();
+  const { mutate: deleteTweet } = useDeleteTweet([
+    "foryou",
+    "posts",
+    "following",
+    "liked",
+    "replies",
+  ]);
   const handlePostDelete = async () => {
     deleteTweet(tweet.id, {
       onSuccess: () => {

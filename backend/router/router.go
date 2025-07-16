@@ -20,6 +20,7 @@ func SetupRouter() *mux.Router {
 	protected.HandleFunc("/tweets/foryou", handlers.GetTweets).Methods("GET")
 	protected.HandleFunc("/tweets/create", handlers.CreateTweet).Methods("POST")
 	protected.HandleFunc("/tweets/like/{id}", handlers.LikeTweet).Methods("POST")
+	protected.HandleFunc("/tweets/unlike/{id}", handlers.UnlikeTweet).Methods("DELETE")
 	protected.HandleFunc("/tweets/delete/{id}", handlers.DeleteTweet).Methods("DELETE")
 	protected.HandleFunc("/tweets/delete-retweet/{id}", handlers.DeleteRetweet).Methods("DELETE")
 	protected.HandleFunc("/me", handlers.Me).Methods("POST")

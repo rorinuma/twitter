@@ -122,7 +122,7 @@ func DeleteRetweet(ctx context.Context, originalTweetID, userID string) (*uuid.U
 	var newCount *int
 	err = db.Pool.QueryRow(ctx, `
 		UPDATE tweets
-		SET retweets_count = retweets_count - 1
+		SET retweets_count = GREATEST(retweets_count - 1, 0)
 		WHERE id = $1
 		RETURNING retweets_count
 	`, originalTweetID).Scan(&newCount)
@@ -157,6 +157,29 @@ func LikeTweet(ctx context.Context, tweetID string, userID string) (*uuid.UUID, 
 	}
 
 	return likedTweetID, nil
+}
+
+func UnlikeTweet(ctx context.Context, userID, tweetID string) (*uuid.UUID, error) {
+	query := `
+		DELETE FROM likes
+		WHERE user_id = $1 AND tweet_id = $2
+		RETURNING tweet_id	
+	`
+
+	var deletedID *uuid.UUID
+	err := db.Pool.QueryRow(ctx, query, userID, tweetID).Scan(&deletedID)
+
+	if err != nil {
+		return nil, err
+	}
+	
+	_, err = db.Pool.Exec(ctx, `
+		UPDATE tweets
+		SET likes_count = GREATEST(likes_count - 1, 0)
+		WHERE id = $1
+	`, tweetID)
+
+	return deletedID, nil
 }
 
 func GetTweets(ctx context.Context, userID string, limit int, offset int) ([]models.Tweet, error) {

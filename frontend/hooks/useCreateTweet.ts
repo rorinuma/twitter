@@ -1,7 +1,7 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { createTweet } from "@/lib/queries/tweets.queries";
 import { useAuth } from "@/context/authContext";
-import { TweetsType } from "@/types/tweets.types";
+import { Tweet, TweetsType } from "@/types/tweets.types";
 
 export const useCreateTweet = (types: TweetsType | TweetsType[]) => {
   const queryClient = useQueryClient();

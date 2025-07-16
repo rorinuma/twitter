@@ -18,9 +18,9 @@ export const useDeleteTweet = (types: TweetsType | TweetsType[]) => {
             ...oldData,
             pages: oldData.pages.map((page: any) => ({
               ...page,
-              tweets: page.tweets.filter((tweet: Tweet) => {
-                tweet.id != deletedId;
-              }),
+              tweets: page.tweets.filter(
+                (tweet: Tweet) => tweet.id != deletedId,
+              ),
             })),
           };
         });

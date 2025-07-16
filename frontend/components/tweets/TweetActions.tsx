@@ -21,6 +21,7 @@ import { Tweet } from "@/types/tweets.types";
 import { useCreateRetweet } from "@/hooks/useCreateRetweet";
 import { useAuth } from "@/context/authContext";
 import { useDeleteRetweet } from "@/hooks/useDeleteRetweet";
+import { useLikeTweet } from "@/hooks/useLikeTweet";
 
 interface Props {
   tweet: Tweet;
@@ -59,6 +60,14 @@ export default function TweetActions({
     "posts",
     "foryou",
     "following",
+  ]);
+
+  const { mutate: likeTweet } = useLikeTweet([
+    "replies",
+    "liked",
+    "following",
+    "foryou",
+    "posts",
   ]);
 
   useClickOutside([retweetModalRef], () => {
@@ -131,21 +140,22 @@ export default function TweetActions({
   const handleLikeClick = async (e: React.MouseEvent<HTMLButtonElement>) => {
     e.stopPropagation();
 
-    try {
-      const { data } = await api.post(`/protected/tweets/like/${tweet.id}`, {});
-      setError(data.message);
-    } catch (err) {
-      if (axios.isAxiosError(err)) {
-        const message =
-          err.response?.data?.message ||
-          err.response?.data?.error ||
-          err.response?.data ||
-          "Failed to like the tweet due to server error.";
-        setError(message);
-      } else {
-        console.error("Non-Axios error when liking the tweet:", err);
-        setError("An unexpected error occurred while liking the tweet.");
-      }
+    if (!tweet.isLiked) {
+      likeTweet(tweet.id, {
+        onError: (err) => {
+          if (axios.isAxiosError(err)) {
+            const message =
+              err.response?.data?.message ||
+              err.response?.data?.error ||
+              err.response?.data ||
+              "Failed to like the tweet due to server error.";
+            setError(message);
+          } else {
+            console.error("Non-Axios error when liking the tweet:", err);
+            setError("An unexpected error occurred while liking the tweet.");
+          }
+        },
+      });
     }
   };
 

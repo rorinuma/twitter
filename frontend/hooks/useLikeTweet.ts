@@ -18,13 +18,26 @@ export const useLikeTweet = (types: TweetsType | TweetsType[]) => {
             pages: oldData.pages.map((page: any) => ({
               ...page,
               tweets: page.tweets.map((tweet: Tweet) => {
-                if (tweet.id === tweetId) {
+                const isOriginal = tweet.id === tweetId;
+                const isRetweet = tweet.retweetedTweet?.id === tweetId;
+
+                if (isOriginal) {
                   return {
                     ...tweet,
                     isLiked: true,
                     likesCount: tweet.likesCount + 1,
                   };
+                } else if (isRetweet && tweet.retweetedTweet) {
+                  return {
+                    ...tweet,
+                    retweetedTweet: {
+                      ...tweet.retweetedTweet,
+                      isLiked: true,
+                      likesCount: tweet.retweetedTweet?.likesCount + 1,
+                    },
+                  };
                 }
+
                 return tweet;
               }),
             })),

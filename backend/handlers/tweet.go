@@ -248,10 +248,12 @@ func UnlikeTweet(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	fmt.Printf("outer tweetID: %v, outer userID: %v", tweetID, userID)
+
 	deletedID, err := repositories.UnlikeTweet(r.Context(), userID, tweetID)
 
 	if err != nil {
-		log.Println("Error unliking a tweet")
+		log.Printf("Error unliking a tweet: %v", err)
 		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
 		return
 	}

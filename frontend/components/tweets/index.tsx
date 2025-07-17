@@ -128,13 +128,13 @@ export default function TweetCard({
 
   const variants = shouldReduceMotion
     ? {
-      initial: { opacity: 1 },
-      animate: { opacity: 1 },
-    }
+        initial: { opacity: 1 },
+        animate: { opacity: 1 },
+      }
     : {
-      initial: { opacity: 0 },
-      animate: { opacity: 1 },
-    };
+        initial: { opacity: 0 },
+        animate: { opacity: 1 },
+      };
   const transition = shouldReduceMotion ? { duration: 0 } : { duration: 0.3 };
 
   const handleDeletePostClick = () => {

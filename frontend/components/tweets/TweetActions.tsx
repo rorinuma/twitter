@@ -16,7 +16,6 @@ import { motion } from "motion/react";
 import { useClickOutside } from "@/hooks/clickOutside";
 import { FaHeart, FaPen } from "react-icons/fa6";
 import axios from "axios";
-import api from "@/lib/axios";
 import { Tweet } from "@/types/tweets.types";
 import { useCreateRetweet } from "@/hooks/useCreateRetweet";
 import { useAuth } from "@/context/authContext";
@@ -89,8 +88,8 @@ export default function TweetActions({
       animate: { opacity: 1 },
     }
     : {
-      initial: { height: 0, opacity: 0 },
-      animate: { height: "fit-content", opacity: 1 },
+      initial: { opacity: 0 },
+      animate: { opacity: 1 },
     };
   const transition = shouldReduceMotion ? { duration: 0 } : { duration: 0.3 };
 
@@ -101,9 +100,6 @@ export default function TweetActions({
 
     if (!isRetweeted) {
       createRetweet(targetId, {
-        onSuccess: () => {
-          setError("Tweet successfully retweeted");
-        },
         onError: (err) => {
           if (axios.isAxiosError(err)) {
             const message =
@@ -120,9 +116,6 @@ export default function TweetActions({
       });
     } else {
       deleteRetweet(targetId, {
-        onSuccess: () => {
-          setError("Retweet successfully deleted");
-        },
         onError: (err) => {
           if (axios.isAxiosError(err)) {
             const message =
@@ -270,7 +263,7 @@ export default function TweetActions({
           </GeneralTooltip>
           {isRetweetModalVisible && (
             <motion.div
-              className="flex flex-col absolute bottom-0 left-0 rounded-xl w-fit shadow-default bg-background z-30"
+              className="flex flex-col fixed bottom-0 w-full h-fit left-1/2 max-xs:-translate-x-1/2  max-xs:p-3 max-xs:gap-2 xs:absolute xs:-bottom-10 xs:-left-16 xs:rounded-xl rounded-t-xl xs:w-fit shadow-default bg-background z-30"
               variants={variants}
               initial="initial"
               animate="animate"
@@ -278,7 +271,7 @@ export default function TweetActions({
               ref={retweetModalRef}
             >
               <button
-                className="flex gap-2 items-center justify-center rounded-t-xl p-2 hover:bg-nav-hover duration-(--hover-duration)"
+                className="flex gap-2 items-center xs:justify-center rounded-t-xl p-2 hover:bg-nav-hover duration-(--hover-duration)"
                 onClick={handleRetweetClick}
               >
                 <div>
@@ -287,7 +280,7 @@ export default function TweetActions({
                 <div>{isRetweeted ? "Undo Repost" : "Repost"}</div>
               </button>
               <button
-                className="flex gap-2 items-center justify-center rounded-b-xl p-2 hover:bg-nav-hover duration-(--hover-duration)"
+                className="flex gap-2 items-center xs:justify-center rounded-b-xl p-2 hover:bg-nav-hover duration-(--hover-duration)"
                 onClick={(e) => {
                   e.stopPropagation();
                   setIsRetweetModalVisible(false);
@@ -298,6 +291,15 @@ export default function TweetActions({
                   <FaPen />
                 </div>
                 <div>Quote</div>
+              </button>
+              <button
+                className="flex items-center justify-center xs:hidden border-border border w-full p-3 mb-2 mx-0 rounded-full"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setIsRetweetModalVisible(false);
+                }}
+              >
+                Cancel
               </button>
             </motion.div>
           )}

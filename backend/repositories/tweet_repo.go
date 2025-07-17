@@ -134,26 +134,27 @@ func DeleteRetweet(ctx context.Context, originalTweetID, userID string) (*uuid.U
 }
 
 func LikeTweet(ctx context.Context, tweetID string, userID string) (*uuid.UUID, error) {
-	_, err := db.Pool.Exec(ctx, `
-		UPDATE tweets 
-		SET likes_count = likes_count + 1
-		WHERE id = $1
-	`, tweetID)
-	if err != nil {
-		return nil, err
-	}
-
 	query := `
   	INSERT INTO likes (tweet_id, user_id)
   	VALUES ($1, $2)
-  	ON CONFLICT (tweet_id, user_id) DO NOTHING
   	RETURNING id
 	`
 	var likedTweetID *uuid.UUID
-	err = db.Pool.QueryRow(ctx, query, tweetID, userID).Scan(&likedTweetID)
+	err := db.Pool.QueryRow(ctx, query, tweetID, userID).Scan(&likedTweetID)
 
 	if err != nil && err != pgx.ErrNoRows {
 		return nil, err
+	}
+
+	if err != pgx.ErrNoRows {
+		_, err = db.Pool.Exec(ctx, `
+			UPDATE tweets 
+			SET likes_count = likes_count + 1
+			WHERE id = $1
+			`, tweetID)
+		if err != nil {
+			return nil, err
+		}
 	}
 
 	return likedTweetID, nil
@@ -516,7 +517,7 @@ func GetTweets(ctx context.Context, userID string, limit int, offset int) ([]mod
 				BookmarksCount:   int(originalBookmarksCount.Int32),
 				CreatedAt:        originalCreatedAt.Time,
 				UpdatedAt:        originalUpdatedAt.Time,
-				IsLiked:      originalIsLiked.Bool,
+				IsLiked:      		originalIsLiked.Bool,
 				User:             originalAuthor,
 			}
 

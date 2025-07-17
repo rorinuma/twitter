@@ -19,11 +19,22 @@ export const useUnlikeTweet = (types: TweetsType | TweetsType[]) => {
             pages: oldData.pages.map((page: any) => ({
               ...page,
               tweets: page.tweets.map((tweet: Tweet) => {
-                if (tweet.id === tweetId) {
+                const isOriginal = tweet.id === tweetId;
+                const isRetweet = tweet.retweetedTweet?.id === tweetId;
+                if (isOriginal) {
                   return {
                     ...tweet,
                     isLiked: false,
                     likesCount: tweet.likesCount - 1,
+                  };
+                } else if (isRetweet && tweet.retweetedTweet) {
+                  return {
+                    ...tweet,
+                    retweetedTweet: {
+                      ...tweet.retweetedTweet,
+                      isLiked: false,
+                      likesCount: tweet.retweetedTweet?.likesCount - 1,
+                    },
                   };
                 }
                 return tweet;

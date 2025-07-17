@@ -22,6 +22,7 @@ type Tweet struct {
 	UpdatedAt        time.Time  `json:"updated_at"`
 	IsLiked          bool       `json:"is_liked"`
 	IsRetweeted 		 bool       `json:"is_retweeted"`
+	IsViewed         bool       `json:"is_viewed"`
 	User             User       `json:"user"`
 	ReplyTo          *Tweet     `json:"reply_to,omitempty"`
 	Replies          *[]Tweet  	`json:"replies,omitempty"`					 

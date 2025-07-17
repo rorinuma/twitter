@@ -9,14 +9,20 @@ export const useCreateTweet = (types: TweetsType | TweetsType[]) => {
 
   return useMutation({
     mutationFn: createTweet,
-    onSuccess: (tweet: Tweet) => {
+    onSuccess: (tweet: Tweet, { replyTo }) => {
       const typesArray = Array.isArray(types) ? types : [types];
 
       typesArray.forEach((type) => {
         queryClient.setQueryData(["tweets", type], (oldData: any) => {
           if (!oldData) return oldData;
 
-          const newTweet = { ...tweet, user };
+          let replyToTweet: Tweet | undefined;
+          for (const page of oldData.pages) {
+            replyToTweet = page.tweets.find((t: Tweet) => t.id === replyTo);
+            if (replyToTweet) break;
+          }
+
+          const newTweet = { ...tweet, replyTo: replyToTweet, user };
 
           return {
             ...oldData,
@@ -32,6 +38,22 @@ export const useCreateTweet = (types: TweetsType | TweetsType[]) => {
           };
         });
       });
+
+      if (replyTo) {
+        queryClient.setQueryData(
+          ["tweet", replyTo],
+          (oldData: Tweet | undefined) => {
+            if (!oldData) return oldData;
+
+            const newReply = { ...tweet, user };
+
+            return {
+              ...oldData,
+              replies: [newReply, ...(oldData.replies || [])],
+            };
+          },
+        );
+      }
     },
   });
 };

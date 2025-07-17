@@ -35,6 +35,8 @@ import DeletePostOverlay from "./DeletePostOverlay";
 import ErrorOverlay from "../shared/overlays/ErrorOverlay";
 import { createPortal } from "react-dom";
 import { AiOutlineRetweet } from "react-icons/ai";
+import { useInView } from "react-intersection-observer";
+import { addView } from "@/lib/queries/tweets.queries";
 
 interface Props {
   tweet: Tweet | null;
@@ -59,6 +61,12 @@ export default function TweetCard({
   const router = useRouter();
   const params = useParams<{ photoId: string }>();
   const shouldReduceMotion = useReducedMotion();
+  const { user } = useAuth();
+
+  const { ref: inViewRef, inView } = useInView({
+    threshold: 0.5,
+    triggerOnce: true,
+  });
 
   let tweet = tweetToRender;
   if (tweetToRender?.retweetedTweet) {
@@ -76,6 +84,10 @@ export default function TweetCard({
     isMoreOpen && setIsMoreOpen(false);
   });
 
+  if (variant === "status") {
+    console.log('variant === "status" isViewed', tweet?.isViewed);
+  }
+
   useEffect(() => {
     if (error) {
       setTimeout(() => {
@@ -84,7 +96,14 @@ export default function TweetCard({
     }
   }, [error]);
 
-  const { user } = useAuth();
+  useEffect(() => {
+    if (inView && tweet?.id && !tweet.isViewed) {
+      addView(tweet.id).catch((err) => {
+        setError("Failed to add a view to the tweet");
+        console.error("Failed to add a view to the tweet", err);
+      });
+    }
+  }, [inView, tweet?.id]);
 
   const handleTweetClick = () => {
     if (
@@ -156,6 +175,7 @@ export default function TweetCard({
             e.stopPropagation();
             handleTweetClick();
           }}
+          ref={inViewRef}
         >
           <div
             className={clsx("flex flex-col mr-2 ml-3", {

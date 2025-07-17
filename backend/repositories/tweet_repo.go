@@ -183,6 +183,34 @@ func UnlikeTweet(ctx context.Context, userID, tweetID string) (*uuid.UUID, error
 	return deletedID, nil
 }
 
+func ViewTweet(ctx context.Context, tweetID, userID string) (*uuid.UUID, error) {
+	query := `
+		INSERT INTO views (
+			user_id, tweet_id
+		)
+		VALUES ($1, $2)
+		RETURNING id
+	`
+
+	var id *uuid.UUID
+	err := db.Pool.QueryRow(ctx, query, userID, tweetID).Scan(&id)
+	if err != nil {
+		return nil, err
+	}
+
+	_, err = db.Pool.Exec(ctx, `
+		UPDATE tweets
+		SET views_count = GREATEST(views_count + 1, 0)
+		WHERE id = $1
+	`, tweetID)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return id, nil
+}
+
 func GetTweets(ctx context.Context, userID string, limit int, offset int) ([]models.Tweet, error) {
 	query := `
 	SELECT 
@@ -238,7 +266,19 @@ func GetTweets(ctx context.Context, userID string, limit int, offset int) ([]mod
 		  SELECT 1
 		  FROM likes l
       WHERE l.tweet_id = ot.id AND l.user_id = $1
-		) as original_is_liked
+		) as original_is_liked,
+
+		EXISTS (
+			SELECT 1
+			FROM views v
+			WHERE v.tweet_id = t.id AND v.user_id = $1
+		) as is_viewed,
+
+		EXISTS (
+			SELECT 1
+			FROM views v
+			WHERE v.tweet_id = ot.id AND v.user_id = $1
+		) as original_is_viewed 
 
 	FROM tweets t
 	JOIN users u ON u.id = t.user_id
@@ -306,6 +346,7 @@ func GetTweets(ctx context.Context, userID string, limit int, offset int) ([]mod
 			originalCreatedAt       pgtype.Timestamptz
 			originalUpdatedAt       pgtype.Timestamptz
 			originalIsLiked         pgtype.Bool
+			originalIsViewed        pgtype.Bool
 			originalAuthorID        pgtype.UUID
 			originalAuthorUsername  pgtype.Text
 			originalAuthorEmail     pgtype.Text
@@ -446,6 +487,8 @@ func GetTweets(ctx context.Context, userID string, limit int, offset int) ([]mod
 			&tweet.IsLiked,
 			&tweet.IsRetweeted,
 			&originalIsLiked,
+			&tweet.IsViewed,
+			&originalIsViewed,
 		)
 		if err != nil {
 			return nil, fmt.Errorf("failed to scan tweet: %w", err)
@@ -518,6 +561,7 @@ func GetTweets(ctx context.Context, userID string, limit int, offset int) ([]mod
 				CreatedAt:        originalCreatedAt.Time,
 				UpdatedAt:        originalUpdatedAt.Time,
 				IsLiked:      		originalIsLiked.Bool,
+				IsViewed:         originalIsViewed.Bool,
 				User:             originalAuthor,
 			}
 
@@ -707,7 +751,25 @@ func GetTweetByID(ctx context.Context, tweetID string, userID *string) (*models.
 			SELECT 1
 			FROM tweets t3
 			WHERE user_id = $2 AND t.id = t3.original_tweet_id
-		) as is_retweeted
+		) as is_retweeted,
+
+		EXISTS (
+		  SELECT 1
+		  FROM likes l
+      WHERE l.tweet_id = ot.id AND l.user_id = $2
+		) as original_is_liked,
+
+		EXISTS (
+			SELECT 1
+			FROM views v
+			WHERE v.tweet_id = t.id AND v.user_id = $2
+		) as is_viewed,
+
+		EXISTS (
+			SELECT 1
+			FROM views v
+			WHERE v.tweet_id = ot.id AND v.user_id = $2
+		) as original_is_viewed 
 
 	FROM tweets t
 	JOIN users u ON u.id = t.user_id
@@ -766,6 +828,8 @@ func GetTweetByID(ctx context.Context, tweetID string, userID *string) (*models.
 		originalBookmarksCount  pgtype.Int4
 		originalCreatedAt       pgtype.Timestamptz
 		originalUpdatedAt       pgtype.Timestamptz
+		originalIsLiked         pgtype.Bool
+		originalIsViewed        pgtype.Bool
 		originalAuthorID        pgtype.UUID
 		originalAuthorUsername  pgtype.Text
 		originalAuthorEmail     pgtype.Text
@@ -906,6 +970,9 @@ func GetTweetByID(ctx context.Context, tweetID string, userID *string) (*models.
 		&originalReplyAuthorFollowers,
 		&tweet.IsLiked,
 		&tweet.IsRetweeted,
+		&originalIsLiked,
+		&tweet.IsViewed,
+		&originalIsViewed,
 	)
 	if err != nil {
 		return nil, fmt.Errorf("failed to query tweet: %w", err)
@@ -990,6 +1057,8 @@ func GetTweetByID(ctx context.Context, tweetID string, userID *string) (*models.
 			BookmarksCount:   int(originalBookmarksCount.Int32),
 			CreatedAt:        originalCreatedAt.Time,
 			UpdatedAt:        originalUpdatedAt.Time,
+			IsLiked: 					originalIsLiked.Bool,
+			IsViewed:         originalIsViewed.Bool,
 			User:             originalAuthor,
 		}
 
@@ -1133,3 +1202,5 @@ func GetTweetThreadByID(ctx context.Context, tweetID string, userID *string) ([]
 
 	return tweets, nil
 }
+
+

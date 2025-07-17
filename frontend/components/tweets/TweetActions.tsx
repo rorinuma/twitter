@@ -263,7 +263,7 @@ export default function TweetActions({
           </GeneralTooltip>
           {isRetweetModalVisible && (
             <motion.div
-              className="flex flex-col fixed bottom-0 w-full h-fit left-1/2 max-xs:-translate-x-1/2  max-xs:p-3 max-xs:gap-2 xs:absolute xs:-bottom-10 xs:-left-16 xs:rounded-xl rounded-t-xl xs:w-fit shadow-default bg-background z-30"
+              className="flex flex-col fixed bottom-0 font-semibold w-full h-fit left-1/2 max-xs:-translate-x-1/2  max-xs:p-3 max-xs:gap-2 xs:absolute xs:-bottom-10 xs:-left-16 xs:rounded-xl rounded-t-xl xs:w-fit shadow-default bg-background z-30"
               variants={variants}
               initial="initial"
               animate="animate"
@@ -271,7 +271,7 @@ export default function TweetActions({
               ref={retweetModalRef}
             >
               <button
-                className="flex gap-2 items-center xs:justify-center rounded-t-xl p-2 hover:bg-nav-hover duration-(--hover-duration)"
+                className="flex gap-2 items-center xs:justify-center text-nowrap rounded-t-xl p-2 hover:bg-nav-hover duration-(--hover-duration)"
                 onClick={handleRetweetClick}
               >
                 <div>

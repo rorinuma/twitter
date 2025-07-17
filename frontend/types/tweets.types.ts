@@ -16,6 +16,7 @@ export interface Tweet {
   updatedAt: string;
   isLiked: boolean;
   isRetweeted: boolean;
+  isViewed: boolean;
 
   user: User;
 
@@ -46,6 +47,7 @@ export interface RawTweet {
   updated_at: string;
   is_liked: boolean;
   is_retweeted: boolean;
+  is_viewed: boolean;
 
   user: RawUser;
   reply_to?: RawTweet | null;

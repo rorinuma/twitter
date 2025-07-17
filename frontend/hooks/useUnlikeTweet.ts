@@ -43,6 +43,19 @@ export const useUnlikeTweet = (types: TweetsType | TweetsType[]) => {
           };
         });
       });
+
+      queryClient.setQueryData(
+        ["tweet", tweetId],
+        (oldData: Tweet | undefined) => {
+          if (!oldData) return oldData;
+
+          return {
+            ...oldData,
+            isLiked: false,
+            likesCount: oldData.likesCount - 1,
+          };
+        },
+      );
     },
   });
 };

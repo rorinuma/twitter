@@ -21,6 +21,7 @@ import TweetCard from "@/components/tweets/index";
 import { useTweet } from "@/hooks/useTweet";
 import PostMedia from "./PostMedia";
 import { useCreateTweet } from "@/hooks/useCreateTweet";
+import { Tweet } from "@/types/tweets.types";
 
 interface Props {
   modal: boolean;

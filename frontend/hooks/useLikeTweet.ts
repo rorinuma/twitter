@@ -6,7 +6,7 @@ import { useMutation } from "@tanstack/react-query";
 export const useLikeTweet = (types: TweetsType | TweetsType[]) => {
   return useMutation({
     mutationFn: likeTweet,
-    onSuccess: (_data, tweetId) => {
+    onSuccess: (_data, tweetId: string) => {
       const typesArray = Array.isArray(types) ? types : [types];
 
       typesArray.forEach((type) => {
@@ -33,7 +33,7 @@ export const useLikeTweet = (types: TweetsType | TweetsType[]) => {
                     retweetedTweet: {
                       ...tweet.retweetedTweet,
                       isLiked: true,
-                      likesCount: tweet.retweetedTweet?.likesCount + 1,
+                      likesCount: tweet.retweetedTweet.likesCount + 1,
                     },
                   };
                 }
@@ -44,6 +44,19 @@ export const useLikeTweet = (types: TweetsType | TweetsType[]) => {
           };
         });
       });
+
+      queryClient.setQueryData(
+        ["tweet", tweetId],
+        (oldData: Tweet | undefined) => {
+          if (!oldData) return oldData;
+
+          return {
+            ...oldData,
+            isLiked: true,
+            likesCount: oldData.likesCount + 1,
+          };
+        },
+      );
     },
   });
 };

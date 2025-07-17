@@ -334,3 +334,36 @@ func DeleteRetweet(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
 	}
 }
+
+func ViewTweet(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	tweetID := vars["id"]
+
+	userID, ok := utils.GetUserIDFromContext(r.Context())
+
+	if !ok {
+		log.Println("User is unauthorized")
+		http.Error(w, "Unauthorized", http.StatusUnauthorized)
+		return
+	}
+
+	id, err := repositories.ViewTweet(r.Context(), tweetID, userID)
+
+	if err != nil {
+		log.Printf("Failed to view a tweet: %v", err)
+		http.Error(w, "Failed to view a tweet", http.StatusInternalServerError)
+		return
+	}
+
+	response := map[string]string{
+		"message": "view added successfully",
+		"id": id.String(),
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+	if err := json.NewEncoder(w).Encode(response); err != nil {
+		log.Printf("Failed to encode response: %v", err)
+		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+	}
+}

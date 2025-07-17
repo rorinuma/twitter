@@ -25,16 +25,28 @@ export const useDeleteRetweet = (types: TweetsType | TweetsType[]) => {
                 .map((tweet: Tweet) =>
                   tweet.id === originalTweetId
                     ? {
-                        ...tweet,
-                        retweetsCount,
-                        isRetweeted: false,
-                      }
+                      ...tweet,
+                      retweetsCount,
+                      isRetweeted: false,
+                    }
                     : tweet,
                 ),
             })),
           };
         });
       });
+      queryClient.setQueryData(
+        ["tweet", originalTweetId],
+        (oldData: Tweet | undefined) => {
+          if (!oldData) return oldData;
+
+          return {
+            ...oldData,
+            retweetsCount: oldData.retweetsCount - 1,
+            isRetweeted: false,
+          };
+        },
+      );
     },
   });
 };

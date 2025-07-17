@@ -100,6 +100,14 @@ export const unlikeTweet = async (tweetId: string) => {
   await api.delete(`/protected/tweets/unlike/${tweetId}`);
 };
 
+export const addView = async (tweetId: string) => {
+  try {
+    await api.post(`/protected/tweets/view/${tweetId}`);
+  } catch (err) {
+    throw err;
+  }
+};
+
 export const createRetweet = async (id: string): Promise<Tweet> => {
   const { data } = await api.post<RawTweet>(
     `/protected/tweets/create?retweetedTweetID=${id}`,

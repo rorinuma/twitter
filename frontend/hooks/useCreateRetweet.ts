@@ -62,6 +62,19 @@ export const useCreateRetweet = (types: TweetsType | TweetsType[]) => {
           };
         });
       });
+
+      queryClient.setQueryData(
+        ["tweet", originalTweetId],
+        (oldData: Tweet | undefined) => {
+          if (!oldData) return oldData;
+
+          return {
+            ...oldData,
+            retweetsCount: oldData.retweetsCount + 1,
+            isRetweeted: true,
+          };
+        },
+      );
     },
   });
 };

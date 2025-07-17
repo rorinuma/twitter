@@ -177,6 +177,14 @@ export default function TweetActions({
     }
   };
 
+  const handleShareClick = (e: React.MouseEvent<HTMLButtonElement>) => {
+    e.stopPropagation();
+
+    const baseURL = process.env.NEXT_PUBLIC_FRONTEND_BASE_URL;
+    navigator.clipboard.writeText(`${baseURL}/status/${tweet.id}`);
+    setError("Tweet has been copied to clipboard");
+  };
+
   const isRetweeted =
     tweet.retweetedUsername === user?.username || tweet.isRetweeted;
 
@@ -226,7 +234,6 @@ export default function TweetActions({
             </div>
           </button>
         </GeneralTooltip>
-        {/* TODO: retweets  (undo repost) */}
         <div className="flex justify-center items-center relative">
           <GeneralTooltip content="Repost" centered={true}>
             <button
@@ -259,7 +266,6 @@ export default function TweetActions({
                 {retweetsCount || ""}
               </div>
             </button>
-            {/* TODO: same with like/unlike */}
           </GeneralTooltip>
           {isRetweetModalVisible && (
             <motion.div
@@ -358,7 +364,7 @@ export default function TweetActions({
           </GeneralTooltip>
         )}
         <div className="flex">
-          {/* TODO: same here */}
+          {/* TODO: Bookmark mutation, pretty simple, all hooks are already done */}
           {variant !== "gallery" && (
             <GeneralTooltip content="Bookmark" centered={true}>
               <button
@@ -392,7 +398,7 @@ export default function TweetActions({
                     "text-white": variant === "gallery",
                   },
                 )}
-                onClick={(e) => e.stopPropagation()}
+                onClick={handleShareClick}
               >
                 <div
                   className={clsx(
@@ -413,7 +419,7 @@ export default function TweetActions({
             <button
               type="button"
               className="group flex text-muted items-center duration-(--hover-duration) hover:text-blue"
-              onClick={(e) => e.stopPropagation()}
+              onClick={handleShareClick}
             >
               <div className="flex items-center justify-center  -ml-1 p-2 rounded-full group-hover:bg-blue-hover duration-(--hover-duration)">
                 <IoShareSocialOutline />

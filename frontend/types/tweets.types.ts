@@ -17,6 +17,7 @@ export interface Tweet {
   isLiked: boolean;
   isRetweeted: boolean;
   isViewed: boolean;
+  isBookmarked: boolean;
 
   user: User;
 

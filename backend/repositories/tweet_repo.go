@@ -211,6 +211,61 @@ func ViewTweet(ctx context.Context, tweetID, userID string) (*uuid.UUID, error) 
 	return id, nil
 }
 
+func BookmarkTweet(ctx context.Context, tweetID, userID string) (*uuid.UUID, error) {
+	query := `
+		INSERT INTO bookmarks (
+			tweet_id, user_id
+		)
+		VALUES ($1, $2)
+		RETURNING id
+	`
+	var bookmarkID *uuid.UUID
+	err := db.Pool.QueryRow(ctx, query, tweetID, userID).Scan(&bookmarkID)
+
+	if err != nil {
+		return nil, err
+	}
+
+	_, err = db.Pool.Exec(ctx, `
+		UPDATE tweets
+		SET bookmarks_count = bookmarks_count + 1
+		WHERE tweet_id = $1
+	`, tweetID)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return bookmarkID, nil
+}
+
+func DeleteTweetBookmark(ctx context.Context, tweetID, userID string) (*uuid.UUID, error) {
+	query := `
+		DELETE FROM bookmarks 
+		WHERE tweet_id = $1 AND user_id = $2
+		RETURNING id
+	`
+
+	var bookmarkID *uuid.UUID
+	err := db.Pool.QueryRow(ctx, query, tweetID, userID).Scan(&bookmarkID)
+
+	if err != nil {
+		return nil, err
+	}
+
+	_, err = db.Pool.Exec(ctx, `
+		UPDATE tweets
+		SET bookmarks_count = GREATEST(bookmarks_count - 1, 0)
+		WHERE tweet_id = $1
+	`, tweetID)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return bookmarkID, nil
+}
+
 func GetTweets(ctx context.Context, userID string, limit int, offset int) ([]models.Tweet, error) {
 	query := `
 	SELECT 
@@ -278,7 +333,19 @@ func GetTweets(ctx context.Context, userID string, limit int, offset int) ([]mod
 			SELECT 1
 			FROM views v
 			WHERE v.tweet_id = ot.id AND v.user_id = $1
-		) as original_is_viewed 
+		) as original_is_viewed,
+
+		EXISTS (
+			SELECT 1
+			FROM bookmarks b
+			WHERE b.tweet_id = t.id AND b.user_id = $1
+		) as is_bookmarked,
+
+		EXISTS (
+			SELECT 1
+			FROM bookmarks b
+			WHERE b.tweet_id = ot.id AND b.user_id = $1
+		) as original_is_bookmarked 
 
 	FROM tweets t
 	JOIN users u ON u.id = t.user_id
@@ -347,6 +414,7 @@ func GetTweets(ctx context.Context, userID string, limit int, offset int) ([]mod
 			originalUpdatedAt       pgtype.Timestamptz
 			originalIsLiked         pgtype.Bool
 			originalIsViewed        pgtype.Bool
+			originalIsBookmarked    pgtype.Bool
 			originalAuthorID        pgtype.UUID
 			originalAuthorUsername  pgtype.Text
 			originalAuthorEmail     pgtype.Text
@@ -489,6 +557,8 @@ func GetTweets(ctx context.Context, userID string, limit int, offset int) ([]mod
 			&originalIsLiked,
 			&tweet.IsViewed,
 			&originalIsViewed,
+			&tweet.IsBookmarked, 
+			&originalIsBookmarked,
 		)
 		if err != nil {
 			return nil, fmt.Errorf("failed to scan tweet: %w", err)
@@ -769,7 +839,19 @@ func GetTweetByID(ctx context.Context, tweetID string, userID *string) (*models.
 			SELECT 1
 			FROM views v
 			WHERE v.tweet_id = ot.id AND v.user_id = $2
-		) as original_is_viewed 
+		) as original_is_viewed,
+
+		EXISTS (
+			SELECT 1
+			FROM bookmarks b
+			WHERE b.tweet_id = t.id AND b.user_id = $2
+		) as is_bookmarked,
+
+		EXISTS (
+			SELECT 1
+			FROM bookmarks b
+			WHERE b.tweet_id = ot.id AND b.user_id = $2
+		) as original_is_bookmarked
 
 	FROM tweets t
 	JOIN users u ON u.id = t.user_id
@@ -830,6 +912,7 @@ func GetTweetByID(ctx context.Context, tweetID string, userID *string) (*models.
 		originalUpdatedAt       pgtype.Timestamptz
 		originalIsLiked         pgtype.Bool
 		originalIsViewed        pgtype.Bool
+		originalIsBookmarked    pgtype.Bool
 		originalAuthorID        pgtype.UUID
 		originalAuthorUsername  pgtype.Text
 		originalAuthorEmail     pgtype.Text
@@ -973,6 +1056,8 @@ func GetTweetByID(ctx context.Context, tweetID string, userID *string) (*models.
 		&originalIsLiked,
 		&tweet.IsViewed,
 		&originalIsViewed,
+		&tweet.IsBookmarked,
+		&originalIsBookmarked,
 	)
 	if err != nil {
 		return nil, fmt.Errorf("failed to query tweet: %w", err)
@@ -1059,6 +1144,7 @@ func GetTweetByID(ctx context.Context, tweetID string, userID *string) (*models.
 			UpdatedAt:        originalUpdatedAt.Time,
 			IsLiked: 					originalIsLiked.Bool,
 			IsViewed:         originalIsViewed.Bool,
+			IsBookmarked:     originalIsBookmarked.Bool,
 			User:             originalAuthor,
 		}
 
@@ -1141,7 +1227,25 @@ func GetTweetThreadByID(ctx context.Context, tweetID string, userID *string) ([]
 			SELECT 1
 			FROM likes l
 			WHERE l.tweet_id = t.id AND l.user_id = $2
-		) as is_liked
+		) as is_liked,
+
+		EXISTS (
+			SELECT 1
+			FROM tweets t2
+			WHERE user_id = $2 AND t.id = t2.original_tweet_id
+		) as is_retweeted,
+
+		EXISTS (
+			SELECT 1
+			FROM views v
+			WHERE v.tweet_id = t.id AND v.user_id = $2
+		) as is_viewed,
+
+		EXISTS (
+			SELECT 1
+			FROM bookmarks b
+			WHERE b.tweet_id = t.id AND b.user_id = $2
+		) as is_bookmarked
 
 
 	FROM reply_chain t
@@ -1189,6 +1293,9 @@ func GetTweetThreadByID(ctx context.Context, tweetID string, userID *string) ([]
 			&user.Followers,
 
 			&tweet.IsLiked,
+			&tweet.IsRetweeted,
+			&tweet.IsViewed,
+			&tweet.IsBookmarked,
 		)
 		if err != nil {
 			return nil, err

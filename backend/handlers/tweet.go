@@ -248,8 +248,6 @@ func UnlikeTweet(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	fmt.Printf("outer tweetID: %v, outer userID: %v", tweetID, userID)
-
 	deletedID, err := repositories.UnlikeTweet(r.Context(), userID, tweetID)
 
 	if err != nil {
@@ -357,6 +355,72 @@ func ViewTweet(w http.ResponseWriter, r *http.Request) {
 
 	response := map[string]string{
 		"message": "view added successfully",
+		"id": id.String(),
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+	if err := json.NewEncoder(w).Encode(response); err != nil {
+		log.Printf("Failed to encode response: %v", err)
+		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+	}
+}
+
+func BookmarkTweet(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	tweetID := vars["id"]
+
+	userID, ok := utils.GetUserIDFromContext(r.Context())
+
+	if !ok {
+		log.Println("User is unauthorized")
+		http.Error(w, "Unauthorized", http.StatusUnauthorized)
+		return
+	}
+
+	id, err := repositories.BookmarkTweet(r.Context(), tweetID, userID)
+
+	if err != nil {
+		log.Printf("Failed to bookmark a tweet: %v", err)
+		http.Error(w, "Failed to bookmark a tweet", http.StatusInternalServerError)
+		return
+	}
+
+	response := map[string]string{
+		"message": "bookmark added successfully",
+		"id": id.String(),
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+	if err := json.NewEncoder(w).Encode(response); err != nil {
+		log.Printf("Failed to encode response: %v", err)
+		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+	}
+}
+
+func DeleteTweetBookmark(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	tweetID := vars["id"]
+
+	userID, ok := utils.GetUserIDFromContext(r.Context())
+
+	if !ok {
+		log.Println("User is unauthorized")
+		http.Error(w, "Unauthorized", http.StatusUnauthorized)
+		return
+	}
+
+	id, err := repositories.DeleteTweetBookmark(r.Context(), tweetID, userID)
+
+	if err != nil {
+		log.Printf("Failed to delete a tweet bookmark: %v", err)
+		http.Error(w, "Failed to delete a tweet bookmark", http.StatusInternalServerError)
+		return
+	}
+
+	response := map[string]string{
+		"message": "bookmark deleted successfully",
 		"id": id.String(),
 	}
 

@@ -57,6 +57,13 @@ CREATE TABLE views (
   UNIQUE(tweet_id, user_id)
 );
 
+CREATE TABLE bookmarks (
+  id UUID NOT NULL PRIMARY KEY DEFAULT gen_random_uuid(),
+  tweet_id UUID NOT NULL REFERENCES tweets(id) ON DELETE CASCADE,
+  user_id UUID  NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  UNIQUE(tweet_id, user_id)
+);
+
 -- Optional indexes for performance (especially for querying tweets)
 CREATE INDEX idx_tweets_user_id ON tweets(user_id);
 CREATE INDEX idx_tweets_in_reply_to ON tweets(in_reply_to_tweet_id);

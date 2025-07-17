@@ -108,6 +108,14 @@ export const addView = async (tweetId: string) => {
   }
 };
 
+export const addBookmark = async (tweetId: string) => {
+  await api.post(`/protected/tweets/bookmark/${tweetId}`);
+};
+
+export const deleteBookmark = async (tweetId: string) => {
+  await api.delete(`/protected/tweets/delete-bookmark/${tweetId}`);
+};
+
 export const createRetweet = async (id: string): Promise<Tweet> => {
   const { data } = await api.post<RawTweet>(
     `/protected/tweets/create?retweetedTweetID=${id}`,

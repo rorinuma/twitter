@@ -229,7 +229,7 @@ func BookmarkTweet(ctx context.Context, tweetID, userID string) (*uuid.UUID, err
 	_, err = db.Pool.Exec(ctx, `
 		UPDATE tweets
 		SET bookmarks_count = bookmarks_count + 1
-		WHERE tweet_id = $1
+		WHERE id = $1
 	`, tweetID)
 
 	if err != nil {
@@ -256,7 +256,7 @@ func DeleteTweetBookmark(ctx context.Context, tweetID, userID string) (*uuid.UUI
 	_, err = db.Pool.Exec(ctx, `
 		UPDATE tweets
 		SET bookmarks_count = GREATEST(bookmarks_count - 1, 0)
-		WHERE tweet_id = $1
+		WHERE id = $1
 	`, tweetID)
 
 	if err != nil {

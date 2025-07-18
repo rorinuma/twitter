@@ -36,16 +36,43 @@ func CreateUser(ctx context.Context, input models.CreateUserInput) (*models.User
 	return user, nil
 }
 
-func FindOne(ctx context.Context, id string) (*models.User, error) {
-	query := `SELECT id, username, email, display_name, bio, avatar_url,
-	banner_url, is_verified, created_at, updated_at FROM users
-	WHERE id = $1
+func FindOneByID(ctx context.Context, id string) (*models.User, error) {
+	query := `
+	SELECT id, username, email, display_name, bio, avatar_url,
+	banner_url, is_verified, created_at, updated_at,
+	ARRAY(SELECT u2.username FROM follows f JOIN users u2 ON u2.id = f.following_id WHERE f.follower_id = u.id) as following,
+	ARRAY(SELECT u2.username FROM follows f JOIN users u2 ON u2.id = f.follower_id WHERE f.following_id = u.id) as followers
+	FROM users u
+	WHERE u.id = $1
 	`
 
 	user := &models.User{}
-	err := db.Pool.QueryRow(ctx, query, id).Scan(&user.ID, &user.Username,
+	err := db.Pool.QueryRow(ctx, query, id).Scan(
+		&user.ID, &user.Username,
 		&user.Email, &user.DisplayName, &user.Bio, &user.AvatarURL, &user.BannerURL,
-		&user.IsVerified, &user.CreatedAt, &user.UpdatedAt)
+		&user.IsVerified, &user.CreatedAt, &user.UpdatedAt, &user.Following, &user.Followers)
+
+	if err != nil {
+		return nil, fmt.Errorf("Failed to find a user: %w", err)
+	}
+	return user, nil
+}
+
+func FindOneByUsername(ctx context.Context, username string) (*models.User, error) {
+	query := `
+	SELECT id, username, email, display_name, bio, avatar_url,
+	banner_url, is_verified, created_at, updated_at,
+	ARRAY(SELECT u2.username FROM follows f JOIN users u2 ON u2.id = f.following_id WHERE f.follower_id = u.id) as following,
+	ARRAY(SELECT u2.username FROM follows f JOIN users u2 ON u2.id = f.follower_id WHERE f.following_id = u.id) as followers
+	FROM users u
+	WHERE u.username = $1
+	`
+
+	user := &models.User{}
+	err := db.Pool.QueryRow(ctx, query, username).Scan(
+		&user.ID, &user.Username,
+		&user.Email, &user.DisplayName, &user.Bio, &user.AvatarURL, &user.BannerURL,
+		&user.IsVerified, &user.CreatedAt, &user.UpdatedAt, &user.Following, &user.Followers)
 
 	if err != nil {
 		return nil, fmt.Errorf("Failed to find a user: %w", err)
@@ -55,7 +82,8 @@ func FindOne(ctx context.Context, id string) (*models.User, error) {
 
 func FindOneLogin(ctx context.Context, input models.LoginUserInput) (*models.User, error) {
 
-	query := `SELECT id, password_hash FROM users
+	query := `
+	SELECT id, password_hash FROM users
 	WHERE email = $1 OR username = $2
 	`
 

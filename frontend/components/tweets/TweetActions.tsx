@@ -14,7 +14,7 @@ import { useRef, useState } from "react";
 import { useReducedMotion } from "motion/react";
 import { motion } from "motion/react";
 import { useClickOutside } from "@/hooks/clickOutside";
-import { FaHeart, FaPen } from "react-icons/fa6";
+import { FaBookmark, FaHeart, FaPen } from "react-icons/fa6";
 import axios from "axios";
 import { Tweet } from "@/types/tweets.types";
 import { useCreateRetweet } from "@/hooks/useCreateRetweet";
@@ -22,6 +22,8 @@ import { useAuth } from "@/context/authContext";
 import { useDeleteRetweet } from "@/hooks/useDeleteRetweet";
 import { useLikeTweet } from "@/hooks/useLikeTweet";
 import { useUnlikeTweet } from "@/hooks/useUnlikeTweet";
+import { useAddBookmark } from "@/hooks/useAddBookmark";
+import { useDeleteBookmark } from "@/hooks/useDeleteBookmark";
 
 interface Props {
   tweet: Tweet;
@@ -71,6 +73,20 @@ export default function TweetActions({
   ]);
 
   const { mutate: unlikeTweet } = useUnlikeTweet([
+    "replies",
+    "liked",
+    "following",
+    "foryou",
+    "posts",
+  ]);
+  const { mutate: addBookmark } = useAddBookmark([
+    "replies",
+    "liked",
+    "following",
+    "foryou",
+    "posts",
+  ]);
+  const { mutate: deleteBookmark } = useDeleteBookmark([
     "replies",
     "liked",
     "following",
@@ -171,6 +187,45 @@ export default function TweetActions({
           } else {
             console.error("Non-Axios error when unliking the tweet:", err);
             setError("An unexpected error occurred while unliking the tweet.");
+          }
+        },
+      });
+    }
+  };
+
+  const handleBookmarkClick = (e: React.MouseEvent<HTMLButtonElement>) => {
+    e.stopPropagation();
+
+    if (tweet.isBookmarked) {
+      return deleteBookmark(tweet.id, {
+        onError: (err) => {
+          if (axios.isAxiosError(err)) {
+            const message =
+              err.response?.data?.message ||
+              err.response?.data?.error ||
+              err.response?.data ||
+              "Failed to delete the bookmark due to server error.";
+            setError(message);
+          } else {
+            console.error("Non-Axios error when deleting a bookmark:", err);
+            setError("An unexpected error occurred while deleting a bookmark.");
+          }
+        },
+      });
+    }
+    if (!tweet.isBookmarked) {
+      return addBookmark(tweet.id, {
+        onError: (err) => {
+          if (axios.isAxiosError(err)) {
+            const message =
+              err.response?.data?.message ||
+              err.response?.data?.error ||
+              err.response?.data ||
+              "Failed to add a bookmark due to server error.";
+            setError(message);
+          } else {
+            console.error("Non-Axios error when adding a bookmark:", err);
+            setError("An unexpected error occurred while adding a bookmark.");
           }
         },
       });
@@ -364,16 +419,21 @@ export default function TweetActions({
           </GeneralTooltip>
         )}
         <div className="flex">
-          {/* TODO: Bookmark mutation, pretty simple, all hooks are already done */}
           {variant !== "gallery" && (
             <GeneralTooltip content="Bookmark" centered={true}>
               <button
                 type="button"
-                className="hidden xs:flex group text-muted items-center duration-(--hover-duration) hover:text-blue"
-                onClick={(e) => e.stopPropagation()}
+                className={clsx(
+                  "hidden xs:flex group items-center duration-(--hover-duration) hover:text-blue",
+                  {
+                    "text-muted": !tweet.isBookmarked,
+                    "text-blue": tweet.isBookmarked,
+                  },
+                )}
+                onClick={handleBookmarkClick}
               >
                 <div className="flex items-center justify-center p-2 rounded-full group-hover:bg-blue-hover duration-(--hover-duration)">
-                  <FaRegBookmark />
+                  {tweet.isBookmarked ? <FaBookmark /> : <FaRegBookmark />}
                 </div>
                 {variant === "status" && (
                   <div

@@ -49,6 +49,7 @@ export interface RawTweet {
   is_liked: boolean;
   is_retweeted: boolean;
   is_viewed: boolean;
+  is_bookmarked: boolean;
 
   user: RawUser;
   reply_to?: RawTweet | null;

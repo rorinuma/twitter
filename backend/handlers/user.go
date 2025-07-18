@@ -5,7 +5,9 @@ import (
 	"errors"
 	"log"
 	"net/http"
+	"time"
 
+	"github.com/gorilla/mux"
 	"github.com/jackc/pgx/v5/pgconn"
 	"github.com/rorinuma/twitter/models"
 	"github.com/rorinuma/twitter/repositories"
@@ -93,7 +95,7 @@ func Me(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Unauthorized", http.StatusUnauthorized)
 		return
 	}
-	user, err := repositories.FindOne(r.Context(), id)
+	user, err := repositories.FindOneByID(r.Context(), id)
 	if err != nil {
 		log.Println("User not found: ", err)
 		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
@@ -106,3 +108,42 @@ func Me(w http.ResponseWriter, r *http.Request) {
 		log.Printf("Failed to write response: %v", err)
 	}
 }
+
+func GetUserByUsername(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	username := vars["username"]
+	
+	user, err := repositories.FindOneByUsername(r.Context(), username)
+	if err != nil {
+		log.Println("User not found: ", err)
+		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+	if err := json.NewEncoder(w).Encode(user); err != nil {
+		http.Error(w, "Internal server error", http.StatusInternalServerError)
+		log.Printf("Failed to write response: %v", err)
+	}
+}
+
+func Signout(w http.ResponseWriter, r *http.Request) {
+	http.SetCookie(w, &http.Cookie{
+		Name: "token",
+		Value: "",
+		Path: "/",
+		Expires: time.Unix(0, 0),
+		MaxAge: -1,
+		HttpOnly: true,
+		Secure: false,
+		SameSite: http.SameSiteLaxMode,
+	})
+
+	w.WriteHeader(http.StatusOK)
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(map[string]string{
+		"message": "Logged out successfully",
+	})
+}
+

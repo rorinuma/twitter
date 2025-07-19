@@ -319,7 +319,6 @@ func GetTweetByID(ctx context.Context, tweetID string, userID *string) (*models.
     var t, rt, ot, ort models.TweetRow
     var u, ru, ou, oru models.UserRow
 		var repliesJSON []byte
-	
 
     err := db.Pool.QueryRow(ctx, query, tweetID, userID).Scan(
         // Main tweet
@@ -400,33 +399,15 @@ func GetTweetByID(ctx context.Context, tweetID string, userID *string) (*models.
 }
 
 func GetTweetThreadByID(ctx context.Context, tweetID string, userID *string) ([]models.Tweet, error) {
-  query := fmt.Sprintf(utils.ThreadQuery, utils.TweetFields, utils.TweetFields, utils.TweetFields, utils.UserFields, utils.StatusFields)
+	query := utils.BuildThreadQuery()
 
-	rows, err := db.Pool.Query(ctx, query, tweetID, userID)
+	rows, err := db.Pool.Query(ctx, query, userID, tweetID)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
 
-	var tweets []models.Tweet
-	for rows.Next() {
-      var t models.TweetRow
-      var u models.UserRow
-
-		err := rows.Scan(
-            &t.ID, &t.UserID, &t.Content, &t.InReplyToTweetID, &t.OriginalTweetID, &t.MediaURLs,
-            &t.RepliesCount, &t.LikesCount, &t.RetweetsCount, &t.ViewsCount, &t.BookmarksCount,
-            &t.CreatedAt, &t.UpdatedAt,
-            &u.ID, &u.Username, &u.Email, &u.DisplayName, &u.AvatarURL, &u.BannerURL, &u.IsVerified,
-            &u.CreatedAt, &u.UpdatedAt, &u.Following, &u.Followers,
-            &t.IsLiked, &t.IsRetweeted, &t.IsViewed, &t.IsBookmarked,
-        )		
-		if err != nil {
-			return nil, err
-		}
-		tweet := t.ToTweet(u.ToUser(), nil, nil, nil)
-		tweets = append(tweets, tweet)
-	}
+	tweets, err := utils.ScanTweetRow(rows)
 	if err := rows.Err(); err != nil {
 		return nil, err
 	}

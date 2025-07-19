@@ -188,6 +188,7 @@ const ReplyJSONFields = `
         ))
         FROM tweets t2
         JOIN users u2 ON u2.id = t2.user_id
+				WHERE t2.in_reply_to_tweet_id = t.id
     ), '[]'::json) AS replies`
 
 const ThreadQuery = `
@@ -242,3 +243,42 @@ func BuildTweetQuery(whereClause string, includeRepliesJSON bool) string {
         %s
     `, strings.Join(fields, ","), BaseJoins, whereClause)
 }
+
+func BuildThreadQuery() string {
+	fields := []string{
+		TweetFields,
+		UserFields,
+		ReplyTweetFields,
+		ReplyUserFields,
+		OriginalTweetFields,
+		OriginalUserFields,
+		OriginalReplyTweetFields,
+		OriginalReplyUserFields,
+		StatusFields,
+	}
+
+	recursiveSelect := TweetFields
+	recursivePart := fmt.Sprintf(`
+		WITH RECURSIVE reply_chain AS (
+			SELECT %s
+			FROM tweets t
+			WHERE t.id = $2
+			UNION ALL
+			SELECT %s
+			FROM tweets t
+			JOIN reply_chain rc ON rc.in_reply_to_tweet_id = t.id
+		)`, recursiveSelect, recursiveSelect)
+
+	return fmt.Sprintf(`
+		%s
+		SELECT %s
+		%s
+		WHERE t.id IN (SELECT id FROM reply_chain)
+		ORDER BY t.created_at ASC
+	`,
+		recursivePart,
+		strings.Join(fields, ","),
+		BaseJoins,
+	)
+}
+

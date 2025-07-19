@@ -312,15 +312,13 @@ func GetTweets(ctx context.Context, userID string, limit int, offset int) ([]mod
 }
 
 func GetTweetByID(ctx context.Context, tweetID string, userID *string) (*models.Tweet, error) {
-	query := utils.BuildTweetQuery("WHERE t.id = $1 LIMIT 1", true)
-
-	fmt.Println("GetTweetByID query: ", query)
+	query := utils.BuildTweetQuery("WHERE t.id = $2 LIMIT 1", true)
 
     var t, rt, ot, ort models.TweetRow
     var u, ru, ou, oru models.UserRow
 		var repliesJSON []byte
 
-    err := db.Pool.QueryRow(ctx, query, tweetID, userID).Scan(
+    err := db.Pool.QueryRow(ctx, query, userID, tweetID).Scan(
         // Main tweet
         &t.ID, &t.UserID, &t.Content, &t.InReplyToTweetID, &t.OriginalTweetID, &t.MediaURLs,
         &t.RepliesCount, &t.LikesCount, &t.RetweetsCount, &t.ViewsCount, &t.BookmarksCount,
@@ -352,7 +350,7 @@ func GetTweetByID(ctx context.Context, tweetID string, userID *string) (*models.
         &oru.ID, &oru.Username, &oru.Email, &oru.DisplayName, &oru.AvatarURL, &oru.BannerURL, &oru.IsVerified,
         &oru.CreatedAt, &oru.UpdatedAt, &oru.Following, &oru.Followers,
         // Status fields
-        &t.IsLiked, &t.IsRetweeted, &ot.IsLiked, &t.IsViewed, &ot.IsViewed, &t.IsBookmarked, &ot.IsBookmarked,
+        &t.IsLiked, &t.IsRetweeted, &t.IsViewed, &t.IsBookmarked, &ot.IsLiked, &ot.IsViewed,  &ot.IsBookmarked,
     )
     if err != nil {
         return nil, fmt.Errorf("failed to query tweet: %w", err)

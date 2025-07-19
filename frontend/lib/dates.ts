@@ -7,6 +7,13 @@ export const formatDateDetailed = (date: string): string => {
   return formatted;
 };
 
+export const formatDateProfile = (date: string): string => {
+  const parsed = parseISO(date);
+  const formatted = format(parsed, "MMMM y");
+
+  return formatted;
+};
+
 export const formatCompactTimeAgo = (dateString: string): string => {
   const now = new Date();
   const then = parseISO(dateString);

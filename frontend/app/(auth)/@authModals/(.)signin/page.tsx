@@ -1,6 +1,6 @@
 "use client";
 
-import { usePathname, useRouter } from "next/navigation";
+import { usePathname } from "next/navigation";
 import { useMemo, useRef, useState } from "react";
 import { FaXTwitter } from "react-icons/fa6";
 import api from "@/lib/axios";

@@ -84,10 +84,6 @@ export default function TweetCard({
     isMoreOpen && setIsMoreOpen(false);
   });
 
-  if (variant === "status") {
-    console.log('variant === "status" isViewed', tweet?.isViewed);
-  }
-
   useEffect(() => {
     if (error) {
       setTimeout(() => {
@@ -105,7 +101,8 @@ export default function TweetCard({
     }
   }, [inView, tweet?.id]);
 
-  const handleTweetClick = () => {
+  const handleTweetClick = (e: React.MouseEvent<HTMLDivElement>) => {
+    e.stopPropagation();
     if (
       variant === "compose-reply" ||
       (params.photoId && variant === "status")
@@ -171,10 +168,7 @@ export default function TweetCard({
             "border border-border hover:bg-reply-tweet-hover hover:cursor-pointer rounded-2xl":
               variant === "reply" || variant === "compose-quote",
           })}
-          onClick={(e) => {
-            e.stopPropagation();
-            handleTweetClick();
-          }}
+          onClick={handleTweetClick}
           ref={inViewRef}
         >
           <div

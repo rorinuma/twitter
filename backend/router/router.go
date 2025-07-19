@@ -18,6 +18,7 @@ func SetupRouter() *mux.Router {
 
 	soft.HandleFunc("/status/{id}", handlers.GetTweetByID).Methods("GET")
 	soft.HandleFunc("/user/{username}", handlers.GetUserByUsername).Methods("GET")
+	soft.HandleFunc("/tweets/posts", handlers.GetPosts).Methods("GET")
 	protected.HandleFunc("/tweets/foryou", handlers.GetTweets).Methods("GET")
 	protected.HandleFunc("/tweets/create", handlers.CreateTweet).Methods("POST")
 	protected.HandleFunc("/tweets/like/{id}", handlers.LikeTweet).Methods("POST")

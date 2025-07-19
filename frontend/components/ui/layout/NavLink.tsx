@@ -24,7 +24,7 @@ export default function NavLink({
   return (
     <Link
       href={`/${href}`}
-      className="flex p-3 items-center justify-items-center outline-none hover:bg-nav-hover duration-(--hover-duration) rounded-full max-w-fit"
+      className="flex p-3 items-center justify-center outline-none hover:bg-nav-hover duration-(--hover-duration) rounded-full max-w-fit"
     >
       {pathname === `/${href}` || pathname === secondHref
         ? pathMatchesIcon

@@ -172,6 +172,54 @@ func GetTweets(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+func GetPosts(w http.ResponseWriter, r *http.Request) {
+	query := r.URL.Query()
+
+	pageStr := query.Get("page")
+	limitStr := query.Get("limit")
+	ownerID := query.Get("ownerID")
+
+	page := 1
+	limit := 10
+
+	if p, err := strconv.Atoi(pageStr); err == nil && p > 0{
+		page = p
+	}
+	if l, err := strconv.Atoi(limitStr); err == nil && l > 0 {
+		limit = l
+	}
+
+	offset := (page - 1) * limit
+	
+	userID, _ := utils.GetUserIDFromContext(r.Context())
+
+	tweets, err := repositories.GetPostsByID(r.Context(), &userID, ownerID, limit + 1, offset)
+	
+	if err != nil {
+		log.Printf("Failed to get tweets by ownerID: %v", err)
+		http.Error(w, "Failed to get tweets by ownerID", http.StatusInternalServerError)
+		return
+	}
+
+	hasMore := false
+	if len(tweets) > limit {
+		hasMore = true
+		tweets = tweets[:limit]
+	}
+
+	response := map[string]interface{}{
+		"tweets": tweets,
+		"hasMore": hasMore,
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+	if err := json.NewEncoder(w).Encode(response); err != nil {
+		log.Printf("Failed to encode response: %v", err)
+		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+	}
+}
+
 func GetTweetByID(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	id := vars["id"]

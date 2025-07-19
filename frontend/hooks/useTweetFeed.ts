@@ -2,14 +2,18 @@ import { fetchTweets } from "@/lib/queries/tweets.queries";
 import { TweetsType } from "@/types/tweets.types";
 import { useInfiniteQuery } from "@tanstack/react-query";
 
-export const useTweets = (tweetsType: TweetsType, enabled: boolean = true) => {
+export const useTweets = (
+  tweetsType: TweetsType,
+  enabled: boolean = true,
+  ownerId?: string,
+) => {
   return useInfiniteQuery({
     queryKey: ["tweets", tweetsType],
     queryFn: async ({ pageParam = 1 }: { pageParam?: number }) => {
       if (!tweetsType) {
         throw new Error("Invalid tweetsType");
       }
-      return fetchTweets({ pageParam, tweetsType });
+      return fetchTweets({ pageParam, tweetsType, ownerId });
     },
     initialPageParam: 1,
     getNextPageParam: (lastPage) => lastPage.nextPage ?? undefined,

@@ -64,8 +64,8 @@ export default function UserProfile() {
           { item: "Likes", path: `${[user?.username]}/likes` },
         ]
       : [
-          { item: "Posts", path: `${[user?.username]}` },
-          { item: "Replies", path: `${[user?.username]}/with-replies` },
+          { item: "Posts", path: `${[owner?.username]}` },
+          { item: "Replies", path: `${[owner?.username]}/with-replies` },
         ];
 
   const displayedItems = items.map(({ item, path }, index) => (

@@ -288,7 +288,7 @@ func GetPostsByID(ctx context.Context, userID *string, ownerID string, limit, of
 }
 
 func GetTweets(ctx context.Context, userID string, limit int, offset int) ([]models.Tweet, error) {
-  query := utils.BuildTweetQuery("WHERE t.user_id = $1 ORDER BY t.created_at DESC LIMIT $2 OFFSET $3", false)
+  query := utils.BuildTweetQuery("ORDER BY t.created_at DESC LIMIT $2 OFFSET $3", false)
 
 	rows, err := db.Pool.Query(ctx, query, userID, limit + 1, offset)
 	if err != nil {

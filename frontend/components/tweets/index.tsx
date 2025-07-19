@@ -182,7 +182,7 @@ export default function TweetCard({
                   <AiOutlineRetweet />
                 </span>
                 <Link href={tweet.user.username}>
-                  {`${tweet.retweetedUsername === user?.username ? "You" : tweet.user.username} reposted`}
+                  {`${tweet.retweetedUsername === user?.username ? "You" : tweet.retweetedUsername} reposted`}
                 </Link>
               </div>
             )}

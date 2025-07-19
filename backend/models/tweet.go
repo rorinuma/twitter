@@ -4,6 +4,7 @@ import (
 	"time"
 
 	"github.com/google/uuid"
+	"github.com/jackc/pgx/v5/pgtype"
 )
 
 type Tweet struct {
@@ -30,6 +31,52 @@ type Tweet struct {
 	Thread 					 *[]Tweet   `json:"thread,omitempty"` 
 	RetweetedTweet   *Tweet     `json:"retweeted_tweet,omitempty"`
 	QuotedTweet      *Tweet     `json:"quoted_tweet,omitempty"`
+}
+
+type TweetRow struct {
+	ID               pgtype.UUID
+	UserID           pgtype.UUID
+	Content          pgtype.Text
+	InReplyToTweetID pgtype.UUID
+	OriginalTweetID  pgtype.UUID
+	MediaURLs        *[]string
+	RepliesCount     pgtype.Int4
+	LikesCount       pgtype.Int4
+	RetweetsCount    pgtype.Int4
+	ViewsCount       pgtype.Int4
+	BookmarksCount   pgtype.Int4
+	CreatedAt        pgtype.Timestamptz
+	UpdatedAt        pgtype.Timestamptz
+	IsLiked          pgtype.Bool
+	IsRetweeted      pgtype.Bool
+	IsViewed         pgtype.Bool
+	IsBookmarked     pgtype.Bool
+}
+
+func (t *TweetRow) ToTweet(user User, replyTo, quotedTweet, retweetedTweet *Tweet) Tweet {
+	return Tweet{
+		ID:               uuid.UUID(t.ID.Bytes),
+		UserID:           uuid.UUID(t.UserID.Bytes),
+		Content:          StringPtrFromPgType(t.Content),
+		InReplyToTweetID: UUIDFromPgType(t.InReplyToTweetID),
+		OriginalTweetID:  UUIDFromPgType(t.OriginalTweetID),
+		MediaURLs:        t.MediaURLs,
+		RepliesCount:     int(t.RepliesCount.Int32),
+		LikesCount:       int(t.LikesCount.Int32),
+		RetweetsCount:    int(t.RetweetsCount.Int32),
+		ViewsCount:       int(t.ViewsCount.Int32),
+		BookmarksCount:   int(t.BookmarksCount.Int32),
+		CreatedAt:        t.CreatedAt.Time,
+		UpdatedAt:        t.UpdatedAt.Time,
+		IsLiked:          t.IsLiked.Bool,
+		IsRetweeted:      t.IsRetweeted.Bool,
+		IsViewed:         t.IsViewed.Bool,
+		IsBookmarked:     t.IsBookmarked.Bool,
+		User:             user,
+		ReplyTo:          replyTo,
+		QuotedTweet:      quotedTweet,
+		RetweetedTweet:   retweetedTweet,
+	}	
 }
 
 

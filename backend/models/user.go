@@ -1,8 +1,10 @@
 package models
 
 import (
-	"github.com/google/uuid"
 	"time"
+
+	"github.com/google/uuid"
+	"github.com/jackc/pgx/v5/pgtype"
 )
 
 type User struct {
@@ -19,6 +21,36 @@ type User struct {
 	UpdatedAt    time.Time `json:"updated_at"`
 	Following    []string  `json:"following"`
 	Followers    []string  `json:"followers"`
+}
+
+type UserRow struct {
+	ID           pgtype.UUID
+	Username     pgtype.Text
+	Email        pgtype.Text
+	DisplayName  pgtype.Text
+	AvatarURL    pgtype.Text
+	BannerURL    pgtype.Text
+	IsVerified   pgtype.Bool
+	CreatedAt    pgtype.Timestamptz
+	UpdatedAt    pgtype.Timestamptz
+	Following    *[]string
+	Followers    *[]string
+}
+
+func (u *UserRow) ToUser() User {
+	return User{
+		ID:          uuid.UUID(u.ID.Bytes),
+		Username:    u.Username.String,
+		Email:       u.Email.String,
+		DisplayName: StringPtrFromPgType(u.DisplayName),
+		AvatarURL:   StringPtrFromPgType(u.AvatarURL),
+		BannerURL:   StringPtrFromPgType(u.BannerURL),
+		IsVerified:  u.IsVerified.Bool,
+		CreatedAt:   u.CreatedAt.Time,
+		UpdatedAt:   u.UpdatedAt.Time,
+		Following:   *u.Following,
+		Followers:   *u.Followers,
+	}
 }
 
 type CreateUserInput struct {

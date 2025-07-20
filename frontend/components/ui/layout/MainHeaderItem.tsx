@@ -16,12 +16,12 @@ export default function MainHeaderItem({ item, path }: Props) {
       className="flex min-w-1/5 grow shrink items-center justify-center relative hover:bg-nav-hover duration-(--hover-duration)"
     >
       <span
-        className={`${pathname === `/${path}` ? "text-inherit" : "text-muted"}`}
+        className={`${pathname === `${path}` ? "text-inherit" : "text-muted"}`}
       >
         {item}
       </span>
       <span
-        className={`${pathname === `/${path}` && "w-30 absolute h-1 bottom-0 bg-blue rounded-full"}`}
+        className={`${pathname === `${path}` && "w-30 absolute h-1 bottom-0 bg-blue rounded-full"}`}
       ></span>
     </Link>
   );

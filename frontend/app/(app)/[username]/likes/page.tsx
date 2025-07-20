@@ -1,22 +1,30 @@
 "use client";
 
-import Spinner from "@/components/ui/decorations/Spinner";
-import { useEffect } from "react";
-import { useTweets } from "@/hooks/useTweetFeed";
 import TweetCard from "@/components/tweets";
-import { useInView } from "react-intersection-observer";
+import Spinner from "@/components/ui/decorations/Spinner";
+import { useAuth } from "@/context/authContext";
 import { useOwner } from "@/context/OwnerContext";
+import { useSafeBack } from "@/hooks/goSafeBack";
+import { useTweets } from "@/hooks/useTweetFeed";
+import { useEffect } from "react";
+import { useInView } from "react-intersection-observer";
 
-export default function UserProfile() {
+export default function ProfileLikes() {
   const owner = useOwner();
+  const { user } = useAuth();
+  const safeBack = useSafeBack(`/${owner?.username}`);
+
+  if (owner?.id !== user?.id) {
+    safeBack();
+  }
 
   const {
     data,
-    isLoading: postsLoading,
+    isLoading: likedLoading,
     hasNextPage,
     isFetchingNextPage,
     fetchNextPage,
-  } = useTweets("posts", !!owner, owner?.id);
+  } = useTweets("liked", owner?.id === user?.id, owner?.id);
 
   const { ref, inView } = useInView();
 
@@ -30,12 +38,12 @@ export default function UserProfile() {
 
   return (
     <>
-      {postsLoading && (
+      {likedLoading && (
         <div className="flex justify-center mt-4">
           <Spinner />
         </div>
       )}
-      {!postsLoading &&
+      {!likedLoading &&
         tweets.map((t) => <TweetCard tweet={t} key={t.id} variant="default" />)}
       {hasNextPage && (
         <div ref={ref} className="flex justify-center mt-4">

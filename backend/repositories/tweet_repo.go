@@ -287,6 +287,58 @@ func GetPostsByID(ctx context.Context, userID *string, ownerID string, limit, of
 	return tweets, nil
 }
 
+func GetReplies(ctx context.Context, userID *string, ownerID string, limit, offset int) ([]models.Tweet, error) {
+  query := utils.BuildTweetQuery(`
+		WHERE t.user_id = $2 AND t.in_reply_to_tweet_id IS NOT NULL
+		ORDER BY t.created_at DESC
+		LIMIT $3 OFFSET $4
+	`, false)
+
+	rows, err := db.Pool.Query(ctx, query, userID, ownerID, limit + 1, offset)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	tweets, err := utils.ScanTweetRow(rows)
+
+	if err != nil {
+		return nil, err 
+	}
+
+	if err := rows.Err(); err != nil {
+		return nil, fmt.Errorf("error iterating rows: %w", err)
+	}
+
+	return tweets, nil
+}
+func GetLiked(ctx context.Context, userID *string, ownerID string, limit, offset int) ([]models.Tweet, error) {
+  query := utils.BuildTweetQuery(`
+		JOIN likes l ON l.tweet_id = t.id
+		WHERE l.user_id = $2
+		ORDER BY t.created_at DESC
+		LIMIT $3 OFFSET $4
+	`, false)
+
+	rows, err := db.Pool.Query(ctx, query, userID, ownerID, limit + 1, offset)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	tweets, err := utils.ScanTweetRow(rows)
+
+	if err != nil {
+		return nil, err 
+	}
+
+	if err := rows.Err(); err != nil {
+		return nil, fmt.Errorf("error iterating rows: %w", err)
+	}
+
+	return tweets, nil
+}
+
 func GetTweets(ctx context.Context, userID string, limit int, offset int) ([]models.Tweet, error) {
   query := utils.BuildTweetQuery("ORDER BY t.created_at DESC LIMIT $2 OFFSET $3", false)
 

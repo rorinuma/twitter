@@ -47,18 +47,20 @@ export default function ProfileLayout({
   const items =
     owner?.id === user?.id
       ? [
-          { item: "Posts", path: `${[user?.username]}` },
-          { item: "Replies", path: `${[user?.username]}/with_replies` },
-          { item: "Likes", path: `${[user?.username]}/likes` },
-        ]
+        { item: "Posts", path: `/${[user?.username]}` },
+        { item: "Replies", path: `/${[user?.username]}/with_replies` },
+        { item: "Likes", path: `/${[user?.username]}/likes` },
+      ]
       : [
-          { item: "Posts", path: `${[owner?.username]}` },
-          { item: "Replies", path: `${[owner?.username]}/with-replies` },
-        ];
+        { item: "Posts", path: `/${[owner?.username]}` },
+        { item: "Replies", path: `/${[owner?.username]}/with_replies` },
+      ];
 
   const displayedItems = items.map(({ item, path }, index) => (
     <MainHeaderItem item={item} path={path} key={index} />
   ));
+
+  // TODO: cropping
 
   if (isLoading) {
     return (

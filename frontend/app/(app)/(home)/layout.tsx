@@ -16,8 +16,8 @@ export default function HomeLayout({
     <>
       <MainHeader
         items={[
-          { item: "For you", path: "home" },
-          { item: "Following", path: "following" },
+          { item: "For you", path: "/home" },
+          { item: "Following", path: "/following" },
         ]}
       />
       <Post modal={false} />

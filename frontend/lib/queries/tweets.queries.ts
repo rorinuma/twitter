@@ -13,7 +13,7 @@ export const fetchTweets = async ({
   tweetsType: TweetsType;
   ownerId?: string;
 }) => {
-  const accessLevel = ownerId ? "soft" : "protected";
+  const accessLevel = ownerId && tweetsType !== "liked" ? "soft" : "protected";
   const { data } = await api.get<{ tweets: RawTweet[]; hasMore: boolean }>(
     `/${accessLevel}/tweets/${tweetsType}?page=${pageParam}&limit=${LIMIT}${ownerId ? `&ownerID=${ownerId}` : ""}`,
   );

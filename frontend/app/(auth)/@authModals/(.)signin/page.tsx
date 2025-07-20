@@ -11,7 +11,7 @@ import { useClickOutside } from "@/hooks/clickOutside";
 import BlueOverlay from "@/components/shared/overlays/BlueOverlay";
 import CloseElement from "@/components/ui/buttons/CloseElement";
 import GoogleButton from "@/components/ui/buttons/GoogleButton";
-import AuthInput from "@/components/auth/AuthInput";
+import Input from "@/components/shared/input/Input";
 import ErrorOverlay from "@/components/shared/overlays/ErrorOverlay";
 
 type Errors = Partial<Record<keyof SignInSchemaType, string>> & {
@@ -104,7 +104,7 @@ export default function SignIn() {
                 <GoogleButton />
               </div>
               <div className="flex flex-col">
-                <AuthInput
+                <Input
                   name="emailOrUsername"
                   label="Email or username"
                   type="text"
@@ -112,7 +112,7 @@ export default function SignIn() {
                   error={errors.emailOrUsername}
                   onChange={handleChange}
                 />
-                <AuthInput
+                <Input
                   name="password"
                   type="password"
                   label="Password"

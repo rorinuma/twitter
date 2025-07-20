@@ -11,7 +11,7 @@ import { FormData } from "@/types/auth.types";
 import { UserSchema } from "@/schemas/userSchema";
 import BlueOverlay from "@/components/shared/overlays/BlueOverlay";
 import CloseElement from "@/components/ui/buttons/CloseElement";
-import AuthInput from "@/components/auth/AuthInput";
+import Input from "@/components/shared/input/Input";
 import ErrorOverlay from "@/components/shared/overlays/ErrorOverlay";
 
 type Errors = Partial<Record<keyof FormData, string>> & {
@@ -139,7 +139,7 @@ export default function SignUpModal() {
             <div className="flex flex-col overflow-y-scroll no-scrollbar p-5 xs:px-20 w-full mt-6">
               <h1 className="text-3xl font-bold">Create your account</h1>
               <div className="flex flex-col mt-4 gap-1">
-                <AuthInput
+                <Input
                   label="Username"
                   type="text"
                   name="username"
@@ -150,7 +150,7 @@ export default function SignUpModal() {
                   maxLength={50}
                   required
                 />
-                <AuthInput
+                <Input
                   label="Email"
                   type="email"
                   name="email"
@@ -160,7 +160,7 @@ export default function SignUpModal() {
                   error={errors.email}
                   required
                 />
-                <AuthInput
+                <Input
                   label="Password"
                   type="password"
                   name="password"
@@ -170,7 +170,7 @@ export default function SignUpModal() {
                   error={errors.password}
                   required
                 />
-                <AuthInput
+                <Input
                   label="Confirm password"
                   type="password"
                   name="confirmPassword"

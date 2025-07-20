@@ -5,10 +5,11 @@ import clsx from "clsx";
 interface Props extends React.InputHTMLAttributes<HTMLInputElement> {
   label: string;
   error?: string | undefined;
-  value: string;
+  value?: string;
+  extended?: boolean;
 }
 
-export default function AuthInput({
+export default function Input({
   label,
   type,
   error,
@@ -17,14 +18,17 @@ export default function AuthInput({
   onChange,
   onBlur,
   maxLength,
+  defaultValue,
+  extended,
 }: Props) {
   return (
     <>
       <label
         className={clsx(
-          "relative flex flex-col group outline-1 outline-border rounded-sm focus-within:outline-2 ",
+          "relative flex flex-col group outline-1 outline-border rounded-sm focus-within:outline-2",
           {
             "outline-error": error,
+            "h-[120px]": extended,
 
             "focus-within:outline-blue": !error,
           },
@@ -50,6 +54,7 @@ export default function AuthInput({
           name={name}
           onChange={onChange}
           onBlur={onBlur}
+          defaultValue={defaultValue}
         />
         {maxLength && value && (
           <div className="absolute right-1 top-1 text-muted text-sm">

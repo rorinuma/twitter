@@ -40,7 +40,7 @@ export default function GuestCutoff({
           </button>
           <button
             className="flex items-center justify-center mt-2 mb-16 font-bold text-blue border border-border-muted hover:opacity-90 duration-(--hover-duration) rounded-full p-4"
-            onClick={() => router.push("signup")}
+            onClick={() => router.push("/signup")}
           >
             Sign up
           </button>

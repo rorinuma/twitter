@@ -12,6 +12,7 @@ import Image from "next/image";
 import { MdAddAPhoto } from "react-icons/md";
 import GeneralTooltip from "@/components/ui/decorations/GeneralTooltip";
 import ErrorOverlay from "@/components/shared/overlays/ErrorOverlay";
+import ImageCropper from "@/components/utility/ImageCropper";
 
 export default function ProfileSettings() {
   const modalRef = useRef<HTMLFormElement>(null);
@@ -22,6 +23,8 @@ export default function ProfileSettings() {
   const [bioValue, setBioValue] = useState<string>("");
   const [nameError, setNameError] = useState<string>("");
   const [message, setMessage] = useState<string>("");
+  const [imageSrc, setImageSrc] = useState<string>("");
+  const [previewURL, setPreviewURL] = useState<string>("");
   const { username } = useParams<{ username: string }>();
 
   if (user?.username !== username) {
@@ -29,7 +32,9 @@ export default function ProfileSettings() {
   }
 
   useClickOutside([modalRef], () => {
-    router.back();
+    if (!imageSrc) {
+      router.back();
+    }
   });
 
   const handleNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -57,11 +62,23 @@ export default function ProfileSettings() {
     const image = e.target?.files?.[0];
 
     if (!image) return;
+
+    const url = URL.createObjectURL(image);
+    setImageSrc(url);
   };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
   };
+
+  const onCropComplete = (file: Blob) => {
+    setPreviewURL(URL.createObjectURL(file));
+  };
+
+  let avatar = user?.avatarURL ?? defaultAvatar;
+  if (previewURL) {
+    avatar = previewURL;
+  }
 
   return (
     user && (
@@ -81,9 +98,9 @@ export default function ProfileSettings() {
                 >
                   <IoMdClose className="p-2 size-10 hover:bg-nav-hover duration-(--hover-duration) rounded-full" />
                 </button>
-                <div>Edit Profile</div>
+                <div className="font-bold text-xl">Edit Profile</div>
               </div>
-              <button className="flex items-center justify-center h-[30px] bg-foreground p-2 rounded-full text-foreground-alt hover:opacity-90 duration-(--hover-duration)">
+              <button className="flex items-center justify-center h-[30px] bg-foreground px-3 py-2 rounded-full text-foreground-alt hover:opacity-90 duration-(--hover-duration)">
                 Save
               </button>
             </div>
@@ -111,7 +128,7 @@ export default function ProfileSettings() {
             <div className="flex flex-col gap-2 p-2">
               <div className="relative h-[50px] ml-2 mb-2">
                 <Image
-                  src={user.avatarURL ?? defaultAvatar}
+                  src={avatar}
                   height={145}
                   width={145}
                   alt="avatar-image"
@@ -156,6 +173,13 @@ export default function ProfileSettings() {
           </form>
         </BlueOverlay>
         <ErrorOverlay error={message} />
+        {imageSrc && (
+          <ImageCropper
+            imageSrc={imageSrc}
+            setImageSrc={setImageSrc}
+            onCropComplete={onCropComplete}
+          />
+        )}
       </>
     )
   );

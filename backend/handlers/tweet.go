@@ -123,22 +123,7 @@ func CreateTweet(w http.ResponseWriter, r *http.Request) {
 }
 
 func GetTweets(w http.ResponseWriter, r *http.Request) {
-	query := r.URL.Query()
-
-	pageStr := query.Get("page")
-	limitStr := query.Get("limit")
-
-	page := 1
-	limit := 10
-
-	if p, err := strconv.Atoi(pageStr); err == nil && p > 0{
-		page = p
-	}
-	if l, err := strconv.Atoi(limitStr); err == nil && l > 0 {
-		limit = l
-	}
-
-	offset := (page - 1) * limit
+	_, limit, offset := utils.GetPaginationParams(r)
 	
 	id, ok := utils.GetUserIDFromContext(r.Context())
 	
@@ -173,22 +158,7 @@ func GetTweets(w http.ResponseWriter, r *http.Request) {
 }
 
 func GetFollowingTweets(w http.ResponseWriter, r *http.Request) {
-	query := r.URL.Query()
-
-	pageStr := query.Get("page")
-	limitStr := query.Get("limit")
-
-	page := 1
-	limit := 10
-
-	if p, err := strconv.Atoi(pageStr); err == nil && p > 0{
-		page = p
-	}
-	if l, err := strconv.Atoi(limitStr); err == nil && l > 0 {
-		limit = l
-	}
-
-	offset := (page - 1) * limit
+	_, limit, offset := utils.GetPaginationParams(r)
 	
 	id, ok := utils.GetUserIDFromContext(r.Context())
 	
@@ -225,21 +195,9 @@ func GetFollowingTweets(w http.ResponseWriter, r *http.Request) {
 func GetPosts(w http.ResponseWriter, r *http.Request) {
 	query := r.URL.Query()
 
-	pageStr := query.Get("page")
-	limitStr := query.Get("limit")
 	ownerID := query.Get("ownerID")
 
-	page := 1
-	limit := 10
-
-	if p, err := strconv.Atoi(pageStr); err == nil && p > 0{
-		page = p
-	}
-	if l, err := strconv.Atoi(limitStr); err == nil && l > 0 {
-		limit = l
-	}
-
-	offset := (page - 1) * limit
+	_, limit, offset := utils.GetPaginationParams(r)
 	
 	userIDStr, ok := utils.GetUserIDFromContext(r.Context())
 
@@ -279,21 +237,9 @@ func GetPosts(w http.ResponseWriter, r *http.Request) {
 func GetReplies(w http.ResponseWriter, r *http.Request) {
 	query := r.URL.Query()
 
-	pageStr := query.Get("page")
-	limitStr := query.Get("limit")
 	ownerID := query.Get("ownerID")
 
-	page := 1
-	limit := 10
-
-	if p, err := strconv.Atoi(pageStr); err == nil && p > 0{
-		page = p
-	}
-	if l, err := strconv.Atoi(limitStr); err == nil && l > 0 {
-		limit = l
-	}
-
-	offset := (page - 1) * limit
+	_, limit, offset := utils.GetPaginationParams(r)
 	
 	userID, _ := utils.GetUserIDFromContext(r.Context())
 
@@ -327,21 +273,10 @@ func GetReplies(w http.ResponseWriter, r *http.Request) {
 func GetLiked(w http.ResponseWriter, r *http.Request) {
 	query := r.URL.Query()
 
-	pageStr := query.Get("page")
-	limitStr := query.Get("limit")
 	ownerID := query.Get("ownerID")
 
-	page := 1
-	limit := 10
+	_, limit, offset := utils.GetPaginationParams(r)
 
-	if p, err := strconv.Atoi(pageStr); err == nil && p > 0{
-		page = p
-	}
-	if l, err := strconv.Atoi(limitStr); err == nil && l > 0 {
-		limit = l
-	}
-
-	offset := (page - 1) * limit
 	
 	userID, ok := utils.GetUserIDFromContext(r.Context())
 

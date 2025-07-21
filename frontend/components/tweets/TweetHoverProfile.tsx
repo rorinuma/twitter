@@ -4,6 +4,8 @@ import { TweetHoverProfileProps } from "@/types/tweets.types";
 import Avatar from "../ui/user/Avatar";
 import clsx from "clsx";
 import image from "@/public/Type.jpg";
+import FollowButton from "../ui/buttons/FollowButton";
+import { useAuth } from "@/context/authContext";
 
 export default function TweetHoverProfile({
   tweet,
@@ -13,6 +15,8 @@ export default function TweetHoverProfile({
   floatingStyles,
   open,
 }: TweetHoverProfileProps) {
+  const { user, setUser } = useAuth();
+
   return (
     <div
       ref={(node) => {
@@ -38,9 +42,11 @@ export default function TweetHoverProfile({
             width={60}
             image={tweet.user.avatarURL || image}
           />
-          <button className="flex bg-foreground text-foreground-alt font-medium h-fit py-2 px-3 rounded-full hover:opacity-80 duration-(--hover-duration)">
-            Follow
-          </button>
+          <FollowButton
+            user={tweet.user}
+            currentUser={user}
+            setCurrentUser={setUser}
+          />
         </div>
         <div className="mt-1">
           <div className="font-semibold">{tweet.user.displayName}</div>

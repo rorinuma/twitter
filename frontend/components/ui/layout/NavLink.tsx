@@ -8,15 +8,14 @@ interface Props {
   pathMatchesIcon: React.ReactNode;
   text: string;
   href: string;
-  // secondHref if the icon has active status on an additional route
-  secondHref?: string;
+  hrefs?: string[];
 }
 
 export default function NavLink({
   icon,
   text,
   href,
-  secondHref,
+  hrefs,
   pathMatchesIcon,
 }: Props) {
   const pathname = usePathname();
@@ -26,7 +25,7 @@ export default function NavLink({
       href={`/${href}`}
       className="flex p-3 items-center justify-center outline-none hover:bg-nav-hover duration-(--hover-duration) rounded-full max-w-fit"
     >
-      {pathname === `/${href}` || pathname === secondHref
+      {pathname === `/${href}` || hrefs?.some((ref) => pathname === ref)
         ? pathMatchesIcon
         : icon}
       <div className="xl:flex hidden items-center mr-4 ml-3 text-xl font-bold text-center">

@@ -16,6 +16,7 @@ import { PiCalendarDotsLight } from "react-icons/pi";
 import Link from "next/link";
 import MainHeaderItem from "@/components/ui/layout/MainHeaderItem";
 import { OwnerContext } from "@/context/OwnerContext";
+import FollowButton from "@/components/ui/buttons/FollowButton";
 
 export default function ProfileLayout({
   children,
@@ -47,14 +48,14 @@ export default function ProfileLayout({
   const items =
     owner?.id === user?.id
       ? [
-        { item: "Posts", path: `/${[user?.username]}` },
-        { item: "Replies", path: `/${[user?.username]}/with_replies` },
-        { item: "Likes", path: `/${[user?.username]}/likes` },
-      ]
+          { item: "Posts", path: `/${[user?.username]}` },
+          { item: "Replies", path: `/${[user?.username]}/with_replies` },
+          { item: "Likes", path: `/${[user?.username]}/likes` },
+        ]
       : [
-        { item: "Posts", path: `/${[owner?.username]}` },
-        { item: "Replies", path: `/${[owner?.username]}/with_replies` },
-      ];
+          { item: "Posts", path: `/${[owner?.username]}` },
+          { item: "Replies", path: `/${[owner?.username]}/with_replies` },
+        ];
 
   const displayedItems = items.map(({ item, path }, index) => (
     <MainHeaderItem item={item} path={path} key={index} />
@@ -121,9 +122,7 @@ export default function ProfileLayout({
                 Edit profile
               </button>
             ) : (
-              <button className="flex h-fit border py-2 px-4 bg-foreground text-foreground-alt font-bold rounded-full hover:opacity-90 duration-(--hover-duration)">
-                Follow
-              </button>
+              <FollowButton user={owner} currentUser={user} />
             )}
           </div>
           <div className="flex flex-col mx-3">

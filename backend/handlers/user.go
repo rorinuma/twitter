@@ -147,3 +147,56 @@ func Signout(w http.ResponseWriter, r *http.Request) {
 	})
 }
 
+func FollowUser(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	username := vars["username"]
+	
+	id, ok := utils.GetUserIDFromContext(r.Context())
+	
+	if !ok {
+		log.Println("User is unauthorized")
+		http.Error(w, "Unauthorized", http.StatusUnauthorized)
+		return
+	}
+
+	user, err := repositories.FollowUser(r.Context(), username, id)
+	if err != nil {
+		log.Println("Failed to follow user: ", err)
+		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+	if err := json.NewEncoder(w).Encode(user); err != nil {
+		http.Error(w, "Internal server error", http.StatusInternalServerError)
+		log.Printf("Failed to write response: %v", err)
+	}
+}
+
+func UnfollowUser(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	username := vars["username"]
+	
+	id, ok := utils.GetUserIDFromContext(r.Context())
+	
+	if !ok {
+		log.Println("Unauthorized")
+		http.Error(w, "Unauthorized", http.StatusUnauthorized)
+		return
+	}
+
+	user, err := repositories.UnfollowUser(r.Context(), username, id)
+	if err != nil {
+		log.Println("Failed to unfollow user: ", err)
+		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+	if err := json.NewEncoder(w).Encode(user); err != nil {
+		http.Error(w, "Internal server error", http.StatusInternalServerError)
+		log.Printf("Failed to write response: %v", err)
+	}
+}

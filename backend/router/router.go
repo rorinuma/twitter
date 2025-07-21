@@ -22,6 +22,7 @@ func SetupRouter() *mux.Router {
 	soft.HandleFunc("/tweets/replies", handlers.GetReplies).Methods("GET")
 	protected.HandleFunc("/tweets/liked", handlers.GetLiked).Methods("GET")
 	protected.HandleFunc("/tweets/foryou", handlers.GetTweets).Methods("GET")
+	protected.HandleFunc("/tweets/following", handlers.GetFollowingTweets).Methods("GET")
 	protected.HandleFunc("/tweets/create", handlers.CreateTweet).Methods("POST")
 	protected.HandleFunc("/tweets/like/{id}", handlers.LikeTweet).Methods("POST")
 	protected.HandleFunc("/tweets/unlike/{id}", handlers.UnlikeTweet).Methods("DELETE")
@@ -32,5 +33,7 @@ func SetupRouter() *mux.Router {
 	protected.HandleFunc("/tweets/delete-retweet/{id}", handlers.DeleteRetweet).Methods("DELETE")
 	protected.HandleFunc("/me", handlers.Me).Methods("POST")
 	protected.HandleFunc("/signout", handlers.Signout).Methods("DELETE")
+	protected.HandleFunc("/user/follow/{username}", handlers.FollowUser).Methods("POST")
+	protected.HandleFunc("/user/unfollow/{username}", handlers.UnfollowUser).Methods("DELETE")
 	return r
 }

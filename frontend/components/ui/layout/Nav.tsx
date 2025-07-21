@@ -75,7 +75,7 @@ export default function Nav() {
               pathMatchesIcon={<GoHomeFill className="size-7" />}
               text="Home"
               href="home"
-              secondHref="following"
+              hrefs={["/following"]}
             />
             <NavLink
               icon={<IoSearchOutline className="size-7" />}
@@ -99,7 +99,11 @@ export default function Nav() {
               icon={<IoPersonOutline className="size-7" />}
               pathMatchesIcon={<IoPerson className="size-7" />}
               text="Profile"
-              href={user?.username || "placeholder"}
+              href={user?.username}
+              hrefs={[
+                `/${user.username}/likes`,
+                `/${user.username}/with_replies`,
+              ]}
             />
             <button
               className="bg-button hover:bg-button-hover text-center font-semibold duration-(--hover-duration) rounded-full text-foreground-alt p-4 mt-2 w-fit xl:w-full"

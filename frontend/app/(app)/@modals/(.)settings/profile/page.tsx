@@ -14,7 +14,7 @@ import GeneralTooltip from "@/components/ui/decorations/GeneralTooltip";
 import ErrorOverlay from "@/components/shared/overlays/ErrorOverlay";
 
 export default function ProfileSettings() {
-  const modalRef = useRef<HTMLDivElement>(null);
+  const modalRef = useRef<HTMLFormElement>(null);
   const addAvatarInputRef = useRef<HTMLInputElement>(null);
   const router = useRouter();
   const { user } = useAuth();
@@ -54,17 +54,26 @@ export default function ProfileSettings() {
     if (!image) return;
   };
 
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+  };
+
   return (
     user && (
       <>
         <BlueOverlay centered={true}>
-          <div
-            className="flex flex-col bg-background min-w-[500px] min-h-[600px] rounded-2xl relative overflow-y-auto"
+          <form
+            className="flex flex-col bg-background max-xs:w-full xs:min-w-[500px] min-h-[600px] rounded-2xl relative overflow-y-auto"
             ref={modalRef}
+            onSubmit={handleSubmit}
           >
             <div className="flex items-center justify-between px-2 py-1 sticky top-0 h-[53px]">
               <div className="flex items-center gap-3">
-                <button className="flex items-center justify-center">
+                <button
+                  type="button"
+                  className="flex items-center justify-center"
+                  onClick={() => router.back()}
+                >
                   <IoMdClose className="p-2 size-10 hover:bg-nav-hover duration-(--hover-duration) rounded-full" />
                 </button>
                 <div>Edit Profile</div>
@@ -85,7 +94,10 @@ export default function ProfileSettings() {
               )}
               <div className="flex items-center justify-center absolute inset-0 h-full w-full rounded-full">
                 <GeneralTooltip content="Add photo">
-                  <button className="flex items-center justify-center p-3 rounded-full bg-transparent-blurred hover:bg-transparent-blurred-hover duration-(--hover-duration)">
+                  <button
+                    type="button"
+                    className="flex items-center justify-center p-3 rounded-full bg-transparent-blurred hover:bg-transparent-blurred-hover duration-(--hover-duration)"
+                  >
                     <MdAddAPhoto className="size-5" />
                   </button>
                 </GeneralTooltip>
@@ -105,6 +117,7 @@ export default function ProfileSettings() {
                     <button
                       className="flex items-center justify-center p-3 rounded-full bg-transparent-blurred hover:bg-transparent-blurred-hover duration-(--hover-duration)"
                       onClick={handleAvatarAddClick}
+                      type="button"
                     >
                       <MdAddAPhoto className="size-5" />
                     </button>
@@ -135,7 +148,7 @@ export default function ProfileSettings() {
                 extended
               />
             </div>
-          </div>
+          </form>
         </BlueOverlay>
         <ErrorOverlay error={message} />
       </>

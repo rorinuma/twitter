@@ -34,13 +34,19 @@ export default function GuestCutoff({
           <div className="text-muted font-light">{secondaryText}</div>
           <button
             className="flex items-center justify-center mt-8 font-bold text-foreground bg-blue hover:opacity-90 duration-(--hover-duration) rounded-full p-4"
-            onClick={() => router.push("/signin")}
+            onClick={() => {
+              setIsVisible(false);
+              router.push("/signin");
+            }}
           >
             Log in
           </button>
           <button
             className="flex items-center justify-center mt-2 mb-16 font-bold text-blue border border-border-muted hover:opacity-90 duration-(--hover-duration) rounded-full p-4"
-            onClick={() => router.push("/signup")}
+            onClick={() => {
+              setIsVisible(false);
+              router.push("/signup");
+            }}
           >
             Sign up
           </button>

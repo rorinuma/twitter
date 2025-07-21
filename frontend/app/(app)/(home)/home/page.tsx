@@ -9,6 +9,7 @@ import { useEffect } from "react";
 
 export default function Home() {
   const { user } = useAuth();
+
   const { data, fetchNextPage, hasNextPage, isFetchingNextPage, isLoading } =
     useTweets("foryou", !!user);
 

@@ -6,9 +6,14 @@ import { useTweets } from "@/hooks/useTweetFeed";
 import TweetCard from "@/components/tweets/index";
 import { useInView } from "react-intersection-observer";
 import { useEffect } from "react";
+import { useRouter } from "next/navigation";
 
 export default function Following() {
   const { user } = useAuth();
+  const router = useRouter();
+
+  if (!user) router.push("/");
+
   const { data, fetchNextPage, hasNextPage, isFetchingNextPage, isLoading } =
     useTweets("following", !!user);
 

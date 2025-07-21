@@ -1,6 +1,6 @@
 "use client";
 
-import SignIn from "../@authModals/(.)signin/page";
+import SignIn from "@/app/@modals/(.)signin/page";
 
 export default function SignInFallback() {
   return (

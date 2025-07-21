@@ -241,9 +241,15 @@ func GetPosts(w http.ResponseWriter, r *http.Request) {
 
 	offset := (page - 1) * limit
 	
-	userID, _ := utils.GetUserIDFromContext(r.Context())
+	userIDStr, ok := utils.GetUserIDFromContext(r.Context())
 
-	tweets, err := repositories.GetPostsByID(r.Context(), &userID, ownerID, limit + 1, offset)
+	var userID *string
+	if(!ok) {
+		userID = nil
+	} else {
+		userID = &userIDStr
+	}
+	tweets, err := repositories.GetPostsByID(r.Context(), userID, ownerID, limit + 1, offset)
 	
 	if err != nil {
 		log.Printf("Failed to get tweets by ownerID: %v", err)

@@ -15,13 +15,14 @@ import ClientPortal from "../utility/ClientPortal";
 import ErrorOverlay from "../shared/overlays/ErrorOverlay";
 import { useSafeBack } from "@/hooks/goSafeBack";
 import { ReplyPermission, ReplyPermissionType } from "@/types/post.types";
-import { useSearchParams } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import Spinner from "../ui/decorations/Spinner";
 import TweetCard from "@/components/tweets/index";
 import { useTweet } from "@/hooks/useTweet";
 import PostMedia from "./PostMedia";
 import { useCreateTweet } from "@/hooks/useCreateTweet";
 import { Tweet } from "@/types/tweets.types";
+import { useAuth } from "@/context/authContext";
 
 interface Props {
   modal: boolean;
@@ -153,13 +154,13 @@ export default function Post({ modal, ref, replyTo }: Props) {
   const variants =
     shouldReduceMotion || !modal
       ? {
-        initial: { opacity: 1 },
-        animate: { opacity: 1 },
-      }
+          initial: { opacity: 1 },
+          animate: { opacity: 1 },
+        }
       : {
-        initial: { opacity: 0 },
-        animate: { opacity: 1 },
-      };
+          initial: { opacity: 0 },
+          animate: { opacity: 1 },
+        };
   const transition =
     shouldReduceMotion || !modal ? { duration: 0 } : { duration: 0.3 };
 

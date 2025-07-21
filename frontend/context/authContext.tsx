@@ -35,15 +35,14 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         }
       } catch (error) {
         console.log("no user: ", error);
-        setUser(null);
         if (
-          !pathname.startsWith("/status") &&
-          pathname !== "/sigin" &&
-          pathname !== "signup" &&
-          pathname !== "/"
+          pathname === "/home" ||
+          pathname === "/following" ||
+          pathname.startsWith("/compose/post")
         ) {
-          router.replace("/");
+          router.push("/");
         }
+        setUser(null);
       } finally {
         setLoading(false);
       }

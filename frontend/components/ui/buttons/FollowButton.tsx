@@ -19,7 +19,7 @@ export default function FollowButton({
   setCurrentUser,
 }: Props) {
   const [message, setMessage] = useState<string>("");
-  const [isModalVisible, setIsModalVisible] = useState<boolean>(true);
+  const [isModalVisible, setIsModalVisible] = useState<boolean>(false);
   const followed = currentUser?.following.some(
     (follow) => follow === user.username,
   );

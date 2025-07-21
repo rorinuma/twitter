@@ -4,7 +4,7 @@ import Input from "@/components/shared/input/Input";
 import BlueOverlay from "@/components/shared/overlays/BlueOverlay";
 import { useAuth } from "@/context/authContext";
 import { useClickOutside } from "@/hooks/clickOutside";
-import { useRouter } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import { useRef, useState } from "react";
 import { IoMdClose } from "react-icons/io";
 import defaultAvatar from "@/public/placeholder.jpg";
@@ -22,6 +22,11 @@ export default function ProfileSettings() {
   const [bioValue, setBioValue] = useState<string>("");
   const [nameError, setNameError] = useState<string>("");
   const [message, setMessage] = useState<string>("");
+  const { username } = useParams<{ username: string }>();
+
+  if (user?.username !== username) {
+    router.back();
+  }
 
   useClickOutside([modalRef], () => {
     router.back();

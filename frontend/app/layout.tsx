@@ -18,8 +18,10 @@ const geistMono = Geist_Mono({
 
 export default function RootLayout({
   children,
+  modals,
 }: Readonly<{
   children: React.ReactNode;
+  modals: React.ReactNode;
 }>) {
   useEffect(() => {
     document.documentElement.classList.toggle(
@@ -36,7 +38,12 @@ export default function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} antialiased min-h-dvh relative flex w-dvw justify-center overflow-x-hidden`}
       >
         <AuthProvider>
-          <QueryProvider>{children}</QueryProvider>
+          <QueryProvider>
+            <div className="flex justify-center w-full h-full" key="children">
+              {children}
+            </div>
+            <div key="modals">{modals}</div>
+          </QueryProvider>
         </AuthProvider>
       </body>
       <script src="https://accounts.google.com/gsi/client" async defer></script>

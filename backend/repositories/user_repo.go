@@ -104,7 +104,7 @@ func FindOneLogin(ctx context.Context, input models.LoginUserInput) (*models.Use
 func FollowUser(ctx context.Context, username, userID string) (*uuid.UUID, error) {
 	var userIDToFollow uuid.UUID
 	err := db.Pool.QueryRow(ctx, `
-		SELECT user_id
+		SELECT id 
 		FROM users
 		WHERE username = $1
 	`, username).Scan(&userIDToFollow)
@@ -115,7 +115,7 @@ func FollowUser(ctx context.Context, username, userID string) (*uuid.UUID, error
 	query := `
 		INSERT INTO follows (follower_id, following_id)
 		VALUES ($1, $2)
-		RETURNING id
+		RETURNING follower_id
 	`
 
 	var insertedID uuid.UUID
@@ -127,15 +127,15 @@ func FollowUser(ctx context.Context, username, userID string) (*uuid.UUID, error
 	return &insertedID, nil
 }
 
-func UnfollowUser(ctx context.Context, username, userID string) (*uuid.UUID, error) {
+func UnfollowUser(ctx context.Context, username, userID string) error {
 	var userIDToFollow uuid.UUID
 	err := db.Pool.QueryRow(ctx, `
-		SELECT user_id
+		SELECT id 
 		FROM users
 		WHERE username = $1
 	`, username).Scan(&userIDToFollow)
 	if err != nil {
-		return nil, fmt.Errorf("failed to find user with username %s: %w", username, err)
+		return fmt.Errorf("failed to find user with username %s: %w", username, err)
 	}
 
 	query := `
@@ -143,11 +143,10 @@ func UnfollowUser(ctx context.Context, username, userID string) (*uuid.UUID, err
 		WHERE follower_id = $1 AND following_id = $2
 	`
 
-	var deletedID uuid.UUID
-	err = db.Pool.QueryRow(ctx, query, userID, userIDToFollow).Scan(&deletedID)
+	_, err = db.Pool.Exec(ctx, query, userID, userIDToFollow)
 	if err != nil {
-		return nil, fmt.Errorf("failed to insert follow relationship: %w", err)
+		return fmt.Errorf("failed to delete follow relationship: %w", err)
 	}
 
-	return &deletedID, nil
+	return nil
 }

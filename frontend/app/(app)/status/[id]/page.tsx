@@ -30,10 +30,10 @@ export default function Status() {
         <div className="flex flex-col w-full">
           {tweet.thread &&
             tweet.thread.length > 2 &&
-            tweet.thread?.map((tweet, i, arr) => (
+            tweet.thread?.map((t, i, arr) => (
               <TweetCard
-                key={tweet.id}
-                tweet={tweet}
+                key={t.id}
+                tweet={t}
                 variant={i === arr.length - 1 ? "status" : "default"}
                 replyBar={i !== arr.length - 1}
               />
@@ -42,8 +42,8 @@ export default function Status() {
             <TweetCard tweet={tweet} variant="status" />
           )}
           <Post modal={false} replyTo={params.id} />
-          {tweet.replies?.map((tweet) => (
-            <TweetCard key={tweet.id} tweet={tweet} variant="default" />
+          {tweet.replies?.map((reply) => (
+            <TweetCard key={reply.id} tweet={reply} variant="default" />
           ))}
         </div>
       </>

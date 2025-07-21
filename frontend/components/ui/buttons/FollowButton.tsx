@@ -3,7 +3,7 @@ import GuestCutoff from "@/components/utility/GuestCutoff";
 import api from "@/lib/axios";
 import { User } from "@/types/user.types";
 import axios from "axios";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
 import { IoPersonAddOutline } from "react-icons/io5";
 
@@ -20,9 +20,11 @@ export default function FollowButton({
 }: Props) {
   const [message, setMessage] = useState<string>("");
   const [isModalVisible, setIsModalVisible] = useState<boolean>(false);
-  const followed = currentUser?.following.some(
-    (follow) => follow === user.username,
-  );
+  const [followed, setFollowed] = useState<boolean>(false);
+
+  useEffect(() => {
+    setFollowed(!!currentUser?.following.includes(user.username));
+  }, [currentUser, user.username]);
 
   const handleFollow = async () => {
     if (!currentUser) {
@@ -30,54 +32,39 @@ export default function FollowButton({
       return;
     }
 
-    if (followed) {
-      try {
+    try {
+      if (!followed) {
         await api.post(`/protected/user/follow/${user.username}`);
         setCurrentUser((prev) => {
           if (!prev) return null;
           return {
             ...prev,
-            followers: [...prev.followers, currentUser.username],
+            following: [...prev.following, user.username],
           };
         });
-      } catch (err) {
-        if (axios.isAxiosError(err)) {
-          const message =
-            err.response?.data?.message ||
-            err.response?.data?.error ||
-            err.response?.data ||
-            "Failed to follow the user due to server error.";
-          setMessage(message);
-        } else {
-          console.error("Non-Axios error when following the user:", err);
-          setMessage("An unexpected error occurred while following the user.");
-        }
-      }
-    }
-    if (!followed) {
-      try {
+        setFollowed(true);
+      } else {
         await api.delete(`/protected/user/unfollow/${user.username}`);
         setCurrentUser((prev) => {
           if (!prev) return null;
           return {
             ...prev,
-            followers: prev.followers.filter((f) => f !== currentUser.username),
+            following: prev.following.filter((u) => u !== user.username),
           };
         });
-      } catch (err) {
-        if (axios.isAxiosError(err)) {
-          const message =
-            err.response?.data?.message ||
-            err.response?.data?.error ||
-            err.response?.data ||
-            "Failed to unfollow the user due to server error.";
-          setMessage(message);
-        } else {
-          console.error("Non-Axios error when unfollowing the user:", err);
-          setMessage(
-            "An unexpected error occurred while unfollowing the user.",
-          );
-        }
+        setFollowed(false);
+      }
+    } catch (err) {
+      if (axios.isAxiosError(err)) {
+        const msg =
+          err.response?.data?.message ||
+          err.response?.data?.error ||
+          err.response?.data ||
+          "Server error.";
+        setMessage(msg);
+      } else {
+        console.error(err);
+        setMessage("Unexpected error.");
       }
     }
   };

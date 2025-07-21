@@ -42,11 +42,13 @@ export default function TweetHoverProfile({
             width={60}
             image={tweet.user.avatarURL || image}
           />
-          <FollowButton
-            user={tweet.user}
-            currentUser={user}
-            setCurrentUser={setUser}
-          />
+          {tweet.user.id !== user?.id && (
+            <FollowButton
+              user={tweet.user}
+              currentUser={user}
+              setCurrentUser={setUser}
+            />
+          )}
         </div>
         <div className="mt-1">
           <div className="font-semibold">{tweet.user.displayName}</div>

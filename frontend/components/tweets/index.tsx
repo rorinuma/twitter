@@ -95,11 +95,10 @@ export default function TweetCard({
   useEffect(() => {
     if (inView && tweet?.id && !tweet.isViewed && user) {
       addView(tweet.id).catch((err) => {
-        setError("Failed to add a view to the tweet");
-        console.error("Failed to add a view to the tweet", err);
+        console.error("Failed to add view:", err);
       });
     }
-  }, [inView, tweet?.id]);
+  }, [tweet?.id, tweet?.isViewed, inView, user]);
 
   const handleTweetClick = (e: React.MouseEvent<HTMLDivElement>) => {
     e.stopPropagation();
@@ -144,18 +143,20 @@ export default function TweetCard({
 
   const variants = shouldReduceMotion
     ? {
-      initial: { opacity: 1 },
-      animate: { opacity: 1 },
-    }
+        initial: { opacity: 1 },
+        animate: { opacity: 1 },
+      }
     : {
-      initial: { opacity: 0 },
-      animate: { opacity: 1 },
-    };
+        initial: { opacity: 0 },
+        animate: { opacity: 1 },
+      };
   const transition = shouldReduceMotion ? { duration: 0 } : { duration: 0.3 };
 
   const handleDeletePostClick = () => {
     setIsPostDeletionVisible(true);
   };
+
+  console.log("tweet: ", tweet);
 
   return (
     <>

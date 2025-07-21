@@ -186,7 +186,7 @@ func UnfollowUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	user, err := repositories.UnfollowUser(r.Context(), username, id)
+	err := repositories.UnfollowUser(r.Context(), username, id)
 	if err != nil {
 		log.Println("Failed to unfollow user: ", err)
 		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
@@ -195,7 +195,9 @@ func UnfollowUser(w http.ResponseWriter, r *http.Request) {
 
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
-	if err := json.NewEncoder(w).Encode(user); err != nil {
+	if err := json.NewEncoder(w).Encode(map[string]string{
+		"message": "Unfollowed successfully",
+	}); err != nil {
 		http.Error(w, "Internal server error", http.StatusInternalServerError)
 		log.Printf("Failed to write response: %v", err)
 	}

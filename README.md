@@ -1,4 +1,4 @@
-# Twitter Clone — Dockerized Fullstack App
+# Twitter Clone — Fullstack App
 
 This project is a **Twitter-like clone** built with:
 
@@ -6,8 +6,6 @@ This project is a **Twitter-like clone** built with:
 - **Backend**: Go
 - **Database**: PostgreSQL
 - **Object Storage**: MinIO (S3-compatible)
-
-Fully containerized using Docker & Docker Compose.
 
 ---
 

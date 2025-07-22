@@ -73,6 +73,7 @@ export default function ProfileSettings() {
 
   const onCropComplete = (file: Blob) => {
     setPreviewURL(URL.createObjectURL(file));
+    setMessage("Crop complete");
   };
 
   let avatar = user?.avatarURL ?? defaultAvatar;

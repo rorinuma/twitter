@@ -13,7 +13,7 @@ export default function MobileNav() {
         pathMatchesIcon={<GoHomeFill className="size-7" />}
         text="Home"
         href="home"
-        secondHref="following"
+        hrefs={["/following"]}
       />
       <NavLink
         icon={<IoSearchOutline className="size-7" />}

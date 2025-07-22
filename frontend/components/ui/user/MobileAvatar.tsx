@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import avatarImage from "@/public/Type.jpg";
+import avatarImage from "@/public/placeholder.jpg";
 import { createPortal } from "react-dom";
 import { AnimatePresence, useReducedMotion } from "motion/react";
 import { motion } from "motion/react";
@@ -44,15 +44,15 @@ export default function MobileAvatar() {
 
   const slideVariants = shouldReduceMotion
     ? {
-        initial: { x: 0 },
-        animate: { x: 0 },
-        exit: { x: 0 },
-      }
+      initial: { x: 0 },
+      animate: { x: 0 },
+      exit: { x: 0 },
+    }
     : {
-        initial: { x: "-100%" },
-        animate: { x: 0 },
-        exit: { x: "-100%" },
-      };
+      initial: { x: "-100%" },
+      animate: { x: 0 },
+      exit: { x: "-100%" },
+    };
 
   const slideTransition = shouldReduceMotion
     ? { duration: 0.3 }

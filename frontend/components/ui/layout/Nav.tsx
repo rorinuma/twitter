@@ -16,7 +16,7 @@ import {
   IoSearchOutline,
 } from "react-icons/io5";
 import Link from "next/link";
-import avatarImage from "@/public/Type.jpg";
+import avatarImage from "@/public/placeholder.jpg";
 import { BsFeather } from "react-icons/bs";
 import Avatar from "../user/Avatar";
 import { useAuth } from "@/context/authContext";

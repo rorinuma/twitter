@@ -26,7 +26,7 @@ export default function ProfileLayout({
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [owner, setOwner] = useState<User | undefined>(undefined);
   const { username } = useParams<{ username: string }>();
-  const { user } = useAuth();
+  const { user, setUser } = useAuth();
   const router = useRouter();
 
   useEffect(() => {
@@ -48,14 +48,14 @@ export default function ProfileLayout({
   const items =
     owner?.id === user?.id
       ? [
-          { item: "Posts", path: `/${[user?.username]}` },
-          { item: "Replies", path: `/${[user?.username]}/with_replies` },
-          { item: "Likes", path: `/${[user?.username]}/likes` },
-        ]
+        { item: "Posts", path: `/${[user?.username]}` },
+        { item: "Replies", path: `/${[user?.username]}/with_replies` },
+        { item: "Likes", path: `/${[user?.username]}/likes` },
+      ]
       : [
-          { item: "Posts", path: `/${[owner?.username]}` },
-          { item: "Replies", path: `/${[owner?.username]}/with_replies` },
-        ];
+        { item: "Posts", path: `/${[owner?.username]}` },
+        { item: "Replies", path: `/${[owner?.username]}/with_replies` },
+      ];
 
   const displayedItems = items.map(({ item, path }, index) => (
     <MainHeaderItem item={item} path={path} key={index} />
@@ -122,7 +122,11 @@ export default function ProfileLayout({
                 Edit profile
               </button>
             ) : (
-              <FollowButton user={owner} currentUser={user} />
+              <FollowButton
+                user={owner}
+                setCurrentUser={setUser}
+                currentUser={user}
+              />
             )}
           </div>
           <div className="flex flex-col mx-3">

@@ -2,7 +2,7 @@
 
 import { Tweet, TweetVariant } from "@/types/tweets.types";
 import Avatar from "../ui/user/Avatar";
-import image from "@/public/Type.jpg";
+import image from "@/public/placeholder.jpg";
 import { IoIosMore } from "react-icons/io";
 import { MediaGrid } from "./MediaGrid";
 import TweetActions from "./TweetActions";

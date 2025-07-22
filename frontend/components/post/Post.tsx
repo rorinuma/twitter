@@ -1,7 +1,7 @@
 "use client";
 
 import PostActions from "./PostActions";
-import avatarImage from "@/public/Type.jpg";
+import avatarImage from "@/public/placeholder.jpg";
 import TextareaAutosize from "react-textarea-autosize";
 import clsx from "clsx";
 import { useEffect, useMemo, useRef, useState } from "react";
@@ -15,14 +15,14 @@ import ClientPortal from "../utility/ClientPortal";
 import ErrorOverlay from "../shared/overlays/ErrorOverlay";
 import { useSafeBack } from "@/hooks/goSafeBack";
 import { ReplyPermission, ReplyPermissionType } from "@/types/post.types";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useSearchParams } from "next/navigation";
 import Spinner from "../ui/decorations/Spinner";
 import TweetCard from "@/components/tweets/index";
 import { useTweet } from "@/hooks/useTweet";
 import PostMedia from "./PostMedia";
 import { useCreateTweet } from "@/hooks/useCreateTweet";
 import { Tweet } from "@/types/tweets.types";
-import { useAuth } from "@/context/authContext";
+import axios from "axios";
 
 interface Props {
   modal: boolean;
@@ -134,17 +134,35 @@ export default function Post({ modal, ref, replyTo }: Props) {
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
 
-    postTweet({
-      text,
-      files,
-      quoteTo: quoteToParams,
-      replyTo: replyToParams ?? replyTo ?? undefined,
-      mentionedUsers:
-        replyPermission.type === ReplyPermissionType.Mentioned
-          ? replyPermission.mentions
-          : [],
-      replyPermission: replyPermission.type,
-    });
+    postTweet(
+      {
+        text,
+        files,
+        quoteTo: quoteToParams,
+        replyTo: replyToParams ?? replyTo ?? undefined,
+        mentionedUsers:
+          replyPermission.type === ReplyPermissionType.Mentioned
+            ? replyPermission.mentions
+            : [],
+        replyPermission: replyPermission.type,
+      },
+      {
+        onError: (err) => {
+          if (axios.isAxiosError(err)) {
+            const msg =
+              err.response?.data?.message ||
+              err.response?.data?.error ||
+              err.response?.data ||
+              "Server error...";
+            console.error("Axios error while posting the tweet: ", err);
+            setError(msg);
+          } else {
+            setError("Unknown error...");
+            console.error("Unknown non-axios error: ", err);
+          }
+        },
+      },
+    );
 
     setText("");
     setFiles(null);
@@ -154,13 +172,13 @@ export default function Post({ modal, ref, replyTo }: Props) {
   const variants =
     shouldReduceMotion || !modal
       ? {
-          initial: { opacity: 1 },
-          animate: { opacity: 1 },
-        }
+        initial: { opacity: 1 },
+        animate: { opacity: 1 },
+      }
       : {
-          initial: { opacity: 0 },
-          animate: { opacity: 1 },
-        };
+        initial: { opacity: 0 },
+        animate: { opacity: 1 },
+      };
   const transition =
     shouldReduceMotion || !modal ? { duration: 0 } : { duration: 0.3 };
 

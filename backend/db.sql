@@ -1,6 +1,5 @@
 CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 
--- Users table
 CREATE TABLE users (
   id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
   username TEXT NOT NULL UNIQUE,
@@ -15,7 +14,6 @@ CREATE TABLE users (
   updated_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
--- Tweets table
 CREATE TABLE tweets (
   id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
   user_id UUID NOT NULL,
@@ -39,7 +37,8 @@ CREATE TABLE tweets (
 CREATE TABLE follows (
   follower_id UUID REFERENCES users(id),
   following_id UUID REFERENCES users(id),
-  PRIMARY KEY (follower_id, following_id)
+  PRIMARY KEY (follower_id, following_id),
+  UNIQUE(follower_id, following_id)
 );
 
 CREATE TABLE likes (
@@ -63,7 +62,6 @@ CREATE TABLE bookmarks (
   UNIQUE(tweet_id, user_id)
 );
 
--- Optional indexes for performance (especially for querying tweets)
 CREATE INDEX idx_tweets_user_id ON tweets(user_id);
 CREATE INDEX idx_tweets_in_reply_to ON tweets(in_reply_to_tweet_id);
 CREATE INDEX idx_tweets_original_id ON tweets(original_tweet_id);

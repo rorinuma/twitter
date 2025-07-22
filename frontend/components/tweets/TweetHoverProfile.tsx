@@ -3,7 +3,7 @@
 import { TweetHoverProfileProps } from "@/types/tweets.types";
 import Avatar from "../ui/user/Avatar";
 import clsx from "clsx";
-import image from "@/public/Type.jpg";
+import image from "@/public/placeholder.jpg";
 import FollowButton from "../ui/buttons/FollowButton";
 import { useAuth } from "@/context/authContext";
 

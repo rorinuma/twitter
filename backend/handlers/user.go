@@ -53,7 +53,7 @@ func LoginUser(w http.ResponseWriter, r *http.Request) {
 	user, err := repositories.FindOneLogin(r.Context(), input)
 	if err != nil {
 		log.Printf("User not found: %v", err)
-		http.Error(w, "Unauthorized", http.StatusUnauthorized)
+		http.Error(w, "User not found", http.StatusUnauthorized)
 		return
 	}
 

@@ -62,6 +62,7 @@ export default function SignIn() {
       }
     } catch (err) {
       if (axios.isAxiosError(err)) {
+        console.log(err.response?.data);
         const general = err.response?.data;
         setErrors((prev) => ({ ...prev, general }));
         setTimeout(() => {

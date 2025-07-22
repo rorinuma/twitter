@@ -34,6 +34,7 @@ cd twitter
 ```bash
 # docker-compose
 cp .env.example .env
+
 # Backend environment
 cp backend/.env.example backend/.env
 

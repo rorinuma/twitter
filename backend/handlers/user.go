@@ -3,12 +3,15 @@ package handlers
 import (
 	"encoding/json"
 	"errors"
+	"fmt"
 	"log"
 	"net/http"
+	"os"
 	"time"
 
 	"github.com/gorilla/mux"
 	"github.com/jackc/pgx/v5/pgconn"
+	"github.com/minio/minio-go/v7"
 	"github.com/rorinuma/twitter/models"
 	"github.com/rorinuma/twitter/repositories"
 	"github.com/rorinuma/twitter/utils"
@@ -145,6 +148,95 @@ func Signout(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(map[string]string{
 		"message": "Logged out successfully",
 	})
+}
+
+func UpdateProfile(w http.ResponseWriter, r *http.Request) {
+	userID, ok := utils.GetUserIDFromContext(r.Context())
+	
+	if !ok {
+		log.Println("User is unauthorized")
+		http.Error(w, "User is unauthorized", http.StatusUnauthorized)
+		return
+	}
+
+	err := r.ParseMultipartForm(10 << 20)
+	if err != nil {
+		http.Error(w, "Invalid form", http.StatusBadRequest)
+		return
+	}	
+
+	displayName := r.FormValue("displayName")
+	bio := r.FormValue("bio")
+
+	var avatarURL, bannerURL *string
+
+	if avatarFile, avatarHeader, err := r.FormFile("avatar"); err == nil {
+		defer avatarFile.Close()
+
+		objectName := fmt.Sprintf("avatars/%d_%s", time.Now().UnixNano(), avatarHeader.Filename)
+		contentType := avatarHeader.Header.Get("Content-Type")
+
+		info, err := utils.MinioClient.PutObject(r.Context(), "avatars", objectName, avatarFile, avatarHeader.Size, minio.PutObjectOptions{
+			ContentType: contentType,
+		})
+
+		if err != nil {
+			log.Printf("Failed to upload avatar: %v", err)
+			http.Error(w, "Avatar upload failed", http.StatusInternalServerError)
+			return
+		}
+
+		publicURL := os.Getenv("MINIO_PUBLIC_URL")
+		url := fmt.Sprintf("%s/%s/%s", publicURL, info.Bucket, info.Key)
+		avatarURL = &url
+	}
+
+	if bannerFile, bannerHeader, err := r.FormFile("banner"); err == nil {
+		defer bannerFile.Close()
+
+		objectName := fmt.Sprintf("banners/%d_%s", time.Now().UnixNano(), bannerHeader.Filename)
+		contentType := bannerHeader.Header.Get("Content-Type")
+
+		info, err := utils.MinioClient.PutObject(r.Context(), "banners", objectName, bannerFile, bannerHeader.Size, minio.PutObjectOptions{
+			ContentType: contentType,
+		})
+		if err != nil {
+			log.Printf("Failed to upload banner: %v", err)
+			http.Error(w, "Banner upload failed", http.StatusInternalServerError)
+			return
+		}
+
+		publicURL := os.Getenv("MINIO_PUBLIC_URL")
+		url := fmt.Sprintf("%s/%s/%s", publicURL, info.Bucket, info.Key)
+
+		bannerURL = &url
+	}
+
+	input := models.UpdateProfileInput{
+		UserID:      userID,
+		DisplayName: &displayName,
+		Bio:         &bio,
+		AvatarURL:   avatarURL,
+		BannerURL:   bannerURL,
+	}
+
+	user, err := repositories.UpdateProfile(r.Context(), input)
+
+	if err != nil {
+		log.Println("Failed to update user: ", err)
+		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+
+	if err := json.NewEncoder(w).Encode(map[string]interface{}{
+		"user": user,
+	}); err != nil {
+		http.Error(w, "Internal server error", http.StatusInternalServerError)
+		log.Printf("Failed to write response: %v", err)
+	}
 }
 
 func FollowUser(w http.ResponseWriter, r *http.Request) {

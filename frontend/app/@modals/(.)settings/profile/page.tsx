@@ -13,19 +13,37 @@ import { MdAddAPhoto } from "react-icons/md";
 import GeneralTooltip from "@/components/ui/decorations/GeneralTooltip";
 import ErrorOverlay from "@/components/shared/overlays/ErrorOverlay";
 import ImageCropper from "@/components/utility/ImageCropper";
+import api from "@/lib/axios";
+import axios from "axios";
+import { normalizeUser } from "@/lib/tweetUtils";
+import { useSafeBack } from "@/hooks/goSafeBack";
 
 export default function ProfileSettings() {
   const modalRef = useRef<HTMLFormElement>(null);
   const addAvatarInputRef = useRef<HTMLInputElement>(null);
+  const addBannerInputRef = useRef<HTMLInputElement>(null);
   const router = useRouter();
-  const { user } = useAuth();
+  const { user, setUser } = useAuth();
   const [nameValue, setNameValue] = useState<string>(user ? user.username : "");
-  const [bioValue, setBioValue] = useState<string>("");
   const [nameError, setNameError] = useState<string>("");
+  const [bioValue, setBioValue] = useState<string>("");
   const [message, setMessage] = useState<string>("");
   const [imageSrc, setImageSrc] = useState<string>("");
-  const [previewURL, setPreviewURL] = useState<string>("");
+  const [preview, setPreview] = useState<{
+    avatar: string;
+    banner: string;
+  }>({ avatar: "", banner: "" });
+  const [croppingImageType, setCroppingImageType] = useState<
+    "avatar" | "banner" | null
+  >(null);
+  const [media, setMedia] = useState<{
+    avatar: Blob | null;
+    banner: Blob | null;
+  }>({ avatar: null, banner: null });
+
   const { username } = useParams<{ username: string }>();
+
+  const safeBack = useSafeBack(`/${username}`);
 
   if (user?.username !== username) {
     router.back();
@@ -54,32 +72,78 @@ export default function ProfileSettings() {
     }
   };
 
-  const handleAvatarAddClick = () => {
-    addAvatarInputRef.current?.click();
-  };
-
-  const handleAvatarImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleImageUpload = (
+    e: React.ChangeEvent<HTMLInputElement>,
+    type: "avatar" | "banner",
+  ) => {
     const image = e.target?.files?.[0];
 
     if (!image) return;
 
     const url = URL.createObjectURL(image);
+    setCroppingImageType(type);
     setImageSrc(url);
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    if (!user) {
+      return;
+    }
+
+    const formData = new FormData();
+
+    formData.append("displayName", nameValue);
+    if (bioValue) {
+      formData.append("bio", bioValue);
+    }
+    if (media.banner) {
+      formData.append("banner", media.banner);
+    }
+    if (media.avatar) {
+      formData.append("avatar", media.avatar);
+    }
+
+    try {
+      const response = await api.put(`/protected/user/profile`, formData, {
+        headers: { "Content-Type": "multipart/form-data" },
+      });
+      setUser(normalizeUser(response.data.user));
+      safeBack();
+    } catch (err) {
+      if (axios.isAxiosError(err)) {
+        const msg =
+          err.response?.data?.message ||
+          err.response?.data?.error ||
+          err.response?.data ||
+          "Server error.";
+        setMessage(msg);
+      } else {
+        console.error("Error updating profile: ", err);
+        setMessage("Unexpected error.");
+      }
+    }
   };
 
   const onCropComplete = (file: Blob) => {
-    setPreviewURL(URL.createObjectURL(file));
+    const url = URL.createObjectURL(file);
+
+    if (croppingImageType === "avatar") {
+      setPreview((prev) => ({ ...prev, avatar: url }));
+      setMedia((prev) => ({ ...prev, avatar: file }));
+    } else if (croppingImageType === "banner") {
+      setPreview((prev) => ({ ...prev, banner: url }));
+      setMedia((prev) => ({ ...prev, banner: file }));
+    }
+
     setMessage("Crop complete");
+    setImageSrc("");
+    setCroppingImageType(null);
   };
 
-  let avatar = user?.avatarURL ?? defaultAvatar;
-  if (previewURL) {
-    avatar = previewURL;
-  }
+  const avatar = preview.avatar || user?.avatarURL || defaultAvatar;
+  const banner = preview.banner || user?.bannerURL || "";
 
   return (
     user && (
@@ -101,18 +165,21 @@ export default function ProfileSettings() {
                 </button>
                 <div className="font-bold text-xl">Edit Profile</div>
               </div>
-              <button className="flex items-center justify-center h-[30px] bg-foreground px-3 py-2 rounded-full text-foreground-alt hover:opacity-90 duration-(--hover-duration)">
+              <button
+                className="flex items-center justify-center h-[30px] bg-foreground px-3 py-2 rounded-full text-foreground-alt hover:opacity-90 duration-(--hover-duration) disabled:opacity-80"
+                disabled={!!nameError}
+              >
                 Save
               </button>
             </div>
             <div className="h-[250px] relative">
-              {user.bannerURL && (
+              {banner && (
                 <Image
-                  src={user.bannerURL}
+                  src={banner}
                   height={200}
                   width={500}
                   alt="banner-image"
-                  className="object-contain opacity-75"
+                  className="object-cover opacity-75 max-h-[250px] max-w-full"
                 />
               )}
               <div className="flex items-center justify-center absolute inset-0 h-full w-full rounded-full">
@@ -120,6 +187,7 @@ export default function ProfileSettings() {
                   <button
                     type="button"
                     className="flex items-center justify-center p-3 rounded-full bg-transparent-blurred hover:bg-transparent-blurred-hover duration-(--hover-duration)"
+                    onClick={() => addBannerInputRef.current?.click()}
                   >
                     <MdAddAPhoto className="size-5" />
                   </button>
@@ -139,7 +207,7 @@ export default function ProfileSettings() {
                   <GeneralTooltip content="Add photo">
                     <button
                       className="flex items-center justify-center p-3 rounded-full bg-transparent-blurred hover:bg-transparent-blurred-hover duration-(--hover-duration)"
-                      onClick={handleAvatarAddClick}
+                      onClick={() => addAvatarInputRef.current?.click()}
                       type="button"
                     >
                       <MdAddAPhoto className="size-5" />
@@ -150,9 +218,16 @@ export default function ProfileSettings() {
               <input
                 type="file"
                 accept="image/*"
-                ref={addAvatarInputRef}
                 className="hidden"
-                onChange={handleAvatarImageUpload}
+                ref={addAvatarInputRef}
+                onChange={(e) => handleImageUpload(e, "avatar")}
+              />
+              <input
+                type="file"
+                accept="image/*"
+                className="hidden"
+                ref={addBannerInputRef}
+                onChange={(e) => handleImageUpload(e, "banner")}
               />
               <Input
                 label="Name"
@@ -179,6 +254,7 @@ export default function ProfileSettings() {
             imageSrc={imageSrc}
             setImageSrc={setImageSrc}
             onCropComplete={onCropComplete}
+            croppingImageType={croppingImageType}
           />
         )}
       </>

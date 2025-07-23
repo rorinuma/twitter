@@ -33,6 +33,7 @@ func SetupRouter() *mux.Router {
 	protected.HandleFunc("/tweets/delete-retweet/{id}", handlers.DeleteRetweet).Methods("DELETE")
 	protected.HandleFunc("/me", handlers.Me).Methods("POST")
 	protected.HandleFunc("/signout", handlers.Signout).Methods("DELETE")
+	protected.HandleFunc("/user/profile", handlers.UpdateProfile).Methods("PUT")
 	protected.HandleFunc("/user/follow/{username}", handlers.FollowUser).Methods("POST")
 	protected.HandleFunc("/user/unfollow/{username}", handlers.UnfollowUser).Methods("DELETE")
 	return r

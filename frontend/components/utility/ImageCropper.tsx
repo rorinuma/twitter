@@ -11,11 +11,13 @@ interface Props {
   imageSrc: string;
   setImageSrc: React.Dispatch<React.SetStateAction<string>>;
   onCropComplete: (file: Blob) => void;
+  croppingImageType: "avatar" | "banner" | null;
 }
 export default function ImageCropper({
   imageSrc,
   onCropComplete,
   setImageSrc,
+  croppingImageType,
 }: Props) {
   const [crop, setCrop] = useState({ x: 0, y: 0 });
   const [zoom, setZoom] = useState(1);
@@ -31,6 +33,8 @@ export default function ImageCropper({
     onCropComplete(croppedBlob);
     setImageSrc("");
   };
+
+  const aspectRatio = croppingImageType === "avatar" ? 1 : 16 / 9;
 
   return (
     <BlueOverlay centered>
@@ -51,7 +55,7 @@ export default function ImageCropper({
           image={imageSrc}
           crop={crop}
           zoom={zoom}
-          aspect={1}
+          aspect={aspectRatio}
           onCropChange={setCrop}
           onZoomChange={setZoom}
           onCropComplete={handleCropComplete}

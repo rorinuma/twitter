@@ -145,22 +145,22 @@ const ReplyJSONFields = `
             'is_liked', EXISTS (
                 SELECT 1
                 FROM likes l
-                WHERE l.tweet_id = t2.id AND l.user_id = $2
+                WHERE l.tweet_id = t2.id AND l.user_id = $1
             ),
             'is_retweeted', EXISTS (
                 SELECT 1
                 FROM tweets t3
-                WHERE t3.user_id = $2 AND t3.original_tweet_id = t2.id
+                WHERE t3.user_id = $1 AND t3.original_tweet_id = t2.id
             ),
             'is_viewed', EXISTS (
                 SELECT 1
                 FROM views v
-                WHERE v.tweet_id = t2.id AND v.user_id = $2
+                WHERE v.tweet_id = t2.id AND v.user_id = $1
             ),
             'is_bookmarked', EXISTS (
                 SELECT 1
                 FROM bookmarks b
-                WHERE b.tweet_id = t2.id AND b.user_id = $2
+                WHERE b.tweet_id = t2.id AND b.user_id = $1
             ),
             'user', json_build_object(
                 'id', u2.id,

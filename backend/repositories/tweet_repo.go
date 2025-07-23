@@ -401,37 +401,37 @@ func GetTweetByID(ctx context.Context, tweetID string, userID *string) (*models.
 		var repliesJSON []byte
 
     err := db.Pool.QueryRow(ctx, query, userID, tweetID).Scan(
-        // Main tweet
+
         &t.ID, &t.UserID, &t.Content, &t.InReplyToTweetID, &t.OriginalTweetID, &t.MediaURLs,
         &t.RepliesCount, &t.LikesCount, &t.RetweetsCount, &t.ViewsCount, &t.BookmarksCount,
         &t.CreatedAt, &t.UpdatedAt,
-        // Main user
+
         &u.ID, &u.Username, &u.Email, &u.DisplayName, &u.AvatarURL, &u.BannerURL, &u.IsVerified,
         &u.CreatedAt, &u.UpdatedAt, &u.Following, &u.Followers,
-        // Reply tweet
+
         &rt.ID, &rt.UserID, &rt.Content, &rt.InReplyToTweetID, &rt.OriginalTweetID, &rt.MediaURLs,
         &rt.RepliesCount, &rt.LikesCount, &rt.RetweetsCount, &rt.ViewsCount, &rt.BookmarksCount,
         &rt.CreatedAt, &rt.UpdatedAt,
-        // Reply user
+
         &ru.ID, &ru.Username, &ru.Email, &ru.DisplayName, &ru.AvatarURL, &ru.BannerURL, &ru.IsVerified,
         &ru.CreatedAt, &ru.UpdatedAt, &ru.Following, &ru.Followers,
-        // Replies JSON
+
         &repliesJSON,
-        // Original tweet
+
         &ot.ID, &ot.UserID, &ot.Content, &ot.InReplyToTweetID, &ot.OriginalTweetID, &ot.MediaURLs,
         &ot.RepliesCount, &ot.LikesCount, &ot.RetweetsCount, &ot.ViewsCount, &ot.BookmarksCount,
         &ot.CreatedAt, &ot.UpdatedAt,
-        // Original user
+
         &ou.ID, &ou.Username, &ou.Email, &ou.DisplayName, &ou.AvatarURL, &ou.BannerURL, &ou.IsVerified,
         &ou.CreatedAt, &ou.UpdatedAt, &ou.Following, &ou.Followers,
-        // Original reply tweet
+
         &ort.ID, &ort.UserID, &ort.Content, &ort.InReplyToTweetID, &ort.OriginalTweetID, &ort.MediaURLs,
         &ort.RepliesCount, &ort.LikesCount, &ort.RetweetsCount, &ort.ViewsCount, &ort.BookmarksCount,
         &ort.CreatedAt, &ort.UpdatedAt,
-        // Original reply user
+
         &oru.ID, &oru.Username, &oru.Email, &oru.DisplayName, &oru.AvatarURL, &oru.BannerURL, &oru.IsVerified,
         &oru.CreatedAt, &oru.UpdatedAt, &oru.Following, &oru.Followers,
-        // Status fields
+
         &t.IsLiked, &t.IsRetweeted, &t.IsViewed, &t.IsBookmarked, &ot.IsLiked, &ot.IsViewed,  &ot.IsBookmarked,
     )
 

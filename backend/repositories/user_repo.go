@@ -101,6 +101,48 @@ func FindOneLogin(ctx context.Context, input models.LoginUserInput) (*models.Use
 	return user, nil
 }
 
+func UpdateProfile(ctx context.Context, input models.UpdateProfileInput) (*models.User, error) {
+	query := `
+		UPDATE users
+		SET
+			display_name = COALESCE($1, display_name),
+			bio = COALESCE($2, bio),
+			avatar_url = COALESCE($3, avatar_url),
+			banner_url = COALESCE($4, banner_url),
+			updated_at = NOW()
+		WHERE id = $5
+		RETURNING id, username, email, display_name, bio, avatar_url, banner_url,
+		is_verified, created_at, updated_at
+	`
+
+
+	user := &models.User{}
+	err := db.Pool.QueryRow(ctx, query,
+		input.DisplayName,
+		input.Bio,
+		input.AvatarURL,
+		input.BannerURL,
+		input.UserID,
+		).Scan(
+		&user.ID,
+		&user.Username,
+		&user.Email,
+		&user.DisplayName,
+		&user.Bio,
+		&user.AvatarURL,
+		&user.BannerURL,
+		&user.IsVerified,
+		&user.CreatedAt,
+		&user.UpdatedAt,
+		)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return user, nil
+}
+
 func FollowUser(ctx context.Context, username, userID string) (*uuid.UUID, error) {
 	var userIDToFollow uuid.UUID
 	err := db.Pool.QueryRow(ctx, `

@@ -31,35 +31,38 @@ func InitMinio() error {
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
 
-	bucket := "tweets"
+	buckets := []string{"tweets", "avatars", "banners"}
 	location := "us-east-1"
 
-	err = MinioClient.MakeBucket(ctx, bucket, minio.MakeBucketOptions{Region: location})
-	if err != nil {
-		exists, errBucketExists := MinioClient.BucketExists(ctx, bucket)
-		if errBucketExists == nil && exists {
-			log.Println("Bucket already exists")
-		} else {
-			log.Fatalln("Failed to create bucket:", err)
+	for _, bucket := range buckets {
+		err := MinioClient.MakeBucket(ctx, bucket, minio.MakeBucketOptions{Region: location})
+		if err != nil {
+			exists, errBucketExists := MinioClient.BucketExists(ctx, bucket)
+			if errBucketExists == nil && exists {
+				log.Printf("Bucket %s already exists", bucket)
+			} else {
+				log.Fatalf("Failed to create bucket %s: %v", bucket, err)
+			}
+		}
+
+		policy := `{
+			"Version": "2012-10-17",
+			"Statement": [
+				{
+					"Effect": "Allow",
+					"Principal": "*",
+					"Action": ["s3:GetObject"],
+					"Resource": ["arn:aws:s3:::` + bucket + `/*"]
+				}
+			]
+		}`
+
+		err = MinioClient.SetBucketPolicy(ctx, bucket, policy)
+		if err != nil {
+			log.Printf("Warning: Failed to set bucket policy for %s (public access might not work): %v", bucket, err)
 		}
 	}
 
-	policy := `{
-		"Version": "2012-10-17",
-		"Statement": [
-			{
-				"Effect": "Allow",
-				"Principal": "*",
-				"Action": ["s3:GetObject"],
-				"Resource": ["arn:aws:s3:::` + bucket + `/*"]
-			}
-		]
-	}`
-
-	err = MinioClient.SetBucketPolicy(ctx, bucket, policy)
-	if err != nil {
-		log.Println("Warning: Failed to set bucket policy (public access might not work):", err)
-	}
 	log.Println("MinIO setup completed")
 	return nil
 }

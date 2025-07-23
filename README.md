@@ -40,6 +40,22 @@ cp backend/.env.example backend/.env
 cp frontend/.env.example frontend/.env
 ```
 
+### 2.1. Remove .env.local from main.go if it's there
+
+```bash
+
+if err := godotenv.Load("env.local"); err != nil {
+    log.Fatalf("Error loading .env file: %v", err)
+}
+
+# should be like this:
+if err := godotenv.Load(); err != nil {
+    log.Fatalf("Error loading .env file: %v", err)
+}
+
+
+```
+
 ### 3. Start the application
 
 ```bash

@@ -37,9 +37,9 @@ export default function ProfileLayout({
         setOwner(user);
       } catch (err) {
         console.error("Error while trying to fetch profile owner", err);
-        notFound();
       } finally {
         setIsLoading(false);
+        notFound();
       }
     };
     fetchOwner(username);
@@ -100,7 +100,7 @@ export default function ProfileLayout({
                 height={200}
                 width={500}
                 alt="banner-image"
-                className="object-contain"
+                className="object-cover w-full h-full"
               />
             )}
           </div>
@@ -132,7 +132,7 @@ export default function ProfileLayout({
           <div className="flex flex-col mx-3">
             <div className="text-xl font-bold">{owner.displayName}</div>
             <div className="text-sm text-muted font-light">
-              @{owner.displayName}
+              @{owner.username}
             </div>
             <div className="flex gap-1 items-center text-muted mt-2">
               <PiCalendarDotsLight />

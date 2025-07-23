@@ -63,3 +63,11 @@ type LoginUserInput struct {
 	EmailOrUsername string `json:"emailOrUsername"`
 	Password        string `json:"password"`
 }
+
+type UpdateProfileInput struct {
+		UserID 			 string   `json:"user_id"`
+		DisplayName  *string  `json:"display_name"`
+		Bio          *string  `json:"bio"`
+		AvatarURL    *string  `json:"avatar_url"`
+		BannerURL    *string  `json:"banner_url"`
+}

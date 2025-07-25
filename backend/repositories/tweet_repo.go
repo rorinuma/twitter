@@ -44,6 +44,10 @@ func CreateTweet(ctx context.Context, input models.CreateTweetInput) (*models.Tw
 		return nil, err
 	}
 
+
+	tweetID := tweet.OriginalTweetID
+	actorID := input.UserID
+
 	if input.OriginalTweetID != nil {
 		_, err := db.Pool.Exec(ctx, `
 			UPDATE tweets
@@ -53,6 +57,21 @@ func CreateTweet(ctx context.Context, input models.CreateTweetInput) (*models.Tw
 		if err != nil {
 			return nil, err
 		}
+
+
+		if *input.Content == "" {
+			notifErr := InsertNotificationToTweet(ctx, *tweetID, actorID, models.NotificationRetweet)
+			if notifErr != nil {
+				log.Printf("Failed to create notification: %v", notifErr)
+			}
+		} else {
+
+			notifErr := InsertNotificationToTweet(ctx, *tweetID, actorID, models.NotificationQuote)
+			if notifErr != nil {
+				log.Printf("Failed to create notification: %v", notifErr)
+			}
+		}
+
 	}
 
 	if input.InReplyToTweetID != nil {
@@ -64,6 +83,10 @@ func CreateTweet(ctx context.Context, input models.CreateTweetInput) (*models.Tw
 		if err != nil {
 			return nil, err
 		}
+		notifErr := InsertNotificationToTweet(ctx, *input.InReplyToTweetID, actorID, models.NotificationReply)
+		if notifErr != nil {
+			log.Printf("Failed to create notification: %v", notifErr)
+		}
 	}
 
 	return &tweet, nil
@@ -71,13 +94,16 @@ func CreateTweet(ctx context.Context, input models.CreateTweetInput) (*models.Tw
 
 func DeleteTweet(ctx context.Context, tweetID string, userID string) (*uuid.UUID, error) {
 	query := `
-		DELETE FROM tweets WHERE id = $1 AND user_id = $2 RETURNING id, in_reply_to_tweet_id, original_tweet_id
+		DELETE FROM tweets 
+		WHERE id = $1 AND user_id = $2 
+		RETURNING id, in_reply_to_tweet_id, original_tweet_id
 	`
 
 	var deletedID uuid.UUID
 	var inReplyTo, originalTweetID *uuid.UUID
 	err := db.Pool.QueryRow(ctx, query, tweetID, userID).Scan(&deletedID, &inReplyTo, &originalTweetID)
-	if err == nil {
+
+	if err != nil {
 		return nil, err
 	}
 
@@ -135,7 +161,7 @@ func LikeTweet(ctx context.Context, tweetID string, userID string) (*uuid.UUID, 
 	query := `
   	INSERT INTO likes (tweet_id, user_id)
   	VALUES ($1, $2)
-  	RETURNING id
+  	RETURNING id, tweet_id
 	`
 	var likedTweetID *uuid.UUID
 	err := db.Pool.QueryRow(ctx, query, tweetID, userID).Scan(&likedTweetID)
@@ -152,6 +178,16 @@ func LikeTweet(ctx context.Context, tweetID string, userID string) (*uuid.UUID, 
 			`, tweetID)
 		if err != nil {
 			return nil, err
+		}
+
+
+
+		tweetUUID := uuid.MustParse(tweetID)
+		userUUID := uuid.MustParse(userID)
+
+		notifErr := InsertNotificationToTweet(ctx, tweetUUID, userUUID, models.NotificationLike)
+		if notifErr != nil {
+			log.Printf("Failed to create notification: %v", notifErr)
 		}
 	}
 

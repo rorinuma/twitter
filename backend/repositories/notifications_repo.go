@@ -4,8 +4,8 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"time"
 
+	"github.com/google/uuid"
 	"github.com/rorinuma/twitter/db"
 	"github.com/rorinuma/twitter/models"
 )
@@ -64,4 +64,34 @@ func GetNotifications(ctx context.Context, userID string) ([]models.Notification
 	}
 
 	return notifications, nil
+}
+
+func InsertNotificationToTweet(ctx context.Context, tweetID, actorID uuid.UUID, notifType models.NotificationType) error {
+	var tweetOwnerId uuid.UUID
+	err := db.Pool.QueryRow(ctx, `SELECT user_id from tweets WHERE id = $1`, tweetID).Scan(&tweetOwnerId)
+
+	if err != nil {
+		return fmt.Errorf("failed to fetch tweet owner: %w", err)
+	}
+
+	if &tweetOwnerId == &actorID {
+		return nil
+	}
+
+	query := `
+		INSERT INTO notifications (
+			user_id, actor_id, type, tweet_id
+		) 
+		VALUES ($1, $2, $3, $4)
+		RETURNING id	
+	`
+
+	var insertedID uuid.UUID 
+	err = db.Pool.QueryRow(ctx, query, tweetOwnerId, actorID, notifType, tweetID).Scan(&insertedID)
+	
+	if err != nil {
+		return fmt.Errorf("failure inserting notification %w", err)
+	}
+
+	return nil
 }

@@ -14,8 +14,8 @@ export default function NotificationCard({ notification }: Props) {
   const { user } = useAuth();
 
   return (
-    <article className="flex py-3 px-4">
-      <div className="flex justify-between">
+    <article className="flex py-3 px-4 hover:bg-nav-hover duration-(--hover-duration) cursor-pointer border-b border-b-border">
+      <div className="flex w-full justify-between">
         <div className="flex gap-2">
           <div>
             <AiOutlineRetweet className="size-6" />
@@ -26,10 +26,12 @@ export default function NotificationCard({ notification }: Props) {
               height={32}
               image={user?.avatarURL ?? defaultAvatar}
             />
-            <div>{user?.displayName}</div>
+            <div>
+              <span className="font-bold">{user?.displayName}</span>
+            </div>
           </div>
         </div>
-        <div></div>
+        <div className="text-sm text-muted">{notification.createdAt}</div>
       </div>
     </article>
   );

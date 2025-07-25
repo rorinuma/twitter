@@ -4,10 +4,20 @@ import { Notification } from "@/types/notifications.types";
 export default function Notifications() {
   const notification: Notification = {
     id: "id",
-    actorId: "actorId",
     type: "retweet",
     createdAt: "22 Jul",
     isRead: false,
+    actor: {
+      id: "actorId",
+      username: "actorUsername",
+      displayName: "actorDisplayName",
+      email: "balls@gmail.com",
+      isVerified: false,
+      createdAt: "Jul 22",
+      updatedAt: "Jul 43",
+      followers: [],
+      following: [],
+    },
   };
 
   return (

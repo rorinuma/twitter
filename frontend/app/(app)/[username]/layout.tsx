@@ -7,7 +7,7 @@ import { useAuth } from "@/context/authContext";
 import { getUserByUsername } from "@/lib/queries/user.queries";
 import { User } from "@/types/user.types";
 import Image from "next/image";
-import { notFound, useParams, useRouter } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { IoSearchOutline } from "react-icons/io5";
 import defaultAvatar from "@/public/placeholder.jpg";
@@ -33,13 +33,11 @@ export default function ProfileLayout({
     const fetchOwner = async (username: string) => {
       try {
         const user = await getUserByUsername(username);
-        if (!user) notFound();
         setOwner(user);
       } catch (err) {
         console.error("Error while trying to fetch profile owner", err);
       } finally {
         setIsLoading(false);
-        notFound();
       }
     };
     fetchOwner(username);
@@ -48,25 +46,31 @@ export default function ProfileLayout({
   const items =
     owner?.id === user?.id
       ? [
-        { item: "Posts", path: `/${[user?.username]}` },
-        { item: "Replies", path: `/${[user?.username]}/with_replies` },
-        { item: "Likes", path: `/${[user?.username]}/likes` },
-      ]
+          { item: "Posts", path: `/${[user?.username]}` },
+          { item: "Replies", path: `/${[user?.username]}/with_replies` },
+          { item: "Likes", path: `/${[user?.username]}/likes` },
+        ]
       : [
-        { item: "Posts", path: `/${[owner?.username]}` },
-        { item: "Replies", path: `/${[owner?.username]}/with_replies` },
-      ];
+          { item: "Posts", path: `/${[owner?.username]}` },
+          { item: "Replies", path: `/${[owner?.username]}/with_replies` },
+        ];
 
   const displayedItems = items.map(({ item, path }, index) => (
     <MainHeaderItem item={item} path={path} key={index} />
   ));
 
-  // TODO: cropping
-
   if (isLoading) {
     return (
       <div className="flex justify-center items-center w-full h-dvh ">
         <Spinner />
+      </div>
+    );
+  }
+
+  if (!owner && !isLoading) {
+    return (
+      <div className="flex items-center justify-center w-full h-dvh">
+        Not found
       </div>
     );
   }

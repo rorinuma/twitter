@@ -80,8 +80,60 @@ func FindOneByUsername(ctx context.Context, username string) (*models.User, erro
 	return user, nil
 }
 
-func FindOneLogin(ctx context.Context, input models.LoginUserInput) (*models.User, error) {
+func FindAllByDisplayName(ctx context.Context, displayName string) ([]models.User, error) {
+	query := `
+	SELECT id, username, email, display_name, bio, avatar_url,
+	banner_url, is_verified, created_at, updated_at,
+	ARRAY(SELECT u2.username FROM follows f JOIN users u2 ON u2.id = f.following_id WHERE f.follower_id = u.id) as following,
+	ARRAY(SELECT u2.username FROM follows f JOIN users u2 ON u2.id = f.follower_id WHERE f.following_id = u.id) as followers,
+	(
+	SELECT COUNT(*)
+	FROM follows f
+	WHERE f.following_id = u.id
+	) AS follower_count
+	FROM users u
+	WHERE u.display_name ILIKE '%' || $1 || '%'
+	ORDER BY follower_count DESC
+	LIMIT 3
+	`
 
+	rows, err := db.Pool.Query(ctx, query, displayName)
+
+	if err != nil {
+		return nil, fmt.Errorf("Failed to find a user: %w", err)
+	}
+
+	defer rows.Close()
+
+	var users []models.User
+
+	for rows.Next() {
+		u := models.User{}
+		err := rows.Scan(
+			&u.ID, &u.Username, &u.Email, &u.DisplayName, &u.Bio, &u.AvatarURL,
+			&u.BannerURL, &u.IsVerified, &u.CreatedAt, &u.UpdatedAt,
+			&u.Following, &u.Followers, &u.FollowersCount,
+			)
+		
+		if err != nil {
+			return nil, fmt.Errorf("Failed to scan user: %w", err)
+		}
+		users = append(users, u) 
+	}
+
+	if err := rows.Err(); err != nil {
+		return nil, fmt.Errorf("Row iteration error: %w", err)
+	}
+
+	if len(users) == 0 {
+		return nil, fmt.Errorf("No user found with display name: %s", displayName)
+	}
+
+
+	return users, nil
+}
+
+func FindOneLogin(ctx context.Context, input models.LoginUserInput) (*models.User, error) {
 	query := `
 	SELECT id, password_hash FROM users
 	WHERE email = $1 OR username = $2

@@ -42,7 +42,7 @@ export default function SignOut() {
     isOpen && (
       <>
         <BlueOverlay centered={true}>
-          <div className="flex flex-col gap-2 p-5 bg-background rounded-2xl shadow-default w-[16vw]">
+          <div className="flex flex-col gap-2 p-5 bg-background rounded-2xl w-[16vw]">
             <div className="mx-auto">
               <FaXTwitter className="size-8" />
             </div>

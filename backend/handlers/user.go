@@ -150,6 +150,27 @@ func Signout(w http.ResponseWriter, r *http.Request) {
 	})
 }
 
+func SearchDisplayName(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	displayName := vars["displayName"]
+
+	users, err := repositories.FindAllByDisplayName(r.Context(), displayName)
+
+	if err != nil {
+		log.Println("Failed to get user by username: ", err)
+		http.Error(w, "Internal server error", http.StatusInternalServerError)
+		return
+	}
+
+	if err = json.NewEncoder(w).Encode(map[string]interface{}{
+		"users": users,
+		"message": "Successfully fetched users",
+	}); err != nil {
+		http.Error(w, "Internal server error", http.StatusInternalServerError)
+		log.Printf("Failed to write response: %v", err)
+	}
+}
+
 func UpdateProfile(w http.ResponseWriter, r *http.Request) {
 	userID, ok := utils.GetUserIDFromContext(r.Context())
 	

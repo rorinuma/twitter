@@ -1,6 +1,8 @@
-import { RawUser, User } from "@/types/user.types";
+import { RawUser } from "@/types/user.types";
 import axios from "axios";
 import { normalizeUser } from "../tweetUtils";
+import api from "../axios";
+import { RawTweet } from "@/types/tweets.types";
 
 export const getUserByUsername = async (username: string) => {
   try {
@@ -9,6 +11,17 @@ export const getUserByUsername = async (username: string) => {
       `${baseURL}/soft/user/${username}`,
     );
     return normalizeUser(data);
+  } catch (err) {
+    throw err;
+  }
+};
+
+export const searchByDisplayName = async (displayName: string) => {
+  try {
+    const { data } = await api.get<{ users: RawUser[] }>(
+      `/protected/user/search/${displayName}`,
+    );
+    return data.users;
   } catch (err) {
     throw err;
   }

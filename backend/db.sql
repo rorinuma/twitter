@@ -62,6 +62,17 @@ CREATE TABLE bookmarks (
   UNIQUE(tweet_id, user_id)
 );
 
+CREATE TABLE notifications (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,              
+  actor_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,              
+  type TEXT NOT NULL,                  -- 'like', 'reply', 'retweet', 'follow', 'quote'
+  tweet_id UUID REFERENCES tweets(id),                       -- optional, related tweet
+  created_at TIMESTAMP DEFAULT now(),
+  is_read BOOLEAN DEFAULT false
+);
+
+
 CREATE INDEX idx_tweets_user_id ON tweets(user_id);
 CREATE INDEX idx_tweets_in_reply_to ON tweets(in_reply_to_tweet_id);
 CREATE INDEX idx_tweets_original_id ON tweets(original_tweet_id);

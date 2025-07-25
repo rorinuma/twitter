@@ -21,6 +21,7 @@ type User struct {
 	UpdatedAt    time.Time `json:"updated_at"`
 	Following    []string  `json:"following"`
 	Followers    []string  `json:"followers"`
+	FollowersCount int     
 }
 
 type UserRow struct {

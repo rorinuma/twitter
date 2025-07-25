@@ -70,7 +70,13 @@ export interface TweetHoverProfileProps {
   open: boolean;
 }
 
-export type TweetsType = "foryou" | "following" | "liked" | "posts" | "replies";
+export type TweetsType =
+  | "foryou"
+  | "following"
+  | "liked"
+  | "posts"
+  | "replies"
+  | "explore";
 
 export type TweetVariant =
   | "default"

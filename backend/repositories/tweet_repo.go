@@ -35,7 +35,7 @@ func CreateTweet(ctx context.Context, input models.CreateTweetInput) (*models.Tw
 		input.InReplyToTweetID,
 		input.OriginalTweetID,
 		input.MediaURLs,
-	).Scan(&tweet.ID, &tweet.UserID, &tweet.Content, &tweet.InReplyToTweetID, 
+	).Scan(&tweet.ID, &tweet.UserID, &tweet.Content, &tweet.InReplyToTweetID,
 		&tweet.OriginalTweetID, &tweet.MediaURLs, &tweet.RepliesCount, &tweet.LikesCount,
 		&tweet.RetweetsCount, &tweet.ViewsCount, &tweet.BookmarksCount,
 		&tweet.CreatedAt, &tweet.UpdatedAt)
@@ -69,13 +69,12 @@ func CreateTweet(ctx context.Context, input models.CreateTweetInput) (*models.Tw
 	return &tweet, nil
 }
 
-
 func DeleteTweet(ctx context.Context, tweetID string, userID string) (*uuid.UUID, error) {
 	query := `
 		DELETE FROM tweets WHERE id = $1 AND user_id = $2 RETURNING id, in_reply_to_tweet_id, original_tweet_id
 	`
 
-	var deletedID uuid.UUID 
+	var deletedID uuid.UUID
 	var inReplyTo, originalTweetID *uuid.UUID
 	err := db.Pool.QueryRow(ctx, query, tweetID, userID).Scan(&deletedID, &inReplyTo, &originalTweetID)
 	if err == nil {
@@ -172,7 +171,7 @@ func UnlikeTweet(ctx context.Context, userID, tweetID string) (*uuid.UUID, error
 	if err != nil {
 		return nil, err
 	}
-	
+
 	_, err = db.Pool.Exec(ctx, `
 		UPDATE tweets
 		SET likes_count = GREATEST(likes_count - 1, 0)
@@ -266,9 +265,9 @@ func DeleteTweetBookmark(ctx context.Context, tweetID, userID string) (*uuid.UUI
 }
 
 func GetPostsByID(ctx context.Context, userID *string, ownerID string, limit, offset int) ([]models.Tweet, error) {
-  query := utils.BuildTweetQuery("WHERE t.user_id = $2 ORDER BY t.created_at DESC LIMIT $3 OFFSET $4", false)
+	query := utils.BuildTweetQuery("WHERE t.user_id = $2 ORDER BY t.created_at DESC LIMIT $3 OFFSET $4", false)
 
-	rows, err := db.Pool.Query(ctx, query, userID, ownerID, limit + 1, offset)
+	rows, err := db.Pool.Query(ctx, query, userID, ownerID, limit+1, offset)
 	if err != nil {
 		return nil, err
 	}
@@ -277,7 +276,7 @@ func GetPostsByID(ctx context.Context, userID *string, ownerID string, limit, of
 	tweets, err := utils.ScanTweetRow(rows)
 
 	if err != nil {
-		return nil, err 
+		return nil, err
 	}
 
 	if err := rows.Err(); err != nil {
@@ -288,13 +287,13 @@ func GetPostsByID(ctx context.Context, userID *string, ownerID string, limit, of
 }
 
 func GetReplies(ctx context.Context, userID *string, ownerID string, limit, offset int) ([]models.Tweet, error) {
-  query := utils.BuildTweetQuery(`
+	query := utils.BuildTweetQuery(`
 		WHERE t.user_id = $2 AND t.in_reply_to_tweet_id IS NOT NULL
 		ORDER BY t.created_at DESC
 		LIMIT $3 OFFSET $4
 	`, false)
 
-	rows, err := db.Pool.Query(ctx, query, userID, ownerID, limit + 1, offset)
+	rows, err := db.Pool.Query(ctx, query, userID, ownerID, limit+1, offset)
 	if err != nil {
 		return nil, err
 	}
@@ -303,7 +302,7 @@ func GetReplies(ctx context.Context, userID *string, ownerID string, limit, offs
 	tweets, err := utils.ScanTweetRow(rows)
 
 	if err != nil {
-		return nil, err 
+		return nil, err
 	}
 
 	if err := rows.Err(); err != nil {
@@ -314,14 +313,14 @@ func GetReplies(ctx context.Context, userID *string, ownerID string, limit, offs
 }
 
 func GetLiked(ctx context.Context, userID *string, ownerID string, limit, offset int) ([]models.Tweet, error) {
-  query := utils.BuildTweetQuery(`
+	query := utils.BuildTweetQuery(`
 		JOIN likes l ON l.tweet_id = t.id
 		WHERE l.user_id = $2
 		ORDER BY t.created_at DESC
 		LIMIT $3 OFFSET $4
 	`, false)
 
-	rows, err := db.Pool.Query(ctx, query, userID, ownerID, limit + 1, offset)
+	rows, err := db.Pool.Query(ctx, query, userID, ownerID, limit+1, offset)
 	if err != nil {
 		return nil, err
 	}
@@ -330,7 +329,7 @@ func GetLiked(ctx context.Context, userID *string, ownerID string, limit, offset
 	tweets, err := utils.ScanTweetRow(rows)
 
 	if err != nil {
-		return nil, err 
+		return nil, err
 	}
 
 	if err := rows.Err(); err != nil {
@@ -341,21 +340,19 @@ func GetLiked(ctx context.Context, userID *string, ownerID string, limit, offset
 }
 
 func GetTweets(ctx context.Context, userID string, limit int, offset int) ([]models.Tweet, error) {
-  query := utils.BuildTweetQuery("ORDER BY t.created_at DESC LIMIT $2 OFFSET $3", false)
+	query := utils.BuildTweetQuery("ORDER BY t.created_at DESC LIMIT $2 OFFSET $3", false)
 
-	rows, err := db.Pool.Query(ctx, query, userID, limit + 1, offset)
+	rows, err := db.Pool.Query(ctx, query, userID, limit+1, offset)
 	if err != nil {
 		return nil, fmt.Errorf("failed to query tweets: %w", err)
 	}
 	defer rows.Close()
-
 
 	tweets, err := utils.ScanTweetRow(rows)
 
 	if err != nil {
 		return nil, err
 	}
-
 
 	if err := rows.Err(); err != nil {
 		return nil, fmt.Errorf("error iterating rows: %w", err)
@@ -365,26 +362,24 @@ func GetTweets(ctx context.Context, userID string, limit int, offset int) ([]mod
 }
 
 func GetFollowingTweets(ctx context.Context, userID string, limit int, offset int) ([]models.Tweet, error) {
-  query := utils.BuildTweetQuery(`
+	query := utils.BuildTweetQuery(`
 		JOIN follows f ON f.following_id = t.user_id
 		WHERE f.follower_id = $1
 		ORDER BY t.created_at DESC 
 		LIMIT $2 OFFSET $3
 	`, false)
 
-	rows, err := db.Pool.Query(ctx, query, userID, limit + 1, offset)
+	rows, err := db.Pool.Query(ctx, query, userID, limit+1, offset)
 	if err != nil {
 		return nil, fmt.Errorf("failed to query tweets: %w", err)
 	}
 	defer rows.Close()
-
 
 	tweets, err := utils.ScanTweetRow(rows)
 
 	if err != nil {
 		return nil, err
 	}
-
 
 	if err := rows.Err(); err != nil {
 		return nil, fmt.Errorf("error iterating rows: %w", err)
@@ -396,87 +391,87 @@ func GetFollowingTweets(ctx context.Context, userID string, limit int, offset in
 func GetTweetByID(ctx context.Context, tweetID string, userID *string) (*models.Tweet, error) {
 	query := utils.BuildTweetQuery("WHERE t.id = $2 LIMIT 1", true)
 
-    var t, rt, ot, ort models.TweetRow
-    var u, ru, ou, oru models.UserRow
-		var repliesJSON []byte
+	var t, rt, ot, ort models.TweetRow
+	var u, ru, ou, oru models.UserRow
+	var repliesJSON []byte
 
-    err := db.Pool.QueryRow(ctx, query, userID, tweetID).Scan(
+	err := db.Pool.QueryRow(ctx, query, userID, tweetID).Scan(
 
-        &t.ID, &t.UserID, &t.Content, &t.InReplyToTweetID, &t.OriginalTweetID, &t.MediaURLs,
-        &t.RepliesCount, &t.LikesCount, &t.RetweetsCount, &t.ViewsCount, &t.BookmarksCount,
-        &t.CreatedAt, &t.UpdatedAt,
+		&t.ID, &t.UserID, &t.Content, &t.InReplyToTweetID, &t.OriginalTweetID, &t.MediaURLs,
+		&t.RepliesCount, &t.LikesCount, &t.RetweetsCount, &t.ViewsCount, &t.BookmarksCount,
+		&t.CreatedAt, &t.UpdatedAt,
 
-        &u.ID, &u.Username, &u.Email, &u.DisplayName, &u.AvatarURL, &u.BannerURL, &u.IsVerified,
-        &u.CreatedAt, &u.UpdatedAt, &u.Following, &u.Followers,
+		&u.ID, &u.Username, &u.Email, &u.DisplayName, &u.AvatarURL, &u.BannerURL, &u.IsVerified,
+		&u.CreatedAt, &u.UpdatedAt, &u.Following, &u.Followers,
 
-        &rt.ID, &rt.UserID, &rt.Content, &rt.InReplyToTweetID, &rt.OriginalTweetID, &rt.MediaURLs,
-        &rt.RepliesCount, &rt.LikesCount, &rt.RetweetsCount, &rt.ViewsCount, &rt.BookmarksCount,
-        &rt.CreatedAt, &rt.UpdatedAt,
+		&rt.ID, &rt.UserID, &rt.Content, &rt.InReplyToTweetID, &rt.OriginalTweetID, &rt.MediaURLs,
+		&rt.RepliesCount, &rt.LikesCount, &rt.RetweetsCount, &rt.ViewsCount, &rt.BookmarksCount,
+		&rt.CreatedAt, &rt.UpdatedAt,
 
-        &ru.ID, &ru.Username, &ru.Email, &ru.DisplayName, &ru.AvatarURL, &ru.BannerURL, &ru.IsVerified,
-        &ru.CreatedAt, &ru.UpdatedAt, &ru.Following, &ru.Followers,
+		&ru.ID, &ru.Username, &ru.Email, &ru.DisplayName, &ru.AvatarURL, &ru.BannerURL, &ru.IsVerified,
+		&ru.CreatedAt, &ru.UpdatedAt, &ru.Following, &ru.Followers,
 
-        &repliesJSON,
+		&repliesJSON,
 
-        &ot.ID, &ot.UserID, &ot.Content, &ot.InReplyToTweetID, &ot.OriginalTweetID, &ot.MediaURLs,
-        &ot.RepliesCount, &ot.LikesCount, &ot.RetweetsCount, &ot.ViewsCount, &ot.BookmarksCount,
-        &ot.CreatedAt, &ot.UpdatedAt,
+		&ot.ID, &ot.UserID, &ot.Content, &ot.InReplyToTweetID, &ot.OriginalTweetID, &ot.MediaURLs,
+		&ot.RepliesCount, &ot.LikesCount, &ot.RetweetsCount, &ot.ViewsCount, &ot.BookmarksCount,
+		&ot.CreatedAt, &ot.UpdatedAt,
 
-        &ou.ID, &ou.Username, &ou.Email, &ou.DisplayName, &ou.AvatarURL, &ou.BannerURL, &ou.IsVerified,
-        &ou.CreatedAt, &ou.UpdatedAt, &ou.Following, &ou.Followers,
+		&ou.ID, &ou.Username, &ou.Email, &ou.DisplayName, &ou.AvatarURL, &ou.BannerURL, &ou.IsVerified,
+		&ou.CreatedAt, &ou.UpdatedAt, &ou.Following, &ou.Followers,
 
-        &ort.ID, &ort.UserID, &ort.Content, &ort.InReplyToTweetID, &ort.OriginalTweetID, &ort.MediaURLs,
-        &ort.RepliesCount, &ort.LikesCount, &ort.RetweetsCount, &ort.ViewsCount, &ort.BookmarksCount,
-        &ort.CreatedAt, &ort.UpdatedAt,
+		&ort.ID, &ort.UserID, &ort.Content, &ort.InReplyToTweetID, &ort.OriginalTweetID, &ort.MediaURLs,
+		&ort.RepliesCount, &ort.LikesCount, &ort.RetweetsCount, &ort.ViewsCount, &ort.BookmarksCount,
+		&ort.CreatedAt, &ort.UpdatedAt,
 
-        &oru.ID, &oru.Username, &oru.Email, &oru.DisplayName, &oru.AvatarURL, &oru.BannerURL, &oru.IsVerified,
-        &oru.CreatedAt, &oru.UpdatedAt, &oru.Following, &oru.Followers,
+		&oru.ID, &oru.Username, &oru.Email, &oru.DisplayName, &oru.AvatarURL, &oru.BannerURL, &oru.IsVerified,
+		&oru.CreatedAt, &oru.UpdatedAt, &oru.Following, &oru.Followers,
 
-        &t.IsLiked, &t.IsRetweeted, &t.IsViewed, &t.IsBookmarked, &ot.IsLiked, &ot.IsViewed,  &ot.IsBookmarked,
-    )
+		&t.IsLiked, &t.IsRetweeted, &t.IsViewed, &t.IsBookmarked, &ot.IsLiked, &ot.IsViewed, &ot.IsBookmarked,
+	)
 
-    if err != nil {
-        return nil, fmt.Errorf("failed to query tweet: %w", err)
-    }
+	if err != nil {
+		return nil, fmt.Errorf("failed to query tweet: %w", err)
+	}
 
-    user := u.ToUser()
-    var replyTo, quotedTweet, retweetedTweet *models.Tweet
+	user := u.ToUser()
+	var replyTo, quotedTweet, retweetedTweet *models.Tweet
 
-    if rt.ID.Valid {
-        replyTo = &models.Tweet{}
-        *replyTo = rt.ToTweet(ru.ToUser(), nil, nil, nil)
-    }
+	if rt.ID.Valid {
+		replyTo = &models.Tweet{}
+		*replyTo = rt.ToTweet(ru.ToUser(), nil, nil, nil)
+	}
 
-    if ot.ID.Valid {
-        var originalReply *models.Tweet
-        if ort.ID.Valid {
-            originalReply = &models.Tweet{}
-            *originalReply = ort.ToTweet(oru.ToUser(), nil, nil, nil)
-        }
-        originalTweet := ot.ToTweet(ou.ToUser(), originalReply, nil, nil)
-        if t.Content.Valid && t.Content.String != "" {
-            quotedTweet = &originalTweet
-        } else {
-            retweetedTweet = &originalTweet
-        }
-    }
+	if ot.ID.Valid {
+		var originalReply *models.Tweet
+		if ort.ID.Valid {
+			originalReply = &models.Tweet{}
+			*originalReply = ort.ToTweet(oru.ToUser(), nil, nil, nil)
+		}
+		originalTweet := ot.ToTweet(ou.ToUser(), originalReply, nil, nil)
+		if t.Content.Valid && t.Content.String != "" {
+			quotedTweet = &originalTweet
+		} else {
+			retweetedTweet = &originalTweet
+		}
+	}
 
-    tweet := t.ToTweet(user, replyTo, quotedTweet, retweetedTweet)
+	tweet := t.ToTweet(user, replyTo, quotedTweet, retweetedTweet)
 
-    var replies []models.Tweet
-    if err := json.Unmarshal(repliesJSON, &replies); err != nil {
-        return nil, fmt.Errorf("failed to unmarshal replies JSON: %w", err)
-    }
-    tweet.Replies = &replies
+	var replies []models.Tweet
+	if err := json.Unmarshal(repliesJSON, &replies); err != nil {
+		return nil, fmt.Errorf("failed to unmarshal replies JSON: %w", err)
+	}
+	tweet.Replies = &replies
 
-    thread, err := GetTweetThreadByID(ctx, tweetID, userID)
-    if err != nil {
-        log.Printf("Failed to fetch thread for tweet %s: %v", tweetID, err)
-    } else {
-        tweet.Thread = &thread
-    }
+	thread, err := GetTweetThreadByID(ctx, tweetID, userID)
+	if err != nil {
+		log.Printf("Failed to fetch thread for tweet %s: %v", tweetID, err)
+	} else {
+		tweet.Thread = &thread
+	}
 
-    return &tweet, nil
+	return &tweet, nil
 }
 
 func GetTweetThreadByID(ctx context.Context, tweetID string, userID *string) ([]models.Tweet, error) {

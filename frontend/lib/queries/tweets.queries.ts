@@ -6,14 +6,19 @@ const LIMIT = 10;
 
 export const fetchTweets = async ({
   pageParam = 1,
-  tweetsType,
+  tweetsType: initial,
   ownerId,
 }: {
   pageParam?: number;
   tweetsType: TweetsType;
   ownerId?: string;
 }) => {
-  const accessLevel = ownerId && tweetsType !== "liked" ? "soft" : "protected";
+  const tweetsType = initial === "explore" ? "posts" : initial;
+  const accessLevel =
+    ownerId && tweetsType !== "liked" && initial !== "explore"
+      ? "soft"
+      : "protected";
+
   const { data } = await api.get<{ tweets: RawTweet[]; hasMore: boolean }>(
     `/${accessLevel}/tweets/${tweetsType}?page=${pageParam}&limit=${LIMIT}${ownerId ? `&ownerID=${ownerId}` : ""}`,
   );

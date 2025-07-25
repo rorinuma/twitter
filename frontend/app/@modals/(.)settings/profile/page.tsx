@@ -215,36 +215,38 @@ export default function ProfileSettings() {
                   </GeneralTooltip>
                 </div>
               </div>
-              <input
-                type="file"
-                accept="image/*"
-                className="hidden"
-                ref={addAvatarInputRef}
-                onChange={(e) => handleImageUpload(e, "avatar")}
-              />
-              <input
-                type="file"
-                accept="image/*"
-                className="hidden"
-                ref={addBannerInputRef}
-                onChange={(e) => handleImageUpload(e, "banner")}
-              />
-              <Input
-                label="Name"
-                value={nameValue}
-                onChange={handleNameChange}
-                onBlur={handleNameBlur}
-                defaultValue={user.username}
-                error={nameError}
-                maxLength={50}
-              />
-              <Input
-                label="Bio"
-                value={bioValue}
-                onChange={(e) => setBioValue(e.target.value)}
-                maxLength={160}
-                extended
-              />
+              <div className="flex flex-col px-3">
+                <input
+                  type="file"
+                  accept="image/*"
+                  className="hidden"
+                  ref={addAvatarInputRef}
+                  onChange={(e) => handleImageUpload(e, "avatar")}
+                />
+                <input
+                  type="file"
+                  accept="image/*"
+                  className="hidden"
+                  ref={addBannerInputRef}
+                  onChange={(e) => handleImageUpload(e, "banner")}
+                />
+                <Input
+                  label="Name"
+                  value={nameValue}
+                  onChange={handleNameChange}
+                  onBlur={handleNameBlur}
+                  defaultValue={user.username}
+                  error={nameError}
+                  maxLength={50}
+                />
+                <Input
+                  label="Bio"
+                  value={bioValue}
+                  onChange={(e) => setBioValue(e.target.value)}
+                  maxLength={160}
+                  extended
+                />
+              </div>
             </div>
           </form>
         </BlueOverlay>

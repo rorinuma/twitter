@@ -90,12 +90,6 @@ export default function Nav() {
               href="notifications"
             />
             <NavLink
-              icon={<MdMailOutline className="size-7" />}
-              pathMatchesIcon={<MdMail className="size-7" />}
-              text="Messages"
-              href="messages"
-            />
-            <NavLink
               icon={<IoPersonOutline className="size-7" />}
               pathMatchesIcon={<IoPerson className="size-7" />}
               text="Profile"

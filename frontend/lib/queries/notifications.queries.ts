@@ -24,3 +24,11 @@ export const getNotifications = async (): Promise<
     }
   }
 };
+
+export const readNotification = async (id: string) => {
+  try {
+    await api.put(`/protected/user/notifications/read/${id}`);
+  } catch (err) {
+    throw err;
+  }
+};

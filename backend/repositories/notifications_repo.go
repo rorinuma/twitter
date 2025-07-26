@@ -159,3 +159,18 @@ func DeleteFollowNotification(ctx context.Context, actorID, userID string) error
 
 	return nil
 }
+
+func ReadNotification(ctx context.Context, userID, notifID string) error {
+	query := `
+		UPDATE notifications
+		SET is_read = true
+		WHERE user_id = $1 AND id = $2
+	`
+
+	_, err := db.Pool.Exec(ctx, query, userID, notifID)
+	if err != nil {
+		return fmt.Errorf("failed to mark notification as read: %w", err)
+	}
+
+	return nil
+}

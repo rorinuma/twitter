@@ -14,9 +14,12 @@ import {
   useInteractions,
   autoUpdate,
 } from "@floating-ui/react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import TweetHoverProfile from "../tweets/TweetHoverProfile";
 import { useRouter } from "next/navigation";
+import { useInView } from "react-intersection-observer";
+import { readNotification } from "@/lib/queries/notifications.queries";
+import clsx from "clsx";
 interface Props {
   notification: Notification;
 }
@@ -30,6 +33,21 @@ export default function NotificationCard({ notification }: Props) {
   if (!config) return null;
 
   const Icon = config.icon;
+
+  const { ref, inView } = useInView();
+
+  useEffect(() => {
+    if (inView && !notification.isRead) {
+      (async () => {
+        try {
+          await readNotification(notification.id);
+          notification.isRead = true;
+        } catch (err) {
+          console.error("failure reading notification: ", err);
+        }
+      })();
+    }
+  }, [inView]);
 
   const handleNotificationClick = () => {
     if (notification.tweet) {
@@ -62,8 +80,14 @@ export default function NotificationCard({ notification }: Props) {
   return (
     <>
       <article
-        className="flex py-3 px-4 hover:bg-nav-hover duration-(--hover-duration) cursor-pointer border-b border-b-border"
+        className={clsx(
+          "flex py-3 px-4 hover:bg-nav-hover duration-(--hover-duration) cursor-pointer border-b border-b-border",
+          {
+            "bg-tweet-hover": !notification.isRead,
+          },
+        )}
         onClick={handleNotificationClick}
+        ref={ref}
       >
         <div className="flex w-full justify-between">
           <div className="flex gap-2">

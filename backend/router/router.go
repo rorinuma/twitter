@@ -38,5 +38,6 @@ func SetupRouter() *mux.Router {
 	protected.HandleFunc("/user/follow/{username}", handlers.FollowUser).Methods("POST")
 	protected.HandleFunc("/user/unfollow/{username}", handlers.UnfollowUser).Methods("DELETE")
 	protected.HandleFunc("/user/notifications", handlers.GetNotifications).Methods("GET")
+	protected.HandleFunc("/user/notifications/read/{id}", handlers.ReadNotification).Methods("PUT")
 	return r
 }

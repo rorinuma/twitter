@@ -6,9 +6,11 @@ import { useTweets } from "@/hooks/useTweetFeed";
 import TweetCard from "@/components/tweets";
 import { useInView } from "react-intersection-observer";
 import { useOwner } from "@/context/OwnerContext";
+import { useQueryClient } from "@tanstack/react-query";
 
 export default function UserProfile() {
   const owner = useOwner();
+  const queryClient = useQueryClient();
 
   const {
     data,
@@ -17,6 +19,14 @@ export default function UserProfile() {
     isFetchingNextPage,
     fetchNextPage,
   } = useTweets("posts", !!owner, owner?.id);
+
+  useEffect(() => {
+    if (owner?.id) {
+      queryClient.invalidateQueries({
+        queryKey: ["tweets", "posts"],
+      });
+    }
+  }, [owner?.id, queryClient]);
 
   const { ref, inView } = useInView();
 

@@ -45,7 +45,6 @@ func CreateTweet(ctx context.Context, input models.CreateTweetInput) (*models.Tw
 	}
 
 
-	tweetID := tweet.OriginalTweetID
 	actorID := input.UserID
 
 	if input.OriginalTweetID != nil {
@@ -60,13 +59,12 @@ func CreateTweet(ctx context.Context, input models.CreateTweetInput) (*models.Tw
 
 
 		if *input.Content == "" {
-			notifErr := InsertNotificationToTweet(ctx, *tweetID, actorID, models.NotificationRetweet)
+			notifErr := InsertNotificationToTweet(ctx, *input.OriginalTweetID, actorID, models.NotificationRetweet)
 			if notifErr != nil {
 				log.Printf("Failed to create notification: %v", notifErr)
 			}
 		} else {
-
-			notifErr := InsertNotificationToTweet(ctx, *tweetID, actorID, models.NotificationQuote)
+			notifErr := InsertNotificationToTweet(ctx, *input.OriginalTweetID, actorID, models.NotificationQuote)
 			if notifErr != nil {
 				log.Printf("Failed to create notification: %v", notifErr)
 			}
@@ -96,12 +94,13 @@ func DeleteTweet(ctx context.Context, tweetID string, userID string) (*uuid.UUID
 	query := `
 		DELETE FROM tweets 
 		WHERE id = $1 AND user_id = $2 
-		RETURNING id, in_reply_to_tweet_id, original_tweet_id
+		RETURNING id, in_reply_to_tweet_id, original_tweet_id, content
 	`
 
 	var deletedID uuid.UUID
 	var inReplyTo, originalTweetID *uuid.UUID
-	err := db.Pool.QueryRow(ctx, query, tweetID, userID).Scan(&deletedID, &inReplyTo, &originalTweetID)
+	var content string
+	err := db.Pool.QueryRow(ctx, query, tweetID, userID).Scan(&deletedID, &inReplyTo, &originalTweetID, &content)
 
 	if err != nil {
 		return nil, err
@@ -116,6 +115,11 @@ func DeleteTweet(ctx context.Context, tweetID string, userID string) (*uuid.UUID
 		if err != nil {
 			return nil, err
 		}
+
+		notifErr := DeleteTweetNotification(ctx, userID, inReplyTo.String(), models.NotificationReply)
+		if notifErr != nil {
+			log.Printf("Failed to delete like notification: %v", notifErr)
+		}
 	}
 
 	if originalTweetID != nil {
@@ -127,6 +131,10 @@ func DeleteTweet(ctx context.Context, tweetID string, userID string) (*uuid.UUID
 		if err != nil {
 			return nil, err
 		}
+		notifErr := DeleteTweetNotification(ctx, userID, originalTweetID.String(), models.NotificationQuote)
+		if notifErr != nil {
+			log.Printf("Failed to delete quote notification: %v", notifErr)
+		}
 	}
 	return &deletedID, nil
 }
@@ -135,10 +143,14 @@ func DeleteRetweet(ctx context.Context, originalTweetID, userID string) (*uuid.U
 	query := `
 		DELETE FROM tweets WHERE original_tweet_id = $1 AND user_id = $2 
 		AND content = ''
-		RETURNING original_tweet_id
+		RETURNING original_tweet_id, id
 	`
-	var origTweetID *uuid.UUID
-	err := db.Pool.QueryRow(ctx, query, originalTweetID, userID).Scan(&origTweetID)
+	var ( 
+		origTweetID *uuid.UUID
+		retweetID   *uuid.UUID
+	)
+
+	err := db.Pool.QueryRow(ctx, query, originalTweetID, userID).Scan(&origTweetID, &retweetID)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -153,6 +165,10 @@ func DeleteRetweet(ctx context.Context, originalTweetID, userID string) (*uuid.U
 	if err != nil {
 		return nil, nil, err
 	}
+		notifErr := DeleteTweetNotification(ctx, userID, originalTweetID, models.NotificationQuote)
+		if notifErr != nil {
+			log.Printf("Failed to delete retweet notification: %v", notifErr)
+		}
 
 	return origTweetID, newCount, nil
 }
@@ -161,7 +177,7 @@ func LikeTweet(ctx context.Context, tweetID string, userID string) (*uuid.UUID, 
 	query := `
   	INSERT INTO likes (tweet_id, user_id)
   	VALUES ($1, $2)
-  	RETURNING id, tweet_id
+  	RETURNING tweet_id
 	`
 	var likedTweetID *uuid.UUID
 	err := db.Pool.QueryRow(ctx, query, tweetID, userID).Scan(&likedTweetID)
@@ -179,8 +195,6 @@ func LikeTweet(ctx context.Context, tweetID string, userID string) (*uuid.UUID, 
 		if err != nil {
 			return nil, err
 		}
-
-
 
 		tweetUUID := uuid.MustParse(tweetID)
 		userUUID := uuid.MustParse(userID)
@@ -213,6 +227,12 @@ func UnlikeTweet(ctx context.Context, userID, tweetID string) (*uuid.UUID, error
 		SET likes_count = GREATEST(likes_count - 1, 0)
 		WHERE id = $1
 	`, tweetID)
+
+	fmt.Printf("delete like notif tweetID: %v, userID: %v", userID, tweetID)
+		notifErr := DeleteTweetNotification(ctx, userID, tweetID, models.NotificationLike)
+		if notifErr != nil {
+			log.Printf("Failed to delete like notification: %v", notifErr)
+		}
 
 	return deletedID, nil
 }

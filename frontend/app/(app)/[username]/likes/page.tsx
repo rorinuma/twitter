@@ -6,6 +6,7 @@ import { useAuth } from "@/context/authContext";
 import { useOwner } from "@/context/OwnerContext";
 import { useSafeBack } from "@/hooks/goSafeBack";
 import { useTweets } from "@/hooks/useTweetFeed";
+import { useQueryClient } from "@tanstack/react-query";
 import { useEffect } from "react";
 import { useInView } from "react-intersection-observer";
 
@@ -13,10 +14,19 @@ export default function ProfileLikes() {
   const owner = useOwner();
   const { user } = useAuth();
   const safeBack = useSafeBack(`/${owner?.username}`);
+  const queryClient = useQueryClient();
 
   if (owner?.id !== user?.id) {
     safeBack();
   }
+
+  useEffect(() => {
+    if (owner?.id) {
+      queryClient.invalidateQueries({
+        queryKey: ["tweets", "liked"],
+      });
+    }
+  }, [owner?.id, queryClient]);
 
   const {
     data,

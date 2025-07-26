@@ -421,7 +421,7 @@ export default function TweetCard({
           </div>
 
           <TweetHoverProfile
-            tweet={tweet}
+            user={tweet.user}
             variant={variant}
             refs={{ setFloating: refs.setFloating }}
             getFloatingProps={getFloatingProps}

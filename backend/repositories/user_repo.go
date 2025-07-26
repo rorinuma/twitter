@@ -3,6 +3,7 @@ package repositories
 import (
 	"context"
 	"fmt"
+	"log"
 
 	"github.com/google/uuid"
 	"github.com/rorinuma/twitter/db"
@@ -218,6 +219,14 @@ func FollowUser(ctx context.Context, username, userID string) (*uuid.UUID, error
 		return nil, fmt.Errorf("failed to insert follow relationship: %w", err)
 	}
 
+
+	actorID := userID 
+
+	err = InsertFollowNotification(ctx, actorID, userIDToFollow.String(), models.NotificationFollow)
+	if err != nil {
+		log.Printf("Failed to create notification: %v", err)
+	}
+
 	return &insertedID, nil
 }
 
@@ -240,6 +249,14 @@ func UnfollowUser(ctx context.Context, username, userID string) error {
 	_, err = db.Pool.Exec(ctx, query, userID, userIDToFollow)
 	if err != nil {
 		return fmt.Errorf("failed to delete follow relationship: %w", err)
+	}
+
+	userIDStr := userIDToFollow.String()
+
+	actorID := userID
+	err = DeleteFollowNotification(ctx, actorID, userIDStr) 
+	if err != nil {
+		log.Printf("Failed to create notification: %v", err)
 	}
 
 	return nil

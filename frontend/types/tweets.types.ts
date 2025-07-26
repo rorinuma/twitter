@@ -60,7 +60,7 @@ export interface RawTweet {
 }
 
 export interface TweetHoverProfileProps {
-  tweet: Tweet;
+  user: User;
   variant: TweetVariant;
   refs: {
     setFloating: (node: HTMLElement | null) => void;

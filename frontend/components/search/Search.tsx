@@ -67,7 +67,7 @@ export default function Search({ explore }: Props) {
       >
         <div className="relative">
           <input
-            className={`${!explore && "w-3/5"} outline-1 outline-border-muted rounded-full py-3 pl-8 pr-3 xs:pr-20 focus:outline-2 focus:outline-blue placeholder:text-foreground text-sm`}
+            className={`${!explore && "w-3/5"} outline-1 outline-border rounded-full py-3 pl-8 pr-3 xs:pr-20 focus:outline-2 focus:outline-blue placeholder:text-foreground text-sm`}
             placeholder="Search"
             value={searchValue}
             onChange={(e) => setSearchValue(e.target.value)}
@@ -77,7 +77,7 @@ export default function Search({ explore }: Props) {
           <IoSearchOutline className="absolute top-1/2 left-3 -translate-y-1/2 text-muted" />
           {isFocused && (
             <div
-              className={`absolute top-full left-0 mt-2 w-full ${!explore && "w-3/5"} bg-background rounded-xl shadow-default flex flex-col`}
+              className={`absolute top-full left-0 mt-2 ${explore && "w-full"} ${!explore && "w-3/5"} bg-background rounded-xl shadow-default flex flex-col`}
             >
               <span
                 className="p-4 text-sm text-muted hover:bg-nav-hover duration-(--hover-duration) rounded-t-xl border-b border-b-border"

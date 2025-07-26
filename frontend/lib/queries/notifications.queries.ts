@@ -8,10 +8,14 @@ export const getNotifications = async (): Promise<
 > => {
   try {
     const { data } = await api.get<{
-      notifications: NotificationRaw[];
+      notifications: NotificationRaw[] | undefined;
       message: string;
     }>("/protected/user/notifications");
-    return normalizeNotifications(data.notifications);
+    if (data.notifications) {
+      return normalizeNotifications(data.notifications);
+    } else {
+      return undefined;
+    }
   } catch (err) {
     if (axios.isAxiosError(err)) {
       console.error("axios error getting notifications: ", err);

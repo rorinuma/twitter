@@ -14,6 +14,13 @@ export const formatDateProfile = (date: string): string => {
   return formatted;
 };
 
+export const formatDateNotifications = (date: string): string => {
+  const parsed = parseISO(date);
+  const formatted = format(parsed, "d MMM");
+
+  return formatted;
+};
+
 export const formatCompactTimeAgo = (dateString: string): string => {
   const now = new Date();
   const then = parseISO(dateString);

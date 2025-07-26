@@ -4,12 +4,14 @@ import (
 	"github.com/gorilla/mux"
 	"github.com/rorinuma/twitter/handlers"
 	"github.com/rorinuma/twitter/utils"
+	"github.com/rorinuma/twitter/ws"
 )
 
 func SetupRouter() *mux.Router {
 	r := mux.NewRouter()
 	r.HandleFunc("/signup", handlers.CreateUser).Methods("POST")
 	r.HandleFunc("/signin", handlers.LoginUser).Methods("POST")
+	r.HandleFunc("/ws", ws.WebSocketHandler)
 
 	protected := r.PathPrefix("/protected").Subrouter()
 	soft := r.PathPrefix("/soft").Subrouter()

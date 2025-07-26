@@ -2,6 +2,7 @@ package utils
 
 import (
 	"context"
+	"errors"
 	"net/http"
 	"os"
 	"strings"
@@ -15,6 +16,18 @@ type contextKey string
 
 const userIDKey contextKey = "userID"
 
+func JWTMiddleware(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		userID, err := ParseJWTFromRequest(r)
+		if err != nil {
+			http.Error(w, "Unauthorized", http.StatusUnauthorized)
+			return
+		}
+		ctx := WithUserID(r.Context(), userID)
+		next.ServeHTTP(w, r.WithContext(ctx))
+	})
+}
+
 func CreateToken(userID uuid.UUID) (string, error) {
 	secret := os.Getenv("JWT_SECRET")
 	expiration := time.Now().Add(time.Hour * time.Duration(24) * 7)
@@ -26,37 +39,41 @@ func CreateToken(userID uuid.UUID) (string, error) {
 	return token.SignedString([]byte(secret))
 }
 
+func WithUserID(ctx context.Context, userID string) context.Context {
+	return context.WithValue(ctx, userIDKey, userID)
+}
+
 func GetUserIDFromContext(ctx context.Context) (string, bool) {
 	id, ok := ctx.Value(userIDKey).(string)
 	return id, ok
 }
 
-func JWTMiddleware(next http.Handler) http.Handler {
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		cookie, err := r.Cookie("token")
-		if err != nil {
-			http.Error(w, "Unauthorized", http.StatusUnauthorized)
-			return
-		}
-		tokenStr := strings.TrimSpace(cookie.Value)
-		secret := os.Getenv("JWT_SECRET")
+func ParseJWTFromRequest(r *http.Request) (string, error) {
+	cookie, err := r.Cookie("token")
+	if err != nil {
+		return "", errors.New("missing token cookie")
+	}
+	tokenStr := strings.TrimSpace(cookie.Value)
+	secret := os.Getenv("JWT_SECRET")
 
-		token, err := jwt.Parse(tokenStr, func(token *jwt.Token) (interface{}, error) {
-			if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
-				return nil, jwt.ErrTokenSignatureInvalid
-			}
-			return []byte(secret), nil
-		})
-		if err != nil || !token.Valid {
-			http.Error(w, "Invalid or expired token", http.StatusUnauthorized)
-			return
+	token, err := jwt.Parse(tokenStr, func(token *jwt.Token) (interface{}, error) {
+		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
+			return nil, jwt.ErrTokenSignatureInvalid
 		}
-		claims := token.Claims.(jwt.MapClaims)
-		userID := claims["sub"].(string)
-
-		ctx := context.WithValue(r.Context(), userIDKey, userID)
-		next.ServeHTTP(w, r.WithContext(ctx))
+		return []byte(secret), nil
 	})
+	if err != nil || !token.Valid {
+		return "", errors.New("invalid or expired token")
+	}
+	claims, ok := token.Claims.(jwt.MapClaims)
+	if !ok {
+		return "", errors.New("invalid token claims")
+	}
+	userID, ok := claims["sub"].(string)
+	if !ok {
+		return "", errors.New("user ID not found in token")
+	}
+	return userID, nil
 }
 
 func OptionalJWTMiddleware(next http.Handler) http.Handler {
@@ -88,3 +105,5 @@ func OptionalJWTMiddleware(next http.Handler) http.Handler {
 		next.ServeHTTP(w, r)
 	})
 }
+
+

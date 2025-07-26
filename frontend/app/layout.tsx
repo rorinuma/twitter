@@ -5,6 +5,7 @@ import "./globals.css";
 import { useEffect } from "react";
 import { AuthProvider } from "@/context/authContext";
 import QueryProvider from "@/context/QueryProvider";
+import { LiveUpdatesProvider } from "@/context/LiveUpdatesContext";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -27,8 +28,8 @@ export default function RootLayout({
     document.documentElement.classList.toggle(
       "dark",
       localStorage.theme === "dark" ||
-      (!("theme" in localStorage) &&
-        window.matchMedia("(prefers-color-scheme: dark)").matches),
+        (!("theme" in localStorage) &&
+          window.matchMedia("(prefers-color-scheme: dark)").matches),
     );
   }, []);
 
@@ -39,10 +40,12 @@ export default function RootLayout({
       >
         <AuthProvider>
           <QueryProvider>
-            <div className="flex justify-center w-full h-full" key="children">
-              {children}
-            </div>
-            <div key="modals">{modals}</div>
+            <LiveUpdatesProvider>
+              <div className="flex justify-center w-full h-full" key="children">
+                {children}
+              </div>
+              <div key="modals">{modals}</div>
+            </LiveUpdatesProvider>
           </QueryProvider>
         </AuthProvider>
       </body>

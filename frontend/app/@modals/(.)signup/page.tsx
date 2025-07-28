@@ -13,6 +13,7 @@ import BlueOverlay from "@/components/shared/overlays/BlueOverlay";
 import CloseElement from "@/components/ui/buttons/CloseElement";
 import Input from "@/components/shared/input/Input";
 import ErrorOverlay from "@/components/shared/overlays/ErrorOverlay";
+import { createPortal } from "react-dom";
 
 type Errors = Partial<Record<keyof FormData, string>> & {
   general?: string;
@@ -191,7 +192,8 @@ export default function SignUpModal() {
             </div>
           </form>
         </BlueOverlay>
-        {errors.general && <ErrorOverlay error={errors.general} />}
+        {errors.general &&
+          createPortal(<ErrorOverlay error={errors.general} />, document.body)}
       </>
     )
   );

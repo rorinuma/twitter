@@ -1,6 +1,7 @@
 "use client";
 
 import NotificationCard from "@/components/notifications/NotificationCard";
+import { useLiveUpdates } from "@/context/LiveUpdatesContext";
 import { getNotifications } from "@/lib/queries/notifications.queries";
 import { Notification } from "@/types/notifications.types";
 import { useEffect, useState } from "react";
@@ -10,10 +11,13 @@ export default function Notifications() {
     Notification[] | undefined
   >(undefined);
 
+  const { setNotificationCount } = useLiveUpdates();
+
   useEffect(() => {
     const fetchNotifs = async () => {
       const notifications = await getNotifications();
       setNotifications(notifications);
+      setNotificationCount(0);
     };
     fetchNotifs();
   }, []);

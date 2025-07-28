@@ -11,6 +11,7 @@ import (
 	"github.com/rorinuma/twitter/db"
 	"github.com/rorinuma/twitter/models"
 	"github.com/rorinuma/twitter/utils"
+	"github.com/rorinuma/twitter/ws"
 )
 
 func CreateTweet(ctx context.Context, input models.CreateTweetInput) (*models.Tweet, error) {
@@ -69,7 +70,6 @@ func CreateTweet(ctx context.Context, input models.CreateTweetInput) (*models.Tw
 				log.Printf("Failed to create notification: %v", notifErr)
 			}
 		}
-
 	}
 
 	if input.InReplyToTweetID != nil {
@@ -85,6 +85,32 @@ func CreateTweet(ctx context.Context, input models.CreateTweetInput) (*models.Tw
 		if notifErr != nil {
 			log.Printf("Failed to create notification: %v", notifErr)
 		}
+	}
+
+	rows, err := db.Pool.Query(ctx, `
+		SELECT follower_id
+		FROM follows
+		WHERE following_id = $1
+	`, tweet.UserID)
+
+	var followerIDs []string
+
+	for rows.Next() {
+		var followerID uuid.UUID
+		err := rows.Scan(&followerID)
+		if err != nil {
+			log.Printf("Failed to scan follower ID: %v", err)
+			continue
+		}
+		followerIDs = append(followerIDs, followerID.String())
+	}
+	rows.Close()
+
+	for _, followerID := range followerIDs {
+		ws.WsManager.NotifyUser(followerID, "tweet:new", map[string]interface{}{
+			"tweet_id": tweet.ID,
+			"user_id": tweet.UserID,
+		})
 	}
 
 	return &tweet, nil

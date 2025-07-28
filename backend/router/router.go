@@ -41,5 +41,6 @@ func SetupRouter() *mux.Router {
 	protected.HandleFunc("/user/unfollow/{username}", handlers.UnfollowUser).Methods("DELETE")
 	protected.HandleFunc("/user/notifications", handlers.GetNotifications).Methods("GET")
 	protected.HandleFunc("/user/notifications/read/{id}", handlers.ReadNotification).Methods("PUT")
+	protected.HandleFunc("/user/notifications/count", handlers.GetNotificationCount).Methods("GET")
 	return r
 }

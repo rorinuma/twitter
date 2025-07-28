@@ -8,7 +8,6 @@ import {
   IoIosNotifications,
   IoIosNotificationsOutline,
 } from "react-icons/io";
-import { MdMailOutline, MdMail } from "react-icons/md";
 import {
   IoPerson,
   IoPersonOutline,
@@ -24,6 +23,7 @@ import { useRouter } from "next/navigation";
 import { useRef, useState } from "react";
 import { useClickOutside } from "@/hooks/clickOutside";
 import { useCloseOnInteraction } from "@/hooks/modalClose";
+import { useLiveUpdates } from "@/context/LiveUpdatesContext";
 
 export default function Nav() {
   const router = useRouter();
@@ -31,6 +31,8 @@ export default function Nav() {
   const [isOptionsOpen, setIsOptionsOpen] = useState<boolean>(false);
   const optionsRef = useRef<HTMLDivElement>(null);
   const optionsButtonRef = useRef<HTMLButtonElement>(null);
+
+  const { notificationCount } = useLiveUpdates();
 
   const clickOutside = () => {
     setIsOptionsOpen((prev) => !prev);
@@ -83,12 +85,19 @@ export default function Nav() {
               text="Explore"
               href="explore"
             />{" "}
-            <NavLink
-              icon={<IoIosNotificationsOutline className="size-7" />}
-              pathMatchesIcon={<IoIosNotifications className="size-7" />}
-              text="Notifications"
-              href="notifications"
-            />
+            <div className="relative">
+              <NavLink
+                icon={<IoIosNotificationsOutline className="size-7" />}
+                pathMatchesIcon={<IoIosNotifications className="size-7" />}
+                text="Notifications"
+                href="notifications"
+              />
+              {notificationCount !== 0 && (
+                <div className="absolute left-6 top-1 py-0.5 px-2 rounded-full bg-blue ">
+                  {notificationCount}
+                </div>
+              )}
+            </div>
             <NavLink
               icon={<IoPersonOutline className="size-7" />}
               pathMatchesIcon={<IoPerson className="size-7" />}

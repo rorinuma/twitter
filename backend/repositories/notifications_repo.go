@@ -8,6 +8,7 @@ import (
 	"github.com/google/uuid"
 	"github.com/rorinuma/twitter/db"
 	"github.com/rorinuma/twitter/models"
+	"github.com/rorinuma/twitter/ws"
 )
 
 func GetNotifications(ctx context.Context, userID string) ([]models.Notification, error) {
@@ -105,6 +106,8 @@ func InsertNotificationToTweet(ctx context.Context, tweetID, actorID uuid.UUID, 
 
 	var insertedID uuid.UUID 
 	err = db.Pool.QueryRow(ctx, query, tweetOwnerID, actorID, notifType, tweetID).Scan(&insertedID)
+
+	ws.WsManager.NotifyUser(tweetOwnerID.String(), "notification:new", nil)
 	
 	if err != nil {
 		return fmt.Errorf("failure inserting notification %w", err)
@@ -122,6 +125,8 @@ func InsertFollowNotification(ctx context.Context, actorID, userID string, notif
 	`
 
 	_, err := db.Pool.Exec(ctx, query, userID, actorID, notifType)
+
+	ws.WsManager.NotifyUser(userID, "notification:new", nil)
 
 	if err != nil {
 		return fmt.Errorf("error inserting notification: %w", err)
@@ -173,4 +178,20 @@ func ReadNotification(ctx context.Context, userID, notifID string) error {
 	}
 
 	return nil
+}
+
+func GetNotificationCount(ctx context.Context, userID string) (int, error) {
+	query := `
+		SELECT COUNT(*)
+		FROM notifications
+		WHERE user_id = $1 AND is_read = false
+	`
+
+	var count int
+	err := db.Pool.QueryRow(ctx, query, userID).Scan(&count)
+	if err != nil {
+		return 0, err
+	}
+
+	return count, nil
 }

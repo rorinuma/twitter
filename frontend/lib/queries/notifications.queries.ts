@@ -32,3 +32,14 @@ export const readNotification = async (id: string) => {
     throw err;
   }
 };
+
+export const getNotificationsCount = async () => {
+  try {
+    const { data } = await api.get<{ count: number; message: string }>(
+      "/protected/user/notifications/count",
+    );
+    return data.count;
+  } catch (err) {
+    throw err;
+  }
+};

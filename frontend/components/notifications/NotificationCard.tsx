@@ -20,6 +20,7 @@ import { useRouter } from "next/navigation";
 import { useInView } from "react-intersection-observer";
 import { readNotification } from "@/lib/queries/notifications.queries";
 import clsx from "clsx";
+
 interface Props {
   notification: Notification;
 }

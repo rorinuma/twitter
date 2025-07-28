@@ -1,3 +1,4 @@
+import { getNotificationsCount } from "@/lib/queries/notifications.queries";
 import { createContext, useContext, useEffect, useRef, useState } from "react";
 
 type NotificationPayload = {
@@ -6,6 +7,7 @@ type NotificationPayload = {
 
 type LiveUpdatesContextType = {
   notificationCount: number;
+  setNotificationCount: React.Dispatch<React.SetStateAction<number>>;
   newTweetEvent: boolean;
   socket: WebSocket | null;
   resetNewTweetEvent: () => void;
@@ -20,7 +22,7 @@ export const LiveUpdatesProvider: React.FC<{ children: React.ReactNode }> = ({
 }) => {
   const socketRef = useRef<WebSocket | null>(null);
 
-  const [notificationCount, setNotificationCount] = useState(0);
+  const [notificationCount, setNotificationCount] = useState<number>(0);
   const [newTweetEvent, setNewTweetEvent] = useState(false);
 
   useEffect(() => {
@@ -64,6 +66,17 @@ export const LiveUpdatesProvider: React.FC<{ children: React.ReactNode }> = ({
     };
   }, []);
 
+  useEffect(() => {
+    (async () => {
+      try {
+        const count = await getNotificationsCount();
+        setNotificationCount(count);
+      } catch (err) {
+        console.error("getting notification count failed: ", err);
+      }
+    })();
+  }, []);
+
   function resetNewTweetEvent() {
     setNewTweetEvent(false);
   }
@@ -72,6 +85,7 @@ export const LiveUpdatesProvider: React.FC<{ children: React.ReactNode }> = ({
     <LiveUpdatesContext.Provider
       value={{
         notificationCount,
+        setNotificationCount,
         newTweetEvent,
         socket: socketRef.current,
         resetNewTweetEvent,

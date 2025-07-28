@@ -13,6 +13,7 @@ import CloseElement from "@/components/ui/buttons/CloseElement";
 import GoogleButton from "@/components/ui/buttons/GoogleButton";
 import Input from "@/components/shared/input/Input";
 import ErrorOverlay from "@/components/shared/overlays/ErrorOverlay";
+import { createPortal } from "react-dom";
 
 type Errors = Partial<Record<keyof SignInSchemaType, string>> & {
   general?: string;
@@ -62,7 +63,6 @@ export default function SignIn() {
       }
     } catch (err) {
       if (axios.isAxiosError(err)) {
-        console.log(err.response?.data);
         const general = err.response?.data;
         setErrors((prev) => ({ ...prev, general }));
         setTimeout(() => {
@@ -131,7 +131,8 @@ export default function SignIn() {
             </div>
           </form>
         </BlueOverlay>
-        {errors.general && <ErrorOverlay error={errors.general} />}
+        {errors.general &&
+          createPortal(<ErrorOverlay error={errors.general} />, document.body)}
       </>
     )
   );

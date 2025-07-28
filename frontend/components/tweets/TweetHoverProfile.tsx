@@ -1,11 +1,11 @@
 "use client";
 
-import { TweetHoverProfileProps } from "@/types/.types";
 import Avatar from "../ui/user/Avatar";
 import clsx from "clsx";
 import image from "@/public/placeholder.jpg";
 import FollowButton from "../ui/buttons/FollowButton";
 import { useAuth } from "@/context/authContext";
+import { TweetHoverProfileProps } from "@/types/tweets.types";
 
 export default function TweetHoverProfile({
   user,

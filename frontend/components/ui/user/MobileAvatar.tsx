@@ -44,15 +44,15 @@ export default function MobileAvatar() {
 
   const slideVariants = shouldReduceMotion
     ? {
-      initial: { x: 0 },
-      animate: { x: 0 },
-      exit: { x: 0 },
-    }
+        initial: { x: 0 },
+        animate: { x: 0 },
+        exit: { x: 0 },
+      }
     : {
-      initial: { x: "-100%" },
-      animate: { x: 0 },
-      exit: { x: "-100%" },
-    };
+        initial: { x: "-100%" },
+        animate: { x: 0 },
+        exit: { x: "-100%" },
+      };
 
   const slideTransition = shouldReduceMotion
     ? { duration: 0.3 }
@@ -82,18 +82,20 @@ export default function MobileAvatar() {
                   <div className="text-muted">@{user?.username}</div>
                   <div className="flex gap-2 mt-2 text-sm">
                     <div>
-                      X <span className="text-muted">Following</span>
+                      {user?.following.length}{" "}
+                      <span className="text-muted">Following</span>
                     </div>
                     <div>
                       <div>
-                        X <span className="text-muted">Followers</span>
+                        {user?.followers.length}{" "}
+                        <span className="text-muted">Followers</span>
                       </div>
                     </div>
                   </div>
                   <IconContext.Provider value={{ className: "size-6" }}>
                     <div className="flex flex-col mt-6 gap-6">
                       <Link
-                        href={`/username`}
+                        href={`/${user?.username}`}
                         className="flex items-center gap-4"
                       >
                         <div>
@@ -102,25 +104,7 @@ export default function MobileAvatar() {
                         <div className="text-xl font-bold">Profile</div>
                       </Link>
                       <Link
-                        href={`/i/bookmarks`}
-                        className="flex items-center gap-4"
-                      >
-                        <div>
-                          <CiBookmark />
-                        </div>
-                        <div className="text-xl font-bold">Bookmarks</div>
-                      </Link>
-                      <Link
-                        href={`/settings`}
-                        className="flex items-center gap-4"
-                      >
-                        <div>
-                          <IoMdSettings />
-                        </div>
-                        <div className="text-xl font-bold">Settings</div>
-                      </Link>
-                      <Link
-                        href={`/logout`}
+                        href={`/signout`}
                         className="flex items-center gap-4"
                       >
                         <div>

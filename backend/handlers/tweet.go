@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"os"
 	"time"
 
 	"github.com/google/uuid"
@@ -72,6 +73,7 @@ func CreateTweet(w http.ResponseWriter, r *http.Request) {
 			log.Printf("Failed to open file: %v", err)
 			continue
 		}
+
 		defer file.Close()
 
 		objectName := fmt.Sprintf("tweets/%d_%s", time.Now().UnixNano(), fileHeader.Filename)
@@ -80,13 +82,15 @@ func CreateTweet(w http.ResponseWriter, r *http.Request) {
 		uploadInfo, err := utils.MinioClient.PutObject(r.Context(), "tweets", objectName, file, fileHeader.Size, minio.PutObjectOptions{
 			ContentType: contentType,
 		})
+
 		if err != nil {
 			log.Printf("Failed to upload to MinIO: %v", err)
 			http.Error(w, "Internal Server Error", http.StatusInternalServerError)
 			continue
 		}
 
-		publicURL := fmt.Sprintf("http://localhost:9000/%s/%s", uploadInfo.Bucket, uploadInfo.Key)
+		baseURL := os.Getenv("MINIO_PUBLIC_URL")
+		publicURL := fmt.Sprintf("%s/%s/%s", baseURL, uploadInfo.Bucket, uploadInfo.Key)
 		mediaURLs = append(mediaURLs, publicURL)
 	}
 

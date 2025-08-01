@@ -23,7 +23,7 @@ export default function ProfileLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [isLoading, setIsLoading] = useState<boolean>(true);
   const [owner, setOwner] = useState<User | undefined>(undefined);
   const { username } = useParams<{ username: string }>();
   const { user, setUser } = useAuth();
@@ -46,14 +46,14 @@ export default function ProfileLayout({
   const items =
     owner?.id === user?.id
       ? [
-          { item: "Posts", path: `/${[user?.username]}` },
-          { item: "Replies", path: `/${[user?.username]}/with_replies` },
-          { item: "Likes", path: `/${[user?.username]}/likes` },
-        ]
+        { item: "Posts", path: `/${[user?.username]}` },
+        { item: "Replies", path: `/${[user?.username]}/with_replies` },
+        { item: "Likes", path: `/${[user?.username]}/likes` },
+      ]
       : [
-          { item: "Posts", path: `/${[owner?.username]}` },
-          { item: "Replies", path: `/${[owner?.username]}/with_replies` },
-        ];
+        { item: "Posts", path: `/${[owner?.username]}` },
+        { item: "Replies", path: `/${[owner?.username]}/with_replies` },
+      ];
 
   const displayedItems = items.map(({ item, path }, index) => (
     <MainHeaderItem item={item} path={path} key={index} />

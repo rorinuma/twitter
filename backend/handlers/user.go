@@ -74,20 +74,31 @@ func LoginUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	secure, sameSite := utils.IsProduction()
+
 	http.SetCookie(w, &http.Cookie{
 		Name:     "token",
 		Value:    token,
 		HttpOnly: true,
-		Secure:   false,
+		Secure: secure,
 		MaxAge:   7 * 24 * 60 * 60,
 		Path:     "/",
-		SameSite: http.SameSiteLaxMode,
+		SameSite: sameSite,
 	})
+
+	userData, err := repositories.FindOneByID(r.Context(), user.ID.String())
+
+	if err != nil {
+		log.Printf("error querying for user in db: %v", err)
+		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+		return
+	}
 
 	w.WriteHeader(http.StatusOK)
 	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(map[string]string{
-		"status": "success",
+	json.NewEncoder(w).Encode(map[string]any{
+		"message": "success",
+		"user": userData,
 	})
 }
 
@@ -132,6 +143,8 @@ func GetUserByUsername(w http.ResponseWriter, r *http.Request) {
 }
 
 func Signout(w http.ResponseWriter, r *http.Request) {
+	secure, sameSite := utils.IsProduction()
+
 	http.SetCookie(w, &http.Cookie{
 		Name: "token",
 		Value: "",
@@ -139,8 +152,8 @@ func Signout(w http.ResponseWriter, r *http.Request) {
 		Expires: time.Unix(0, 0),
 		MaxAge: -1,
 		HttpOnly: true,
-		Secure: false,
-		SameSite: http.SameSiteLaxMode,
+		Secure: secure,
+		SameSite: sameSite,
 	})
 
 	w.WriteHeader(http.StatusOK)
@@ -194,7 +207,7 @@ func UpdateProfile(w http.ResponseWriter, r *http.Request) {
 	if avatarFile, avatarHeader, err := r.FormFile("avatar"); err == nil {
 		defer avatarFile.Close()
 
-		objectName := fmt.Sprintf("avatars/%d_%s", time.Now().UnixNano(), avatarHeader.Filename)
+		objectName := fmt.Sprintf("%d_%s", time.Now().UnixNano(), avatarHeader.Filename)
 		contentType := avatarHeader.Header.Get("Content-Type")
 
 		info, err := utils.MinioClient.PutObject(r.Context(), "avatars", objectName, avatarFile, avatarHeader.Size, minio.PutObjectOptions{
@@ -215,7 +228,7 @@ func UpdateProfile(w http.ResponseWriter, r *http.Request) {
 	if bannerFile, bannerHeader, err := r.FormFile("banner"); err == nil {
 		defer bannerFile.Close()
 
-		objectName := fmt.Sprintf("banners/%d_%s", time.Now().UnixNano(), bannerHeader.Filename)
+		objectName := fmt.Sprintf("%d_%s", time.Now().UnixNano(), bannerHeader.Filename)
 		contentType := bannerHeader.Header.Get("Content-Type")
 
 		info, err := utils.MinioClient.PutObject(r.Context(), "banners", objectName, bannerFile, bannerHeader.Size, minio.PutObjectOptions{

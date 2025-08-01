@@ -143,13 +143,13 @@ export default function TweetCard({
 
   const variants = shouldReduceMotion
     ? {
-        initial: { opacity: 1 },
-        animate: { opacity: 1 },
-      }
+      initial: { opacity: 1 },
+      animate: { opacity: 1 },
+    }
     : {
-        initial: { opacity: 0 },
-        animate: { opacity: 1 },
-      };
+      initial: { opacity: 0 },
+      animate: { opacity: 1 },
+    };
   const transition = shouldReduceMotion ? { duration: 0 } : { duration: 0.3 };
 
   const handleDeletePostClick = () => {
@@ -363,12 +363,14 @@ export default function TweetCard({
                       <span className="text-blue">@{tweet.user.username}</span>
                     </span>
                     <span className="text-blue">
-                      {tweet.thread?.map((tweet, i, arr) =>
+                      {tweet.thread?.map((t, i, arr) =>
                         i < 3 ? (
-                          <span key={i}>
-                            {i === 0 && ", "}@{tweet.user.username}
-                            {arr.length - 1 != i && <span>,</span>}{" "}
-                          </span>
+                          t.user.username !== tweet.user.username && (
+                            <span key={i}>
+                              {i === 0 && ", "}@{t.user.username}
+                              {arr.length - 1 != i && <span>,</span>}{" "}
+                            </span>
+                          )
                         ) : (
                           <span key={i}>...</span>
                         ),

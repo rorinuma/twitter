@@ -1,6 +1,6 @@
 "use client";
 
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { useMemo, useRef, useState } from "react";
 import { FaXTwitter } from "react-icons/fa6";
 import api from "@/lib/axios";
@@ -14,6 +14,9 @@ import GoogleButton from "@/components/ui/buttons/GoogleButton";
 import Input from "@/components/shared/input/Input";
 import ErrorOverlay from "@/components/shared/overlays/ErrorOverlay";
 import { createPortal } from "react-dom";
+import { useAuth } from "@/context/authContext";
+import { normalizeUser } from "@/lib/tweetUtils";
+import { RawUser } from "@/types/user.types";
 
 type Errors = Partial<Record<keyof SignInSchemaType, string>> & {
   general?: string;
@@ -28,6 +31,8 @@ export default function SignIn() {
   });
   const [errors, setErrors] = useState<Errors>({});
   const pathname = usePathname();
+  const router = useRouter();
+  const { setUser } = useAuth();
 
   const isOpen = useMemo(() => {
     return pathname === "/signin";
@@ -56,14 +61,22 @@ export default function SignIn() {
       return;
     }
     try {
-      const { data } = await api.post(`/signin`, formData);
+      const { data } = await api.post<{ user: RawUser; message: string }>(
+        `/signin`,
+        formData,
+      );
       setErrors((prev) => ({ ...prev, general: "Login successful" }));
       if (data) {
-        window.location.reload();
+        setUser(normalizeUser(data.user));
+        router.replace("/home");
       }
     } catch (err) {
       if (axios.isAxiosError(err)) {
-        const general = err.response?.data;
+        const general =
+          err.response?.data ||
+          err.response?.data.message ||
+          err.response?.data.error ||
+          "Internal Server Error";
         setErrors((prev) => ({ ...prev, general }));
         setTimeout(() => {
           setErrors((prev) => ({ ...prev, general: undefined }));

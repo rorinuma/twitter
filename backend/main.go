@@ -15,9 +15,10 @@ import (
 func main() {
 	r := router.SetupRouter()
 
-	if err := godotenv.Load(); err != nil {
+	if err := godotenv.Load(".env.local"); err != nil {
 		log.Fatalf("Error loading .env file: %v", err)
 	}
+
 	if err := db.Connect(); err != nil {
 		log.Fatalf("Failed to connect to the database: %v", err)
 	}

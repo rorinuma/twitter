@@ -76,7 +76,7 @@ func CreateTweet(w http.ResponseWriter, r *http.Request) {
 
 		defer file.Close()
 
-		objectName := fmt.Sprintf("tweets/%d_%s", time.Now().UnixNano(), fileHeader.Filename)
+		objectName := fmt.Sprintf("%d_%s", time.Now().UnixNano(), fileHeader.Filename)
 		contentType := fileHeader.Header.Get("Content-Type")
 
 		uploadInfo, err := utils.MinioClient.PutObject(r.Context(), "tweets", objectName, file, fileHeader.Size, minio.PutObjectOptions{

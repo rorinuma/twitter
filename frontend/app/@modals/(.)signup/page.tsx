@@ -101,7 +101,11 @@ export default function SignUpModal() {
       router.push("/signin");
     } catch (err) {
       if (axios.isAxiosError(err)) {
-        const general = err.response?.data;
+        const general =
+          err.response?.data ||
+          err.response?.data.message ||
+          err.response?.data.error ||
+          "Internal Server Error";
         setErrors((prev) => ({ ...prev, general }));
         setTimeout(() => {
           setErrors((prev) => ({ ...prev, general: undefined }));

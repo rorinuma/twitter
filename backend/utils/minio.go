@@ -17,12 +17,11 @@ func InitMinio() error {
 	accessKeyID := os.Getenv("MINIO_ACCESS_KEY")
 	secretAccessKey := os.Getenv("MINIO_SECRET_KEY")
 
-	useSSL, _ := IsProduction()
-
 	client, err := minio.New(endpoint, &minio.Options{
 		Creds:  credentials.NewStaticV4(accessKeyID, secretAccessKey, ""),
-		Secure: useSSL,
+		Secure: false,
 	})
+
 	if err != nil {
 		log.Fatalln("Failed to connect to MinIO:", err)
 	}

@@ -104,11 +104,11 @@ func InsertNotificationToTweet(ctx context.Context, tweetID, actorID uuid.UUID, 
 		RETURNING id	
 	`
 
-	var insertedID uuid.UUID 
+	var insertedID uuid.UUID
 	err = db.Pool.QueryRow(ctx, query, tweetOwnerID, actorID, notifType, tweetID).Scan(&insertedID)
 
 	ws.WsManager.NotifyUser(tweetOwnerID.String(), "notification:new", nil)
-	
+
 	if err != nil {
 		return fmt.Errorf("failure inserting notification %w", err)
 	}
@@ -142,11 +142,11 @@ func DeleteTweetNotification(ctx context.Context, actorID, tweetID string, notif
 	`
 
 	_, err := db.Pool.Exec(ctx, query, actorID, tweetID, notifType)
-	
+
 	if err != nil {
 		return fmt.Errorf("failed to delete notification: %w", err)
 	}
-	
+
 	return nil
 }
 

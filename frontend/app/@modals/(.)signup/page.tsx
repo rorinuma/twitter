@@ -112,7 +112,7 @@ export default function SignUpModal() {
         }, 3000);
 
         console.error(
-          "error in signup handleSubmit",
+          "error submitting user info while signing up",
           err.response?.data || err.message,
         );
       } else {
@@ -123,7 +123,10 @@ export default function SignUpModal() {
         setTimeout(() => {
           setErrors((prev) => ({ ...prev, general: undefined }));
         }, 3000);
-        console.error("unknown error in signup handleSubmit", err);
+        console.error(
+          "unknown error while submitting user info while signing up",
+          err,
+        );
       }
     }
   };

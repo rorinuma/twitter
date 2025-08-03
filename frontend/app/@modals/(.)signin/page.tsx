@@ -83,7 +83,7 @@ export default function SignIn() {
         }, 3000);
 
         console.error(
-          "error in signin handleSubmit",
+          "error submitting user info while signing in",
           err.response?.data || err.message,
         );
         return;
@@ -95,7 +95,7 @@ export default function SignIn() {
       setTimeout(() => {
         setErrors((prev) => ({ ...prev, general: undefined }));
       }, 3000);
-      console.error("unknown error in sigin handleSubmit", err);
+      console.error("unknown error submitting user info while signing in", err);
     }
   };
 

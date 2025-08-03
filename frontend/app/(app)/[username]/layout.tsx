@@ -67,10 +67,23 @@ export default function ProfileLayout({
     );
   }
 
+  const goHome = () => {
+    if (user) {
+      return router.replace("/home");
+    }
+    router.replace("/");
+  };
+
   if (!owner && !isLoading) {
     return (
-      <div className="flex items-center justify-center w-full h-dvh">
-        Not found
+      <div className="flex flex-col items-center justify-center w-full h-dvh">
+        <div>Page not Found</div>
+        <button
+          className="flex items-center justify-center px-3 py-2 bg-blue w-[200px] font-bold hover:opacity-90 duration-(--hover-duration) mt-3 text-foreground rounded-full"
+          onClick={goHome}
+        >
+          Home
+        </button>
       </div>
     );
   }

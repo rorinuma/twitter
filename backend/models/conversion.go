@@ -5,7 +5,6 @@ import (
 	"github.com/jackc/pgx/v5/pgtype"
 )
 
-
 func UUIDFromPgType(pgUUID pgtype.UUID) *uuid.UUID {
 	if !pgUUID.Valid {
 		return nil

@@ -80,7 +80,7 @@ func LoginUser(w http.ResponseWriter, r *http.Request) {
 		Name:     "token",
 		Value:    token,
 		HttpOnly: true,
-		Secure: secure,
+		Secure:   secure,
 		MaxAge:   7 * 24 * 60 * 60,
 		Path:     "/",
 		SameSite: sameSite,
@@ -98,7 +98,7 @@ func LoginUser(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(map[string]any{
 		"message": "success",
-		"user": userData,
+		"user":    userData,
 	})
 }
 
@@ -126,7 +126,7 @@ func Me(w http.ResponseWriter, r *http.Request) {
 func GetUserByUsername(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	username := vars["username"]
-	
+
 	user, err := repositories.FindOneByUsername(r.Context(), username)
 	if err != nil {
 		log.Println("User not found: ", err)
@@ -146,13 +146,13 @@ func Signout(w http.ResponseWriter, r *http.Request) {
 	secure, sameSite := utils.IsProduction()
 
 	http.SetCookie(w, &http.Cookie{
-		Name: "token",
-		Value: "",
-		Path: "/",
-		Expires: time.Unix(0, 0),
-		MaxAge: -1,
+		Name:     "token",
+		Value:    "",
+		Path:     "/",
+		Expires:  time.Unix(0, 0),
+		MaxAge:   -1,
 		HttpOnly: true,
-		Secure: secure,
+		Secure:   secure,
 		SameSite: sameSite,
 	})
 
@@ -176,7 +176,7 @@ func SearchDisplayName(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if err = json.NewEncoder(w).Encode(map[string]interface{}{
-		"users": users,
+		"users":   users,
 		"message": "Successfully fetched users",
 	}); err != nil {
 		http.Error(w, "Internal server error", http.StatusInternalServerError)
@@ -186,7 +186,7 @@ func SearchDisplayName(w http.ResponseWriter, r *http.Request) {
 
 func UpdateProfile(w http.ResponseWriter, r *http.Request) {
 	userID, ok := utils.GetUserIDFromContext(r.Context())
-	
+
 	if !ok {
 		log.Println("User is unauthorized")
 		http.Error(w, "User is unauthorized", http.StatusUnauthorized)
@@ -197,7 +197,7 @@ func UpdateProfile(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		http.Error(w, "Invalid form", http.StatusBadRequest)
 		return
-	}	
+	}
 
 	displayName := r.FormValue("displayName")
 	bio := r.FormValue("bio")
@@ -276,9 +276,9 @@ func UpdateProfile(w http.ResponseWriter, r *http.Request) {
 func FollowUser(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	username := vars["username"]
-	
+
 	id, ok := utils.GetUserIDFromContext(r.Context())
-	
+
 	if !ok {
 		log.Println("User is unauthorized")
 		http.Error(w, "Unauthorized", http.StatusUnauthorized)
@@ -303,9 +303,9 @@ func FollowUser(w http.ResponseWriter, r *http.Request) {
 func UnfollowUser(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	username := vars["username"]
-	
+
 	id, ok := utils.GetUserIDFromContext(r.Context())
-	
+
 	if !ok {
 		log.Println("Unauthorized")
 		http.Error(w, "Unauthorized", http.StatusUnauthorized)
@@ -328,4 +328,3 @@ func UnfollowUser(w http.ResponseWriter, r *http.Request) {
 		log.Printf("Failed to write response: %v", err)
 	}
 }
-

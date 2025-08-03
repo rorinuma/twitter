@@ -15,7 +15,7 @@ import (
 func main() {
 	r := router.SetupRouter()
 
-	if err := godotenv.Load(".env.local"); err != nil {
+	if err := godotenv.Load(); err != nil {
 		log.Fatalf("Error loading .env file: %v", err)
 	}
 

@@ -63,6 +63,14 @@ export default function Nav() {
 
   return (
     <nav className="hidden xs:flex flex-col justify-between sticky top-0 flex-1/12 xl:flex-2/12 grow-0 shrink-0 max-h-dvh">
+      {!user && (
+        <Link
+          className="hover:bg-nav-hover p-3 rounded-full max-w-fit duration-(--hover-duration)"
+          href="/"
+        >
+          <FaXTwitter className="size-7" />
+        </Link>
+      )}
       {user && (
         <>
           <div className="flex xl:items-start items-center flex-col xl:mr-8 mt-0.5">

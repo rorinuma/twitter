@@ -36,8 +36,8 @@ cp .env.example .env
 # Backend environment
 cp backend/.env.example backend/.env
 
-# Frontend environment
 cp frontend/.env.example frontend/.env
+# Frontend environment
 ```
 
 ### 3. Start the application

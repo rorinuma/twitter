@@ -220,24 +220,23 @@ const BaseJoins = `
     LEFT JOIN tweets ort ON ort.id = ot.in_reply_to_tweet_id
     LEFT JOIN users oru ON oru.id = ort.user_id`
 
-
 func BuildTweetQuery(whereClause string, includeRepliesJSON bool) string {
-    fields := []string{
-        TweetFields,
-        UserFields,
-        ReplyTweetFields,
-        ReplyUserFields,
-        OriginalTweetFields,
-        OriginalUserFields,
-        OriginalReplyTweetFields,
-        OriginalReplyUserFields,
-        StatusFields,
-    }
-    if includeRepliesJSON {
-        fields = append(fields[:4], append([]string{ReplyJSONFields}, fields[4:]...)...)
-    }
+	fields := []string{
+		TweetFields,
+		UserFields,
+		ReplyTweetFields,
+		ReplyUserFields,
+		OriginalTweetFields,
+		OriginalUserFields,
+		OriginalReplyTweetFields,
+		OriginalReplyUserFields,
+		StatusFields,
+	}
+	if includeRepliesJSON {
+		fields = append(fields[:4], append([]string{ReplyJSONFields}, fields[4:]...)...)
+	}
 
-    return fmt.Sprintf(`
+	return fmt.Sprintf(`
         SELECT %s
         %s
         %s
@@ -281,4 +280,3 @@ func BuildThreadQuery() string {
 		BaseJoins,
 	)
 }
-

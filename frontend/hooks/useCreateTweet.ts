@@ -3,10 +3,7 @@ import { createTweet } from "@/lib/queries/tweets.queries";
 import { useAuth } from "@/context/authContext";
 import { Tweet, TweetsType } from "@/types/tweets.types";
 
-export const useCreateTweet = (
-  types: TweetsType | TweetsType[],
-  ownerId?: string,
-) => {
+export const useCreateTweet = (types: TweetsType | TweetsType[]) => {
   const queryClient = useQueryClient();
   const { user } = useAuth();
 
@@ -16,7 +13,7 @@ export const useCreateTweet = (
       const typesArray = Array.isArray(types) ? types : [types];
 
       typesArray.forEach((type) => {
-        queryClient.setQueryData(["tweets", type, ownerId], (oldData: any) => {
+        queryClient.setQueryData(["tweets", type], (oldData: any) => {
           if (!oldData) return oldData;
 
           let replyToTweet: Tweet | undefined;

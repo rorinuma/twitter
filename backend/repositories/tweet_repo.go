@@ -45,7 +45,6 @@ func CreateTweet(ctx context.Context, input models.CreateTweetInput) (*models.Tw
 		return nil, err
 	}
 
-
 	actorID := input.UserID
 
 	if input.OriginalTweetID != nil {
@@ -57,7 +56,6 @@ func CreateTweet(ctx context.Context, input models.CreateTweetInput) (*models.Tw
 		if err != nil {
 			return nil, err
 		}
-
 
 		if *input.Content == "" {
 			notifErr := InsertNotificationToTweet(ctx, *input.OriginalTweetID, actorID, models.NotificationRetweet)
@@ -109,7 +107,7 @@ func CreateTweet(ctx context.Context, input models.CreateTweetInput) (*models.Tw
 	for _, followerID := range followerIDs {
 		ws.WsManager.NotifyUser(followerID, "tweet:new", map[string]interface{}{
 			"tweet_id": tweet.ID,
-			"user_id": tweet.UserID,
+			"user_id":  tweet.UserID,
 		})
 	}
 
@@ -171,7 +169,7 @@ func DeleteRetweet(ctx context.Context, originalTweetID, userID string) (*uuid.U
 		AND content = ''
 		RETURNING original_tweet_id, id
 	`
-	var ( 
+	var (
 		origTweetID *uuid.UUID
 		retweetID   *uuid.UUID
 	)
@@ -191,10 +189,10 @@ func DeleteRetweet(ctx context.Context, originalTweetID, userID string) (*uuid.U
 	if err != nil {
 		return nil, nil, err
 	}
-		notifErr := DeleteTweetNotification(ctx, userID, originalTweetID, models.NotificationQuote)
-		if notifErr != nil {
-			log.Printf("Failed to delete retweet notification: %v", notifErr)
-		}
+	notifErr := DeleteTweetNotification(ctx, userID, originalTweetID, models.NotificationQuote)
+	if notifErr != nil {
+		log.Printf("Failed to delete retweet notification: %v", notifErr)
+	}
 
 	return origTweetID, newCount, nil
 }
@@ -255,10 +253,10 @@ func UnlikeTweet(ctx context.Context, userID, tweetID string) (*uuid.UUID, error
 	`, tweetID)
 
 	fmt.Printf("delete like notif tweetID: %v, userID: %v", userID, tweetID)
-		notifErr := DeleteTweetNotification(ctx, userID, tweetID, models.NotificationLike)
-		if notifErr != nil {
-			log.Printf("Failed to delete like notification: %v", notifErr)
-		}
+	notifErr := DeleteTweetNotification(ctx, userID, tweetID, models.NotificationLike)
+	if notifErr != nil {
+		log.Printf("Failed to delete like notification: %v", notifErr)
+	}
 
 	return deletedID, nil
 }

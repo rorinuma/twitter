@@ -8,34 +8,34 @@ import (
 )
 
 type User struct {
-	ID           uuid.UUID `json:"id"`
-	Username     string    `json:"username"`
-	Email        string    `json:"email"`
-	PasswordHash string    `json:"-"`
-	DisplayName  *string   `json:"display_name,omitempty"`
-	Bio          *string   `json:"bio,omitempty"`
-	AvatarURL    *string   `json:"avatar_url,omitempty"`
-	BannerURL    *string   `json:"banner_url,omitempty"`
-	IsVerified   bool      `json:"is_verified"`
-	CreatedAt    time.Time `json:"created_at"`
-	UpdatedAt    time.Time `json:"updated_at"`
-	Following    []string  `json:"following"`
-	Followers    []string  `json:"followers"`
-	FollowersCount int     
+	ID             uuid.UUID `json:"id"`
+	Username       string    `json:"username"`
+	Email          string    `json:"email"`
+	PasswordHash   string    `json:"-"`
+	DisplayName    *string   `json:"display_name,omitempty"`
+	Bio            *string   `json:"bio,omitempty"`
+	AvatarURL      *string   `json:"avatar_url,omitempty"`
+	BannerURL      *string   `json:"banner_url,omitempty"`
+	IsVerified     bool      `json:"is_verified"`
+	CreatedAt      time.Time `json:"created_at"`
+	UpdatedAt      time.Time `json:"updated_at"`
+	Following      []string  `json:"following"`
+	Followers      []string  `json:"followers"`
+	FollowersCount int
 }
 
 type UserRow struct {
-	ID           pgtype.UUID
-	Username     pgtype.Text
-	Email        pgtype.Text
-	DisplayName  pgtype.Text
-	AvatarURL    pgtype.Text
-	BannerURL    pgtype.Text
-	IsVerified   pgtype.Bool
-	CreatedAt    pgtype.Timestamptz
-	UpdatedAt    pgtype.Timestamptz
-	Following    *[]string
-	Followers    *[]string
+	ID          pgtype.UUID
+	Username    pgtype.Text
+	Email       pgtype.Text
+	DisplayName pgtype.Text
+	AvatarURL   pgtype.Text
+	BannerURL   pgtype.Text
+	IsVerified  pgtype.Bool
+	CreatedAt   pgtype.Timestamptz
+	UpdatedAt   pgtype.Timestamptz
+	Following   *[]string
+	Followers   *[]string
 }
 
 func (u *UserRow) ToUser() User {
@@ -66,9 +66,9 @@ type LoginUserInput struct {
 }
 
 type UpdateProfileInput struct {
-		UserID 			 string   `json:"user_id"`
-		DisplayName  *string  `json:"display_name"`
-		Bio          *string  `json:"bio"`
-		AvatarURL    *string  `json:"avatar_url"`
-		BannerURL    *string  `json:"banner_url"`
+	UserID      string  `json:"user_id"`
+	DisplayName *string `json:"display_name"`
+	Bio         *string `json:"bio"`
+	AvatarURL   *string `json:"avatar_url"`
+	BannerURL   *string `json:"banner_url"`
 }

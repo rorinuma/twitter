@@ -26,7 +26,9 @@ export default function FollowButton({
     setFollowed(!!currentUser?.following.includes(user.username));
   }, [currentUser, user.username]);
 
-  const handleFollow = async () => {
+  const handleFollow = async (e: React.MouseEvent) => {
+    e.stopPropagation();
+
     if (!currentUser) {
       setIsModalVisible(true);
       return;

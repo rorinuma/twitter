@@ -22,13 +22,13 @@ type Tweet struct {
 	CreatedAt        time.Time  `json:"created_at"`
 	UpdatedAt        time.Time  `json:"updated_at"`
 	IsLiked          bool       `json:"is_liked"`
-	IsRetweeted 		 bool       `json:"is_retweeted"`
+	IsRetweeted      bool       `json:"is_retweeted"`
 	IsViewed         bool       `json:"is_viewed"`
 	IsBookmarked     bool       `json:"is_bookmarked"`
 	User             User       `json:"user"`
 	ReplyTo          *Tweet     `json:"reply_to,omitempty"`
-	Replies          *[]Tweet  	`json:"replies,omitempty"`					 
-	Thread 					 *[]Tweet   `json:"thread,omitempty"` 
+	Replies          *[]Tweet   `json:"replies,omitempty"`
+	Thread           *[]Tweet   `json:"thread,omitempty"`
 	RetweetedTweet   *Tweet     `json:"retweeted_tweet,omitempty"`
 	QuotedTweet      *Tweet     `json:"quoted_tweet,omitempty"`
 }
@@ -76,9 +76,8 @@ func (t *TweetRow) ToTweet(user User, replyTo, quotedTweet, retweetedTweet *Twee
 		ReplyTo:          replyTo,
 		QuotedTweet:      quotedTweet,
 		RetweetedTweet:   retweetedTweet,
-	}	
+	}
 }
-
 
 type CreateTweetInput struct {
 	UserID           uuid.UUID  `json:"userId"`
@@ -96,6 +95,5 @@ type StatusResponse struct {
 }
 
 type TweetDeletedResponse struct {
-	Message string 
+	Message string
 }
-

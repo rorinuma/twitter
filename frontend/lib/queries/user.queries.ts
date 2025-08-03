@@ -2,7 +2,6 @@ import { RawUser } from "@/types/user.types";
 import axios from "axios";
 import { normalizeUser } from "../tweetUtils";
 import api from "../axios";
-import { RawTweet } from "@/types/tweets.types";
 
 export const getUserByUsername = async (username: string) => {
   try {

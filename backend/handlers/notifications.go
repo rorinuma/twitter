@@ -29,7 +29,7 @@ func GetNotifications(w http.ResponseWriter, r *http.Request) {
 
 	response := map[string]interface{}{
 		"notifications": notifications,
-		"message": "Successfully received notifications",
+		"message":       "Successfully received notifications",
 	}
 
 	if err := json.NewEncoder(w).Encode(response); err != nil {
@@ -86,7 +86,7 @@ func GetNotificationCount(w http.ResponseWriter, r *http.Request) {
 
 	response := map[string]any{
 		"message": "Count fetched successfully",
-		"count": count,
+		"count":   count,
 	}
 
 	if err := json.NewEncoder(w).Encode(response); err != nil {

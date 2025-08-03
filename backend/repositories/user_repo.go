@@ -114,12 +114,12 @@ func FindAllByDisplayName(ctx context.Context, displayName string) ([]models.Use
 			&u.ID, &u.Username, &u.Email, &u.DisplayName, &u.Bio, &u.AvatarURL,
 			&u.BannerURL, &u.IsVerified, &u.CreatedAt, &u.UpdatedAt,
 			&u.Following, &u.Followers, &u.FollowersCount,
-			)
-		
+		)
+
 		if err != nil {
 			return nil, fmt.Errorf("Failed to scan user: %w", err)
 		}
-		users = append(users, u) 
+		users = append(users, u)
 	}
 
 	if err := rows.Err(); err != nil {
@@ -129,7 +129,6 @@ func FindAllByDisplayName(ctx context.Context, displayName string) ([]models.Use
 	if len(users) == 0 {
 		return nil, fmt.Errorf("No user found with display name: %s", displayName)
 	}
-
 
 	return users, nil
 }
@@ -168,7 +167,6 @@ func UpdateProfile(ctx context.Context, input models.UpdateProfileInput) (*model
 		is_verified, created_at, updated_at
 	`
 
-
 	user := &models.User{}
 	err := db.Pool.QueryRow(ctx, query,
 		input.DisplayName,
@@ -176,7 +174,7 @@ func UpdateProfile(ctx context.Context, input models.UpdateProfileInput) (*model
 		input.AvatarURL,
 		input.BannerURL,
 		input.UserID,
-		).Scan(
+	).Scan(
 		&user.ID,
 		&user.Username,
 		&user.Email,
@@ -187,7 +185,7 @@ func UpdateProfile(ctx context.Context, input models.UpdateProfileInput) (*model
 		&user.IsVerified,
 		&user.CreatedAt,
 		&user.UpdatedAt,
-		)
+	)
 
 	if err != nil {
 		return nil, err
@@ -219,8 +217,7 @@ func FollowUser(ctx context.Context, username, userID string) (*uuid.UUID, error
 		return nil, fmt.Errorf("failed to insert follow relationship: %w", err)
 	}
 
-
-	actorID := userID 
+	actorID := userID
 
 	err = InsertFollowNotification(ctx, actorID, userIDToFollow.String(), models.NotificationFollow)
 	if err != nil {
@@ -254,12 +251,10 @@ func UnfollowUser(ctx context.Context, username, userID string) error {
 	userIDStr := userIDToFollow.String()
 
 	actorID := userID
-	err = DeleteFollowNotification(ctx, actorID, userIDStr) 
+	err = DeleteFollowNotification(ctx, actorID, userIDStr)
 	if err != nil {
 		log.Printf("Failed to create notification: %v", err)
 	}
 
 	return nil
 }
-
-

@@ -43,7 +43,7 @@ func ScanTweetRow(rows pgx.Rows) ([]models.Tweet, error) {
 			&oru.ID, &oru.Username, &oru.Email, &oru.DisplayName, &oru.AvatarURL, &oru.BannerURL, &oru.IsVerified,
 			&oru.CreatedAt, &oru.UpdatedAt, &oru.Following, &oru.Followers,
 			// Status fields
-			&t.IsLiked, &t.IsRetweeted, &t.IsViewed, &t.IsBookmarked, &ot.IsLiked, &ot.IsViewed,  &ot.IsBookmarked,
+			&t.IsLiked, &t.IsRetweeted, &t.IsViewed, &t.IsBookmarked, &ot.IsLiked, &ot.IsViewed, &ot.IsBookmarked,
 		)
 		if err != nil {
 			return nil, fmt.Errorf("failed to scan tweet: %w", err)

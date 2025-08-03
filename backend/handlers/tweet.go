@@ -62,7 +62,6 @@ func CreateTweet(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-
 	files := r.MultipartForm.File["files"]
 
 	var mediaURLs []string
@@ -111,7 +110,7 @@ func CreateTweet(w http.ResponseWriter, r *http.Request) {
 		Content:          &text,
 		InReplyToTweetID: replyTo,
 		ReplyPermission:  replyPermission,
-		OriginalTweetID: 	originalTweetID,
+		OriginalTweetID:  originalTweetID,
 		MentionedUsers:   &mentionedUsers,
 		MediaURLs:        &mediaURLs,
 	}
@@ -127,16 +126,16 @@ func CreateTweet(w http.ResponseWriter, r *http.Request) {
 
 func GetTweets(w http.ResponseWriter, r *http.Request) {
 	_, limit, offset := utils.GetPaginationParams(r)
-	
+
 	id, ok := utils.GetUserIDFromContext(r.Context())
-	
+
 	if !ok {
 		log.Println("User is unauthorized")
 		http.Error(w, "Unauthorized", http.StatusUnauthorized)
 		return
 	}
 
-	tweets, err := repositories.GetTweets(r.Context(), id, limit + 1, offset)
+	tweets, err := repositories.GetTweets(r.Context(), id, limit+1, offset)
 	if err != nil {
 		log.Printf("Failed to get tweets: %v", err)
 		http.Error(w, "Failed to get tweets", http.StatusInternalServerError)
@@ -150,7 +149,7 @@ func GetTweets(w http.ResponseWriter, r *http.Request) {
 	}
 
 	response := map[string]interface{}{
-		"tweets": tweets,
+		"tweets":  tweets,
 		"hasMore": hasMore,
 	}
 
@@ -162,16 +161,16 @@ func GetTweets(w http.ResponseWriter, r *http.Request) {
 
 func GetFollowingTweets(w http.ResponseWriter, r *http.Request) {
 	_, limit, offset := utils.GetPaginationParams(r)
-	
+
 	id, ok := utils.GetUserIDFromContext(r.Context())
-	
+
 	if !ok {
 		log.Println("User is unauthorized")
 		http.Error(w, "Unauthorized", http.StatusUnauthorized)
 		return
 	}
 
-	tweets, err := repositories.GetFollowingTweets(r.Context(), id, limit + 1, offset)
+	tweets, err := repositories.GetFollowingTweets(r.Context(), id, limit+1, offset)
 	if err != nil {
 		log.Printf("Failed to get following tweets: %v", err)
 		http.Error(w, "Failed to get following tweets", http.StatusInternalServerError)
@@ -185,7 +184,7 @@ func GetFollowingTweets(w http.ResponseWriter, r *http.Request) {
 	}
 
 	response := map[string]interface{}{
-		"tweets": tweets,
+		"tweets":  tweets,
 		"hasMore": hasMore,
 	}
 
@@ -201,17 +200,17 @@ func GetPosts(w http.ResponseWriter, r *http.Request) {
 	ownerID := query.Get("ownerID")
 
 	_, limit, offset := utils.GetPaginationParams(r)
-	
+
 	userIDStr, ok := utils.GetUserIDFromContext(r.Context())
 
 	var userID *string
-	if(!ok) {
+	if !ok {
 		userID = nil
 	} else {
 		userID = &userIDStr
 	}
-	tweets, err := repositories.GetPostsByID(r.Context(), userID, ownerID, limit + 1, offset)
-	
+	tweets, err := repositories.GetPostsByID(r.Context(), userID, ownerID, limit+1, offset)
+
 	if err != nil {
 		log.Printf("Failed to get tweets by ownerID: %v", err)
 		http.Error(w, "Failed to get tweets by ownerID", http.StatusInternalServerError)
@@ -225,7 +224,7 @@ func GetPosts(w http.ResponseWriter, r *http.Request) {
 	}
 
 	response := map[string]interface{}{
-		"tweets": tweets,
+		"tweets":  tweets,
 		"hasMore": hasMore,
 	}
 
@@ -244,11 +243,11 @@ func GetReplies(w http.ResponseWriter, r *http.Request) {
 	ownerID := query.Get("ownerID")
 
 	_, limit, offset := utils.GetPaginationParams(r)
-	
+
 	userID, _ := utils.GetUserIDFromContext(r.Context())
 
-	tweets, err := repositories.GetReplies(r.Context(), &userID, ownerID, limit + 1, offset)
-	
+	tweets, err := repositories.GetReplies(r.Context(), &userID, ownerID, limit+1, offset)
+
 	if err != nil {
 		log.Printf("Failed to get tweets by ownerID: %v", err)
 		http.Error(w, "Failed to get tweets by ownerID", http.StatusInternalServerError)
@@ -262,7 +261,7 @@ func GetReplies(w http.ResponseWriter, r *http.Request) {
 	}
 
 	response := map[string]interface{}{
-		"tweets": tweets,
+		"tweets":  tweets,
 		"hasMore": hasMore,
 	}
 
@@ -281,7 +280,6 @@ func GetLiked(w http.ResponseWriter, r *http.Request) {
 
 	_, limit, offset := utils.GetPaginationParams(r)
 
-	
 	userID, ok := utils.GetUserIDFromContext(r.Context())
 
 	if !ok {
@@ -290,8 +288,8 @@ func GetLiked(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	tweets, err := repositories.GetLiked(r.Context(), &userID, ownerID, limit + 1, offset)
-	
+	tweets, err := repositories.GetLiked(r.Context(), &userID, ownerID, limit+1, offset)
+
 	if err != nil {
 		log.Printf("Failed to get tweets by ownerID: %v", err)
 		http.Error(w, "Failed to get tweets by ownerID", http.StatusInternalServerError)
@@ -305,7 +303,7 @@ func GetLiked(w http.ResponseWriter, r *http.Request) {
 	}
 
 	response := map[string]interface{}{
-		"tweets": tweets,
+		"tweets":  tweets,
 		"hasMore": hasMore,
 	}
 
@@ -321,12 +319,12 @@ func GetTweetByID(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	id := vars["id"]
 
-	var userID *string	
+	var userID *string
 	userIDStr, ok := utils.GetUserIDFromContext(r.Context())
 
 	if !ok {
 		userID = nil
-	} else  {
+	} else {
 		userID = &userIDStr
 	}
 
@@ -369,7 +367,7 @@ func LikeTweet(w http.ResponseWriter, r *http.Request) {
 	}
 
 	var response = map[string]string{
-		"message": "Tweet liked",
+		"message":    "Tweet liked",
 		"tweetLiked": id.String(),
 	}
 
@@ -402,7 +400,7 @@ func UnlikeTweet(w http.ResponseWriter, r *http.Request) {
 	}
 
 	response := map[string]string{
-		"message": "Tweet successfully unliked",
+		"message":   "Tweet successfully unliked",
 		"deletedId": deletedID.String(),
 	}
 
@@ -465,9 +463,9 @@ func DeleteRetweet(w http.ResponseWriter, r *http.Request) {
 	}
 
 	response := map[string]interface{}{
-		"message": "Repost deleted successfully",
+		"message":         "Repost deleted successfully",
 		"originalTweetId": origTweetID.String(),
-		"retweetsCount": retweetsCount,
+		"retweetsCount":   retweetsCount,
 	}
 
 	w.Header().Set("Content-Type", "application/json")
@@ -500,7 +498,7 @@ func ViewTweet(w http.ResponseWriter, r *http.Request) {
 
 	response := map[string]string{
 		"message": "view added successfully",
-		"id": id.String(),
+		"id":      id.String(),
 	}
 
 	w.Header().Set("Content-Type", "application/json")
@@ -533,7 +531,7 @@ func BookmarkTweet(w http.ResponseWriter, r *http.Request) {
 
 	response := map[string]string{
 		"message": "bookmark added successfully",
-		"id": id.String(),
+		"id":      id.String(),
 	}
 
 	w.Header().Set("Content-Type", "application/json")
@@ -566,7 +564,7 @@ func DeleteTweetBookmark(w http.ResponseWriter, r *http.Request) {
 
 	response := map[string]string{
 		"message": "bookmark deleted successfully",
-		"id": id.String(),
+		"id":      id.String(),
 	}
 
 	w.Header().Set("Content-Type", "application/json")

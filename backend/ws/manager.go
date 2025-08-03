@@ -12,7 +12,7 @@ import (
 
 type Client struct {
 	UserID string
-	Conn *websocket.Conn
+	Conn   *websocket.Conn
 }
 
 type Manager struct {
@@ -49,7 +49,7 @@ func (m *Manager) NotifyUser(userID, eventType string, payload any) error {
 	defer m.lock.RUnlock()
 	client, exists := m.clients[userID]
 	if !exists {
-		return nil 
+		return nil
 	}
 
 	err := client.Conn.WriteJSON(map[string]any{
@@ -84,7 +84,7 @@ func WebSocketHandler(w http.ResponseWriter, r *http.Request) {
 	defer WsManager.RemoveClient(userID)
 
 	for {
-		_, _, err := conn.ReadMessage() 
+		_, _, err := conn.ReadMessage()
 		if err != nil {
 			break
 		}

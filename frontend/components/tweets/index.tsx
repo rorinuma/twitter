@@ -100,7 +100,7 @@ export default function TweetCard({
     }
   }, [tweet?.id, tweet?.isViewed, inView, user]);
 
-  const handleTweetClick = (e: React.MouseEvent<HTMLDivElement>) => {
+  const handleTweetClick = (e: React.MouseEvent<HTMLElement>) => {
     e.stopPropagation();
     if (
       variant === "compose-reply" ||
@@ -159,7 +159,7 @@ export default function TweetCard({
   return (
     <>
       {tweet && (
-        <div
+        <article
           className={clsx("duration-(--hover-duration)", {
             "border-y border-y-border hover:bg-tweet-hover cursor-pointer w-full":
               variant === "default" && !replyBar,
@@ -430,7 +430,7 @@ export default function TweetCard({
             floatingStyles={floatingStyles}
             open={open}
           />
-        </div>
+        </article>
       )}
       {error && createPortal(<ErrorOverlay error={error} />, document.body)}
     </>

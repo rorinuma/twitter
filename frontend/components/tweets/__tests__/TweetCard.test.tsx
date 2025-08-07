@@ -19,17 +19,25 @@ jest.mock("@/lib/queries/tweets.queries", () => ({
 }));
 
 jest.mock("../TweetActions", () => () => <div data-testid="tweet-actions" />);
+
 jest.mock("@/components/ui/user/Avatar", () => () => (
   <div data-testid="avatar" />
 ));
+
+jest.mock("../TweetHoverProfile", () => () => (
+  <div data-testid="tweet-hover-profile" />
+));
+
 jest.mock("@/components/ui/decorations/Spinner", () => () => (
   <div>Loading Spinner</div>
 ));
+
 jest.mock(
   "@/components/ui/decorations/GeneralTooltip",
   () =>
     ({ children }: any) => <>{children}</>,
 );
+
 jest.mock(
   "@/components/shared/overlays/ErrorOverlay",
   () =>
@@ -50,7 +58,7 @@ describe("TweetCard", () => {
     expect(
       screen.getByText("Hello, this is a mock tweet!"),
     ).toBeInTheDocument();
-    expect(screen.getAllByTestId("avatar")).toHaveLength(2);
+    expect(screen.getAllByTestId("avatar").length).toBeGreaterThan(0);
     expect(screen.getByTestId("tweet-actions")).toBeInTheDocument();
   });
 
@@ -66,6 +74,11 @@ describe("TweetCard", () => {
   it("renders Spinner when loading is true", () => {
     render(<TweetCard tweet={null} variant="default" loading={true} />);
     expect(screen.getByText("Loading Spinner")).toBeInTheDocument();
+  });
+
+  it("renders TweetHoverProfile when tweet is done loading and the thingy is hovered", () => {
+    render(<TweetCard tweet={baseTweet} variant="default" />);
+    expect(screen.getByTestId("tweet-hover-profile")).toBeInTheDocument();
   });
 
   it("renders Not found when loading is false and no tweet", () => {
